@@ -1,6 +1,8 @@
-# crplyr
+# crplyr: A 'dplyr' Interface for Crunch
 
 [![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr)
+
+
 
 ## How to finish setting up your new package
 
