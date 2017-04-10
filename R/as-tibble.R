@@ -1,5 +1,7 @@
+#' @export
 #' @importFrom tibble as_tibble
 as_tibble.CrunchCube <- function (x, ...) {
+    ## TODO: Consider using `dplyr::tbl_cube` class
     ## 1) expand.grid the dimnames
     ## TODO: NA behavior? Add way to get missings not missing. (This uses
     ## as.array to remove extraneous dims, and doing so applies the '@useNA'

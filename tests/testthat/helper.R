@@ -1,6 +1,8 @@
 Sys.setlocale("LC_COLLATE", "C") ## What CRAN does; affects sort order
 set.seed(999) ## To ensure that tests that involve randomness are reproducible
 
+"%>%" <- magrittr::`%>%`
+
 with_mock_crunch <- function (expr) {
     with(temp.option(crunch.api="https://app.crunch.io/api/"), {
         ## TODO: Move the test.api switch to with_test_authentication

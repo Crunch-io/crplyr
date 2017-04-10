@@ -6,7 +6,7 @@
 }
 
 ## Use existing methods
-# -   `select()` picks variables based on their names.
+# x   `select()` picks variables based on their names.
 # -   `filter()` picks cases based on their values.
 
 ## Add subclass for this?
