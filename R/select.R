@@ -1,5 +1,5 @@
 #' @export
-#' @importFrom dplyr select_ select_vars
+#' @importFrom dplyr select_ select_vars_
 #' @importFrom lazyeval all_dots
 select_.CrunchDataset <- function (.data, ..., .dots) {
     dots <- all_dots(.dots, ...)

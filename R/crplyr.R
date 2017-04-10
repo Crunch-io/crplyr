@@ -7,7 +7,7 @@
 
 ## Use existing methods
 # x   `select()` picks variables based on their names.
-# -   `filter()` picks cases based on their values.
+# x   `filter()` picks cases based on their values.
 
 ## Add subclass for this?
 # -   `mutate()` adds new variables that are functions of existing variables

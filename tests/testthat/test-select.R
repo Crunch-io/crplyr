@@ -15,4 +15,11 @@ with_mock_crunch({
         expect_identical(select(ds, gender:textVar),
             ds[c("gender", "mymrset", "textVar")])
     })
+
+    test_that("Select then filter", {
+        both <- ds %>%
+            select(mymrset, starttime, gender) %>%
+            filter(gender == "Male")
+        expect_identical(both, ds[ds$gender == "Male", c("mymrset", "starttime", "gender")])
+    })
 })
