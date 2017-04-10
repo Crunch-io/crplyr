@@ -17,7 +17,7 @@ BugReports: https://github.com/Crunch-io/crplyr/issues
 License: MIT + file LICENSE
 Depends:
     R (>= 3.0.0),
-    crunch,
+    crunch (>= 1.15.3),
     dplyr
 Imports:
     lazyeval,

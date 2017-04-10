@@ -14,11 +14,11 @@
 # -   `group_by()` which allows you to perform any operation "by group"
 
 ## Wrap crtabs/as.data.frame and return tibble
-# -   `summarise()` reduces multiple values down to a single summary.
+# x   `summarise()` reduces multiple values down to a single summary.
 # -   `collect()`
 
 ## Don't bother?
 # -   `arrange()` changes the ordering of the rows.
 
-## as_tbl for CrunchCube
+## x as_tbl for CrunchCube [still has TODOs]
 ## `locally` context to modify objects but not send to server?
