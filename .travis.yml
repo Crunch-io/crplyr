@@ -4,5 +4,7 @@ r:
   - oldrel
   - release
   - devel
+r_github_packages:
+  - Crunch-io/rcrunch
 after_success:
   - Rscript -e 'library(covr);codecov()'
