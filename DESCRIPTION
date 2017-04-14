@@ -5,7 +5,7 @@ Description: In order to facilitate analysis of datasets hosted by Crunch, the
     'crplyr' package implements 'dplyr' methods on top of the Crunch backend.
     The usual methods "select", "filter", "mutate", "group_by", and "summarize"
     are implemented in such a way as to perform as much computation on the
-    server and pull as little data locally as possible. 
+    server and pull as little data locally as possible.
 Version: 0.1.0
 Date: 2017-04-10
 Authors@R: person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io")
@@ -13,7 +13,7 @@ Author: Neal Richardson [aut, cre]
 Maintainer: Neal Richardson <neal@crunch.io>
 URL: https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
-License: MIT + file LICENSE
+License: LGPL (>= 3)
 Depends:
     R (>= 3.0.0),
     crunch (>= 1.15.3),
