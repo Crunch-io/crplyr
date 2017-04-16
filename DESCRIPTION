@@ -19,6 +19,7 @@ Depends:
     crunch (>= 1.15.3),
     dplyr
 Imports:
+    methods,
     lazyeval,
     tibble
 Suggests:

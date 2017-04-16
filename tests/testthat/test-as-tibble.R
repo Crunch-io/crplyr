@@ -47,10 +47,6 @@ with_mock_crunch({
         ## TODO: assert values are correct
     })
 
-    test_that("as_tibble with 1-D data array(s)", {
-        skip("TODO: need fixture")
-    })
-
     test_that("as_tibble with categorical array", {
         skip("TODO")
         print(book[[3]][[3]])
