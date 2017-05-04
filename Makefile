@@ -16,6 +16,7 @@ build: doc
 
 check: build
 	-export _R_CHECK_CRAN_INCOMING_REMOTE_=FALSE && R CMD check --as-cran crplyr_$(VERSION).tar.gz
+	if grep "* checking examples ... NONE" crplyr.Rcheck/00check.log; then echo 'Must add examples before submitting to CRAN!'; fi
 	rm -rf crplyr.Rcheck/
 
 man: doc

@@ -5,6 +5,13 @@
 #'
 #' @export
 #' @importFrom methods new
+#' @examples
+#' \dontrun{
+#' ds <- loadDataset("Your dataset name")
+#' class(ds) ## "CrunchDataset"
+#' grouped_ds <- group_by(ds, var1)
+#' class(grouped_ds) ## "GroupedCrunchDataset"
+#' }
 GroupedCrunchDataset <- setClass("GroupedCrunchDataset",
     contains="CrunchDataset",
     slots=c(groupBy="list"))

@@ -9,3 +9,11 @@
 This is a subclass of \code{CrunchDataset} that has a field for recording
 "group_by" expressions.
 }
+\examples{
+\dontrun{
+ds <- loadDataset("Your dataset name")
+class(ds) ## "CrunchDataset"
+grouped_ds <- group_by(ds, var1)
+class(grouped_ds) ## "GroupedCrunchDataset"
+}
+}

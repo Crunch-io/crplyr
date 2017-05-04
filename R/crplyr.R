@@ -5,20 +5,6 @@
     invisible()
 }
 
-## Use existing methods
-# x   `select()` picks variables based on their names.
-# x   `filter()` picks cases based on their values.
-
-## Add subclass for this?
+## TODO
 # -   `mutate()` adds new variables that are functions of existing variables
-# -   `group_by()` which allows you to perform any operation "by group"
-
-## Wrap crtabs/as.data.frame and return tibble
-# x   `summarise()` reduces multiple values down to a single summary.
 # -   `collect()`
-
-## Don't bother?
-# -   `arrange()` changes the ordering of the rows.
-
-## x as_tbl for CrunchCube [still has TODOs]
-## `locally` context to modify objects but not send to server?
