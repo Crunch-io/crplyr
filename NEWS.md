@@ -1,3 +1,5 @@
+## crplyr 0.1.1 (under development)
+
 ## crplyr 0.1.0
 
 Initial implementation of dplyr interface for Crunch, including
