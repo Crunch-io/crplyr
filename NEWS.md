@@ -1,4 +1,6 @@
-## crplyr 0.1.1 (under development)
+### crplyr 0.1.2
+
+* Update tests to use new setup provided in `crunch` 1.17.0.
 
 ## crplyr 0.1.0
 
