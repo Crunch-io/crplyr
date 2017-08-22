@@ -3,7 +3,7 @@ context("Cube to tibble")
 with_mock_crunch({
     ds <- loadDataset("test ds")
     ## Load a bunch of different cubes
-    with_POST("https://app.crunch.io/api/datasets/1/multitables/apidocs-tabbook.json", {
+    with_POST("https://app.crunch.io/api/datasets/1/multitables/apidocs-tabbook/", {
         book <- tabBook(multitables(ds)[[1]], data=ds)
     })
 

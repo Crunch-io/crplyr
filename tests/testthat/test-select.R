@@ -4,7 +4,7 @@ with_mock_crunch({
     ds <- loadDataset("test ds")
     test_that("Some facts about the fixture dataset", {
         expect_identical(names(ds),
-            c("birthyr", "gender", "mymrset", "textVar", "starttime", "catarray"))
+            c("birthyr", "gender", "location", "mymrset", "textVar", "starttime", "catarray"))
     })
 
     test_that("Basic 'select' equivalence", {
@@ -12,8 +12,8 @@ with_mock_crunch({
             ds[c("starttime", "birthyr", "gender")])
         expect_identical(select(ds, starts_with("m")),
             ds["mymrset"])
-        expect_identical(select(ds, gender:textVar),
-            ds[c("gender", "mymrset", "textVar")])
+        expect_identical(select(ds, mymrset:starttime),
+            ds[c("mymrset", "textVar", "starttime")])
     })
 
     test_that("Select then filter", {
