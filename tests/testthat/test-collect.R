@@ -1,0 +1,22 @@
+context("'collect' on CrunchDataset")
+
+with_mock_crunch({
+    ds <- loadDataset("test ds")
+    expected_df <- data_frame(
+        birthyr = c(0.57753, -1.0201, -1.4967, -1.1101, 
+            0.70392, 1.6662, -0.50294, 0.8415, 0.37829, -0.74401, -0.037001, 
+            1.0487, 0.64628, -1.2774, -0.79363, -0.18147, 0.19587, 0.19104, 
+            0.35474, -1.4009, -0.76175, -0.65557, 0.7368, -0.41492, -0.3103), 
+        gender = structure(c(2L, 2L, NA, 2L, 2L, 2L, 1L, NA, NA, 2L, 
+            1L, 2L, 1L, NA, NA, NA, 2L, 2L, 2L, NA, 1L, 1L, 1L, NA, 1L), 
+            .Label = c("Male", "Female"), class = "factor")
+        )
+    test_that("collect works as expected", {
+        expect_equal(
+            ds %>% 
+                select(gender, birthyr) %>% 
+                collect(),
+            expected_df
+        )
+    })
+})
