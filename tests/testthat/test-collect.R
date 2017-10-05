@@ -19,4 +19,7 @@ with_mock_crunch({
             expected_df
         )
     })
+    test_that("collect doesn't affect dplyr methods", {
+        expect_identical(mtcars, collect(mtcars))
+    })
 })

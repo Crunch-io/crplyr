@@ -3,13 +3,15 @@
 #'
 #' This function brings a crunch dataset into memory so that you can
 #' work with the data using R functions. Since this can create a long running
-#' query it is recommended to try to filter the dataset down as much as possible
+#' query it is recommended that you try to filter the dataset down as much as possible
 #' before running `collect()`.
-#' @param ds A crunch Dataset
+#' @param x A crunch Dataset
+#' @param ... Other arguments passed on to [tibble::as_data_frame()] 
 #'
 #' @return a tibble
 #' @export
 #' @importFrom tibble as_data_frame
+#' @importFrom dplyr collect
 #'
 #' @examples
 #' \dontrun{
@@ -17,8 +19,8 @@
 #'    select(cyl, gear) %>% 
 #'    collect()
 #' }
-collect <- function(ds) {
-    out <- lapply(ds, as.vector)
-    names(out) <- names(ds)
-    return(as_data_frame(out))
+collect.CrunchDataset <- function(x, ...) {
+    out <- lapply(x, as.vector)
+    names(out) <- names(x)
+    return(as_data_frame(out, ...))
 }
