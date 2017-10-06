@@ -19,6 +19,13 @@ with_mock_crunch({
             expected_df
         )
     })
+    test_that("collect preserves grouping", {
+        ds2 <- ds %>% 
+            group_by(gender, birthyr) %>% 
+            select(gender, birthyr) %>% 
+            collect()
+        expect_identical(group_vars(ds2), c("gender", "birthyr"))
+    })
     test_that("collect doesn't affect dplyr methods", {
         expect_identical(mtcars, collect(mtcars))
     })
