@@ -10,6 +10,11 @@ with_mock_crunch({
         expect_identical(groups(ds), list())
         expect_identical(name(ds), "test ds")
     })
+    test_that("group_by errors if assigned columns not in dataset", {
+        expect_error(group_by(ds, catfish), "catfish is not present in the Dataset")
+        expect_error(group_by(ds, catfish, dogfish), 
+            "catfish and dogfish are not present in the Dataset")
+    })
 
     ds2 <- group_by(ds, gender)
     test_that("group_by returns a GroupedCrunchDataset", {
