@@ -13,7 +13,6 @@
 #' @return a tbl_df or grouped_df
 #' @export
 #' @importFrom tibble data_frame as_data_frame
-#' @importFrom purrr map map2
 #' @importFrom dplyr collect bind_cols
 #' @importFrom rlang !! :=
 #' @name collect
@@ -36,13 +35,13 @@ collect.CrunchDataset <- function(x, ...) {
         }
         return(entry)
     }
-    out <- map2_dfc(out, names(x), ~list_to_df(.x, .y))
+    out <- mapply(list_to_df, out, names(x), SIMPLIFY = FALSE) %>% 
+        bind_cols()
     return(as_data_frame(out, ...))
 }
 
-#' @importFrom dplyr group_by collect
+#' @importFrom dplyr group_by collect %>%
 #' @importFrom rlang !!! syms
-#' @importFrom magrittr %>%
 #' @name collect
 #' @export
 collect.GroupedCrunchDataset <- function(x, ...){

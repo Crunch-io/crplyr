@@ -20,7 +20,7 @@
 a tbl_df or grouped_df
 }
 \description{
-This function brings a crunch dataset into memory so that you can
+This function brings a Crunch dataset into memory so that you can
 work with the data using R functions. Since this can create a long running
 query it is recommended that you try to filter the dataset down as much as possible
 before running \code{collect()}. When collecting a grouped CrunchDataset,

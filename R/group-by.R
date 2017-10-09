@@ -2,13 +2,13 @@
 #' @importFrom dplyr group_by_ group_by_prepare
 group_by_.CrunchDataset <- function (.data, ..., .dots, add=FALSE) {
     groups <- group_by_prepare(.data, ..., .dots=.dots, add=add)
-    missing <- !(groups$groups %in% names(.data))
-    if (any(missing)) {
+    missing_cols <- !(groups$groups %in% names(.data))
+    if (any(missing_cols)) {
         err <- " is"
-        if (sum(missing) > 1) {
+        if (sum(missing_cols) > 1) {
             err <- " are"
         }
-        stop(crunch:::serialPaste(groups$groups[missing]), 
+        stop(paste0(groups$groups[missing_cols], collapse = ", "), 
             err, 
             " not present in the Dataset")
     }
