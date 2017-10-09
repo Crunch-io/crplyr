@@ -11,6 +11,18 @@ with_mock_crunch({
             1L, 2L, 1L, NA, NA, NA, 2L, 2L, 2L, NA, 1L, 1L, 1L, NA, 1L), 
             .Label = c("Male", "Female"), class = "factor")
         )
+    
+    expected_mr_df <- data_frame(
+        mymrset.subvar2 = structure(c(2L, 2L, 1L, NA, 
+            1L, 2L, 1L, 2L, 2L, 2L, NA, 2L, NA, NA, 1L, 1L, 2L, 2L, 2L, 1L, 
+            NA, 1L, NA, NA, 1L), .Label = c("0.0", "1.0"), class = "factor"), 
+        mymrset.subvar1 = structure(c(1L, 1L, 2L, NA, NA, NA, NA, 
+            1L, 2L, NA, NA, 1L, NA, NA, NA, 1L, 2L, 1L, 1L, 1L, NA, 1L, 
+            NA, 1L, 2L), .Label = c("0.0", "1.0"), class = "factor"), 
+        mymrset.subvar3 = structure(c(1L, NA, 1L, 2L, NA, 1L, 2L, 
+            NA, 1L, NA, 2L, 1L, 1L, 2L, 1L, 1L, 2L, 1L, NA, 1L, 2L, 1L, 
+            1L, 1L, 2L), .Label = c("0.0", "1.0"), class = "factor")
+        )
     test_that("collect works as expected", {
         expect_equal(
             ds %>% 
@@ -18,6 +30,12 @@ with_mock_crunch({
                 collect(),
             expected_df
         )
+    })
+    test_that("correct works with MR variables", {
+        mr_df <- ds %>% 
+            select(mymrset) %>% 
+            collect()
+        expect_equal(mr_df, expected_mr_df)
     })
     test_that("collect preserves grouping", {
         ds2 <- ds %>% 

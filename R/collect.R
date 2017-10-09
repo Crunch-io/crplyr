@@ -1,7 +1,7 @@
 
 #' Collect a crunch dataset from the server
 #'
-#' This function brings a crunch dataset into memory so that you can
+#' This function brings a Crunch dataset into memory so that you can
 #' work with the data using R functions. Since this can create a long running
 #' query it is recommended that you try to filter the dataset down as much as possible
 #' before running `collect()`. When collecting a grouped CrunchDataset, 
@@ -12,8 +12,10 @@
 #'
 #' @return a tbl_df or grouped_df
 #' @export
-#' @importFrom tibble as_data_frame
-#' @importFrom dplyr collect
+#' @importFrom tibble data_frame as_data_frame
+#' @importFrom purrr map map2
+#' @importFrom dplyr collect bind_cols
+#' @importFrom rlang !! :=
 #' @name collect
 #'
 #' @examples
@@ -23,11 +25,20 @@
 #'    select(cyl, gear) %>% 
 #'    collect()
 #' }
-    collect.CrunchDataset <- function(x, ...) {
-        out <- lapply(x, as.vector)
-        names(out) <- names(x)
-        return(as_data_frame(out, ...))
+collect.CrunchDataset <- function(x, ...) {
+    out <- lapply(x, as.vector)
+    list_to_df <- function (entry, name) {
+        if (is.data.frame(entry)) {
+            #rename array variable subvariable names
+            names(entry) <- paste0(name, ".", names(entry))
+        } else {
+            entry <- data_frame(!!name := entry)
+        }
+        return(entry)
     }
+    out <- map2_dfc(out, names(x), ~list_to_df(.x, .y))
+    return(as_data_frame(out, ...))
+}
 
 #' @importFrom dplyr group_by collect
 #' @importFrom rlang !!! syms
@@ -35,9 +46,7 @@
 #' @name collect
 #' @export
 collect.GroupedCrunchDataset <- function(x, ...){
-    out <- lapply(x, as.vector)
-    names(out) <- names(x)
-    out <- as_data_frame(out, ...) %>% 
+    out <- collect.CrunchDataset(x, ...) %>% 
         group_by(!!!syms(group_vars(x)))
     return(out)
 }
