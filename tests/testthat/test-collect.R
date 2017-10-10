@@ -13,13 +13,13 @@ with_mock_crunch({
         )
     
     expected_mr_df <- data_frame(
-        mymrset.subvar2 = structure(c(2L, 2L, 1L, NA, 
+        subvar2 = structure(c(2L, 2L, 1L, NA, 
             1L, 2L, 1L, 2L, 2L, 2L, NA, 2L, NA, NA, 1L, 1L, 2L, 2L, 2L, 1L, 
             NA, 1L, NA, NA, 1L), .Label = c("0.0", "1.0"), class = "factor"), 
-        mymrset.subvar1 = structure(c(1L, 1L, 2L, NA, NA, NA, NA, 
+        subvar1 = structure(c(1L, 1L, 2L, NA, NA, NA, NA, 
             1L, 2L, NA, NA, 1L, NA, NA, NA, 1L, 2L, 1L, 1L, 1L, NA, 1L, 
             NA, 1L, 2L), .Label = c("0.0", "1.0"), class = "factor"), 
-        mymrset.subvar3 = structure(c(1L, NA, 1L, 2L, NA, 1L, 2L, 
+        subvar3 = structure(c(1L, NA, 1L, 2L, NA, 1L, 2L, 
             NA, 1L, NA, 2L, 1L, 1L, 2L, 1L, 1L, 2L, 1L, NA, 1L, 2L, 1L, 
             1L, 1L, 2L), .Label = c("0.0", "1.0"), class = "factor")
         )

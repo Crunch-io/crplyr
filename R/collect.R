@@ -26,11 +26,10 @@
 #' }
 collect.CrunchDataset <- function(x, ...) {
     out <- lapply(x, as.vector)
+    ## Calling as.vector on an array variable returns a dataframe
+    ## so this is 
     list_to_df <- function (entry, name) {
-        if (is.data.frame(entry)) {
-            #rename array variable subvariable names
-            names(entry) <- paste0(name, ".", names(entry))
-        } else {
+        if (!is.data.frame(entry)) {
             entry <- data_frame(!!name := entry)
         }
         return(entry)
