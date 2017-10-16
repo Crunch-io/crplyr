@@ -13,6 +13,9 @@ with_mock_crunch({
         )
     
     expected_mr_df <- data_frame(
+        gender = structure(c(2L, 2L, NA, 2L, 2L, 2L, 1L, NA, NA, 2L, 
+            1L, 2L, 1L, NA, NA, NA, 2L, 2L, 2L, NA, 1L, 1L, 1L, NA, 1L), 
+            .Label = c("Male", "Female"), class = "factor"),
         subvar2 = structure(c(2L, 2L, 1L, NA, 
             1L, 2L, 1L, 2L, 2L, 2L, NA, 2L, NA, NA, 1L, 1L, 2L, 2L, 2L, 1L, 
             NA, 1L, NA, NA, 1L), .Label = c("0.0", "1.0"), class = "factor"), 
@@ -33,7 +36,7 @@ with_mock_crunch({
     })
     test_that("correct works with MR variables", {
         mr_df <- ds %>% 
-            select(mymrset) %>% 
+            select(gender, mymrset) %>% 
             collect()
         expect_equal(mr_df, expected_mr_df)
     })

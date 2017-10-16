@@ -27,7 +27,9 @@
 collect.CrunchDataset <- function(x, ...) {
     out <- lapply(x, as.vector)
     ## Calling as.vector on an array variable returns a dataframe
-    ## so this is 
+    ## this is necessary in order to harmonize the array variable output
+    ## with the non-array variable output. 
+    ## TODO replace with purrr::map_if if available. 
     list_to_df <- function (entry, name) {
         if (!is.data.frame(entry)) {
             entry <- data_frame(!!name := entry)

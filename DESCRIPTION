@@ -7,8 +7,10 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
     "mutate", "group_by", and "summarize" are implemented in such a way as to
     perform as much computation on the server and pull as little data locally
     as possible.
-Version: 0.1.4
-Authors@R: person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io")
+Version: 0.1.5
+Authors@R: c(
+    person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io"),
+    person("Gordon", "Shotwell", role="ctb", email="gordon@crunch.io"))
 URL: https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
 License: LGPL (>= 3)

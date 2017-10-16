@@ -1,3 +1,6 @@
+### crplyr 0.1.5
+* Added `collect` method
+
 ### crplyr 0.1.4
 
 * Update tests to match `crunch` 1.18.0.

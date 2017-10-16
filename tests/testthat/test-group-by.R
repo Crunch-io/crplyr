@@ -60,4 +60,8 @@ with_mock_crunch({
         expect_identical(groupVars(select(ds2, birthyr, gender, starttime)),
             "gender")
     })
+    test_that("Grouping helpers work on CrunchDatasets", {
+        expect_null(group_vars(ds))
+        expect_identical(tbl_vars(ds), names(ds))
+    })
 })
