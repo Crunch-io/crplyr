@@ -9,3 +9,7 @@
 ^.*\.log$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^docs$
+^logo\.png$
+^_pkgdown\.yml$
+^pkgdown$

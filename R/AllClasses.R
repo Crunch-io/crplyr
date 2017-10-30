@@ -1,10 +1,11 @@
 #' A Crunch Dataset "Grouped By" Something
 #'
-#' This is a subclass of `CrunchDataset` that has a field for recording
+#' This is a subclass of `crunch::CrunchDataset` that has a field for recording
 #' "group_by" expressions.
 #'
 #' @export
 #' @importFrom methods new
+#' @importClassesFrom crunch CrunchDataset
 #' @examples
 #' \dontrun{
 #' ds <- loadDataset("Your dataset name")

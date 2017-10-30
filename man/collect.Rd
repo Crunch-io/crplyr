@@ -28,9 +28,9 @@ the grouping will be preserved.
 }
 \examples{
 \dontrun{
-ds \%>\% 
-   group_by(cyl) \%>\% 
-   select(cyl, gear) \%>\% 
+ds \%>\%
+   group_by(cyl) \%>\%
+   select(cyl, gear) \%>\%
    collect()
 }
 }

@@ -1,0 +1,16 @@
+url: http://crunch.io/r/crplyr/
+title: crplyr
+template:
+  params:
+    bootswatch: flatly
+    ganalytics: UA-50332119-2
+reference:
+- title: All functions
+  contents:
+  - collect
+navbar:
+  left:
+    - text: Reference
+      href: reference/
+    - text: News
+      href: news/

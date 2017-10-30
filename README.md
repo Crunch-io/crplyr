@@ -1,8 +1,8 @@
 # crplyr: A 'dplyr' Interface for Crunch
 
-[![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr) [![Build status](https://ci.appveyor.com/api/projects/status/wjc1inaakamltdq1/branch/master?svg=true)](https://ci.appveyor.com/project/nealrichardson/crplyr/branch/master)
+[![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr) [![Build status](https://ci.appveyor.com/api/projects/status/wjc1inaakamltdq1/branch/master?svg=true)](https://ci.appveyor.com/project/nealrichardson/crplyr/branch/master) [![cran](https://www.r-pkg.org/badges/version-last-release/crplyr)](https://cran.r-project.org/package=crplyr)
 
-[dplyr](https://github.com/tidyverse/dplyr) defines "a grammar of data manipulation" popular among R users. In order to facilitate analysis of datasets hosted by Crunch, this package implements 'dplyr' methods on top of the Crunch backend. The usual methods "select", "filter", "mutate", "group_by", and "summarize" are implemented in such a way as to perform as much computation on the server and pull as little data locally as possible.
+[dplyr](http://dplyr.tidyverse.org/) defines "a grammar of data manipulation" popular among R users. In order to facilitate analysis of datasets hosted by Crunch, this package implements 'dplyr' methods on top of the Crunch backend. The usual methods "select", "filter", "mutate", "group_by", and "summarize" are implemented in such a way as to perform as much computation on the server and pull as little data locally as possible.
 
 With a local `data.frame`, you might chain together a series of manipulations and create a table, such as:
 
@@ -56,7 +56,7 @@ The repository includes a Makefile to facilitate some common tasks.
 
 ### Running tests
 
-`$ make test`. Requires the [httptest](https://github.com/nealrichardson/httptest) package. You can also specify a specific test file or files to run by adding a "file=" argument, like `$ make test file=logging`. `test_package` will do a regular-expression pattern match within the file names. See its documentation in the `[testthat](https://github.com/hadley/testthat)` package.
+`$ make test`. Requires the [httptest](http://enpiar.com/r/httptest/) package. You can also specify a specific test file or files to run by adding a "file=" argument, like `$ make test file=select`. `test_package` will do a regular-expression pattern match within the file names. See its documentation in the [testthat](http://testthat.r-lib.org/) package.
 
 ### Updating documentation
 

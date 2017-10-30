@@ -4,6 +4,9 @@ doc:
 	R --slave -e 'devtools::document()'
 	-git add --all man/*.Rd
 
+pkgdown: doc
+	R -e 'library(crplyr); pkgdown::build_site()'
+
 test:
 	R CMD INSTALL --install-tests .
 	R --slave -e 'Sys.setenv(NOT_CRAN="true"); library(httptest); setwd(file.path(.libPaths()[1], "crplyr", "tests")); system.time(test_check("crplyr", filter="${file}", reporter=ifelse(nchar("${r}"), "${r}", "summary")))'

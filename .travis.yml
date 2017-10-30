@@ -1,11 +1,14 @@
 language: r
 cache: packages
 r:
-  - oldrel
-  - release
-  - devel
+- oldrel
+- release
+- devel
 r_github_packages:
-  - Crunch-io/rcrunch
-  - nealrichardson/httptest
+- Crunch-io/rcrunch
 after_success:
-  - Rscript -e 'library(covr);codecov()'
+- Rscript -e 'covr::codecov()'
+- bash pkgdown.sh
+env:
+  global:
+    secure: IODkxmcQMNNboqgL52rP1q3LhhspHo6q84EIvXdJc9EZ1oLmSoiPAshdM5Z7FPPubTzK94tYWw8D+M51/u+C5okdBBFgcPoPhho7PCkiSJw03ACJNey71SFf8hPOWvkUnaBNv6lgNThBwsfGotjxg4IrAKTs4qFGhtD71s0FGgwNccNEkQWCfBBB4Ik0MbNOwHPnJGKEigOYhdwhmWsQ4mqsCVa/Ot7SFAAEUdcwwWW/E6rbZtEOxHPxhwaFH7GCd7zS3KqkYO0jAjzh4PtPiYWftvcXdEu5T9NUjAQb3a6RgpEkquKxVo+FGPJzjJ8+IMtRpe4Em4/qXVfP/A0cI3aBnkIbTjTOqHG1L1C4LPECzUCCr4Mw0yYbV1TNZtFadcUJ8YgQ5EiMN8Kxd2SKJdXqOMhJ+i7hENOvpm7yr5JELH09G4EhTxFIgjKqQNA5R7DukBlYCMMgWUXPNZWmFlRYvdqyyh/0I/C+wlZcKyRgttehGxV4SUb/a1FjiFvWwFIUbLCh8kDGAQRL2dATGc+QRW9LkhFUiVELKj+/gXiGKYcUr5CJ/yMNgteXPsfBhZxyp5Fz+KjxXWRW8yov2EDpYkNFfAkGvTlp8VsJK+G3ysft9z+dUukmmdrpFVRg69jb5sFoPFgo1+eaH9ogSBUxVls8qHMU4BkPAdE9WGE=

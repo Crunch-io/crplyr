@@ -6,7 +6,7 @@
 \alias{GroupedCrunchDataset}
 \title{A Crunch Dataset "Grouped By" Something}
 \description{
-This is a subclass of \code{CrunchDataset} that has a field for recording
+This is a subclass of \code{crunch::CrunchDataset} that has a field for recording
 "group_by" expressions.
 }
 \examples{
