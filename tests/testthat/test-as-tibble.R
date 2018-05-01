@@ -82,4 +82,42 @@ with_mock_crunch({
     test_that("If weighted, the '.unweighted_counts' are included", {
         skip("Need to load a weighted fixture. Also need Cube to know if it is weighted")
     })
+    
+    test_that("as_tibble produces proper real cube", {
+        check_cube_match <- function(arr, tibble) {
+            dims <- setdiff(names(tibble), "count")
+            test <- lapply(seq_along(tibble$count), function(i) {
+                args <- tibble[i, dims, drop = TRUE]
+                args <- lapply(args, as.character)
+                do.call(`[`, c(list(arr), args)) == tibble$count[i]
+            })
+            return(all(unlist(test)))
+        }
+        
+        cat_cat <- loadCube("cubes/cat-x-cat.json")
+        expected <- data_frame(
+            v4 = factor(c("B", "C", "B", "C")),
+            v7 = factor(c("C", "C", "E", "E")), 
+            count = c(5, 5, 2, 3)
+        )
+        cat_tibble <- as_tibble(cat_cat)
+        expect_is(cat_tibble, "tbl_df")
+        expect_equal(cat_tibble, expected)
+        expect_equal(as.array(cat_cat)["B", "C"], 
+            cat_tibble[cat_tibble$v4 == "B" & cat_tibble$v7 == "C", ]$count)
+        expect_equal(as_tibble(showMissing(cat_cat)),
+            as_tibble(cat_cat, return_real = TRUE))
+        expect_true(check_cube_match(as.array(cat_cat), cat_tibble))
+        
+        cat_mr_mr <- loadCube("cubes/cat-x-mr-x-mr.json")
+        cat_mr_mr_tibble <- as_tibble(cat_mr_mr)
+        expect_is(cat_mr_mr_tibble, "tbl_df")
+        expect_equal(dim(cat_mr_mr_tibble), c(12, 4))
+        expect_true(check_cube_match(as.array(cat_mr_mr), cat_mr_mr_tibble))
+
+        expect_true(
+            check_cube_match(cat_mr_mr@arrays$count, 
+                as_tibble(cat_mr_mr, return_real = TRUE))
+        )
+    })
 })
