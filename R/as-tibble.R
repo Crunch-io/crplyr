@@ -10,6 +10,7 @@
 #' @param return_real Do you want to return the tibble represenatation of the
 #'   real cube with MR selection dimensions and missing values. Mostly useful
 #'   for debugging complex cubes.
+#' @param ... futher arguments passed on to `dplyr::as_tibble()`
 #'
 #' @export
 #' @importFrom tibble as_tibble
@@ -26,8 +27,7 @@ as_tibble.CrunchCube <- function (x, return_real = FALSE, ...) {
     measure_names <- setdiff(names(x@arrays), ".unweighted_counts")
     if (return_real) {
         is_selected <- crunch:::is.selectedDimension(x@dims)
-        real_cube <- x@arrays$count
-        dnames <- dimnames(real_cube)
+        dnames <- dimnames(x@arrays$count)
         out <- do.call(expand.grid, dnames)
         if (any(is_selected)) {
             names(out)[is_selected] <- paste0(names(out)[is_selected], "_selections")
@@ -52,5 +52,5 @@ as_tibble.CrunchCube <- function (x, return_real = FALSE, ...) {
             out <- c(dims, out)
         }
     }
-    return(as_tibble(out))
+    return(as_tibble(out, ... ))
 }
