@@ -66,9 +66,10 @@ with_mock_crunch({
         expect_equal(cat_tibble, expected)
         expect_equal(as.array(cat_cat)["B", "C"], 
             cat_tibble[cat_tibble$v4 == "B" & cat_tibble$v7 == "C", ]$count)
-        expect_equal(as_tibble(showMissing(cat_cat)),
-            as_tibble(cat_cat, return_real = TRUE))
         expect_true(check_cube_match(as.array(cat_cat), cat_tibble))
+        cat_cat@useNA <- "always"
+        expect_equal(as_tibble(cat_cat),
+            as_tibble(cat_cat, return_real = TRUE))
     })
     
     test_that("as_tibble with categorical array", {
