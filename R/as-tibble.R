@@ -22,38 +22,39 @@ as_tibble.CrunchCube <- function (x, return_real = FALSE, ...) {
     ## TODO: better access methods for secondary measures in Cube
     ## TODO: if weighted query, include ".unweighted_counts"
     if (return_real) {
-        types <- getDimType(x@dims)
         dnames <- dimnames(x@arrays$count)
-        
-        suffixes <- stringr::str_extract(types, "_.*$")
-        names(dnames)[!is.na(suffixes)] <- paste0(names(dnames), suffixes)
-        out <- do.call(expand.grid, dnames)
-        
         # Cubes can have multiple measures, which are represented as their own column
         # in the tibble. 
         measure_vals <- sapply(names(x@arrays), function(y) {
             as.vector(x@arrays[[y]])
         }, simplify = FALSE)
-        out <- bind_cols(out, measure_vals)
     } else {
         measure_names <- setdiff(names(x@arrays), ".unweighted_counts")
-        out <- sapply(measure_names, function (m) {
+        measure_vals <- sapply(measure_names, function (m) {
             as.vector(crunch:::cubeToArray(x, m))
         }, simplify = FALSE)
 
-        ## 2) If there are dimnames, expand.grid and c(bind) them
         dnames <- dimnames(as.array(x))
-        types <- getDimType(x@dims)
-        types <- types[types != "mr_selections"]
-        suffixes <- stringr::str_extract(types, "_.*$")
-        names(dnames)[!is.na(suffixes)] <- paste0(names(dnames), suffixes)
-        ## NULL if scalar value, which means no "group_by"
-        if (!is.null(dnames)) {
-            dims <- do.call(expand.grid, dnames)
-            out <- c(dims, out)
-        }
+        
     }
-    out <- bind_cols(out)
+    # If there are dimnames, expand.grid and c(bind) them. We also 
+    # change the names of the two array dimensions to avoid duplicated variable names
+    if (!is.null(dnames)) {
+        types <- getDimType(x@dims)
+        if (!return_real) {
+            # mr_selection dimension is suppressed from the user cube, so we 
+            # need to suppress thos from the returned types. 
+            types <- types[types != "mr_selections"]
+        }
+        suffixes <- stringr::str_extract(types, "_.*$")
+        is_array_var <- !is.na(suffixes)
+        names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
+        out <- do.call(expand.grid, dnames)
+        out <- bind_cols(out, measure_vals)
+    } else {
+        # scalar values, which means no group_by
+        out <- bind_cols(measure_vals)
+    }
     return(as_tibble(out, ... ))
 }
 

@@ -1,7 +1,7 @@
 context("Cube to tibble")
 
 check_cube_match <- function(arr, tibble) {
-    dims <- setdiff(names(tibble), "count")
+    dims <- setdiff(names(tibble), c("count", ".unweighted_counts"))
     test <- lapply(seq_along(tibble$count), function(i) {
         args <- tibble[i, dims, drop = TRUE]
         args <- lapply(args, as.character)
@@ -67,9 +67,6 @@ with_mock_crunch({
         expect_equal(as.array(cat_cat)["B", "C"], 
             cat_tibble[cat_tibble$v4 == "B" & cat_tibble$v7 == "C", ]$count)
         expect_true(check_cube_match(as.array(cat_cat), cat_tibble))
-        cat_cat@useNA <- "always"
-        expect_equal(as_tibble(cat_cat),
-            as_tibble(cat_cat, return_real = TRUE))
     })
     
     test_that("as_tibble with categorical array", {
@@ -114,12 +111,11 @@ with_mock_crunch({
         expect_is(cat_mr_mr_tibble, "tbl_df")
         expect_equal(dim(cat_mr_mr_tibble), c(12, 4))
         expect_true(check_cube_match(as.array(cat_mr_mr), cat_mr_mr_tibble))
-        
         expect_equal(names(cat_mr_mr_tibble), 
-            c("animal", "opinion_mr", "feeling_mr", "count"))
+            c("animal", "opinion_mr_items", "feeling_mr_items", "count"))
         expect_equal(names(as_tibble(cat_mr_mr, TRUE)), 
-            c("animal", "opinion_mr", "opinion_mr_selections", "feeling_mr", 
-                "feeling_mr_selections", "count"))
+            c("animal", "opinion_mr_items", "opinion_mr_selections", "feeling_mr_items", 
+                "feeling_mr_selections", "count", ".unweighted_counts"))
         
         expect_true(
             check_cube_match(cat_mr_mr@arrays$count, 
