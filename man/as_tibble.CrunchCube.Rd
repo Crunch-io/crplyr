@@ -4,16 +4,16 @@
 \alias{as_tibble.CrunchCube}
 \title{Flatten a Crunch Cube}
 \usage{
-\method{as_tibble}{CrunchCube}(x, return_real = FALSE, ...)
+\method{as_tibble}{CrunchCube}(x, show_metadata = TRUE, ...)
 }
 \arguments{
 \item{x}{a CrunchCube}
 
-\item{return_real}{Do you want to return the tibble represenatation of the
-real cube with MR selection dimensions and missing values. Mostly useful
-for debugging complex cubes.}
+\item{show_metadata}{By default this function returns additional metatada
+about the. In particular the unweighted counts for each entry, and whether
+that entry represents a missing value. If false the metadata is suppressed.}
 
-\item{...}{futher arguments passed on to \code{dplyr::as_tibble()}}
+\item{...}{futher arguments passed on to \code{tibble::as_tibble()}}
 }
 \description{
 Crunch Cubes can be expressed as a long data frame instead of a
