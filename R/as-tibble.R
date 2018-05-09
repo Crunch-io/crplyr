@@ -7,50 +7,64 @@
 #' represents, and to work with the cube result using tidyverse tools.
 #'
 #' @param x a CrunchCube
-#' @param return_real Do you want to return the tibble represenatation of the
-#'   real cube with MR selection dimensions and missing values. Mostly useful
-#'   for debugging complex cubes.
-#' @param ... futher arguments passed on to `dplyr::as_tibble()`
+#' @param show_metadata By default this function returns additional metatada 
+#' about the. In particular the unweighted counts for each entry, and whether
+#' that entry represents a missing value. If false the metadata is suppressed. 
+#' @param ... futher arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
 #' @importFrom tibble as_tibble
-as_tibble.CrunchCube <- function (x, return_real = FALSE, ...) {
+#' @importFrom dplyr bind_cols
+#' @importFrom purrr map2 map reduce
+as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     ## TODO: NA behavior? Add way to get missings not missing. (This uses
     ## as.array to remove extraneous dims, and doing so applies the '@useNA'
     ## from the cube)   
     ## TODO: better access methods for secondary measures in Cube
     ## TODO: if weighted query, include ".unweighted_counts"
-    if (return_real) {
-        dnames <- dimnames(x@arrays$count)
-        # Cubes can have multiple measures, which are represented as their own column
-        # in the tibble. 
-        measure_vals <- sapply(names(x@arrays), function(y) {
-            as.vector(x@arrays[[y]])
-        }, simplify = FALSE)
-    } else {
-        measure_names <- setdiff(names(x@arrays), ".unweighted_counts")
-        measure_vals <- sapply(measure_names, function (m) {
-            as.vector(crunch:::cubeToArray(x, m))
-        }, simplify = FALSE)
-
-        dnames <- dimnames(as.array(x))
-        
+    
+    dnames <- dimnames(x@arrays$count)
+    
+    measures <- names(x@arrays)
+    if (!show_metadata) {
+        # we need this to hide unweighted counts from summarize
+        measures <- setdiff(measures, ".unweighted_counts")
     }
+    
+    # Cubes can have multiple measures, which are represented as their own column
+    # in the tibble. 
+    measure_vals <- sapply(measures, function(y) {
+        as.vector(x@arrays[[y]])
+    }, simplify = FALSE)
+    
     # If there are dimnames, expand.grid and c(bind) them. We also 
     # change the names of the two array dimensions to avoid duplicated variable names
     if (!is.null(dnames)) {
+        # Change MR selection vars to T/F/NA
+        is_selected <- is.selectedDimension(x@dims)
+        dnames <- map2(dnames, is_selected, ~{
+            if (.y) {
+                return( c(TRUE, FALSE, NA))
+            } else {
+                return (.x)
+            }
+        })
+        
         types <- getDimType(x@dims)
-        if (!return_real) {
-            # mr_selection dimension is suppressed from the user cube, so we 
-            # need to suppress thos from the returned types. 
-            types <- types[types != "mr_selections"]
-        }
         suffixes <- stringr::str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
         out <- bind_cols(out, measure_vals)
+        
+        # identify which elements of cube represent missing values
+        if (show_metadata) {
+            out$is_missing <- x@dims %>% 
+                map("missing") %>% 
+                expand.grid() %>% 
+                reduce(`|`)
+        }
     } else {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)
@@ -81,7 +95,7 @@ getDimType <-  function (x) {
     #TODO Remove this when the function is included in rcrunch. 
     vars <- crunch::variables(x)
     out <- crunch::types(vars)
-    out[crunch:::is.selectedDimension(x)] <- "mr_selections"
+    out[is.selectedDimension(x)] <- "mr_selections"
     for (i in seq_along(vars)) {
         if (i == length(vars)) {
             break
@@ -95,4 +109,31 @@ getDimType <-  function (x) {
     }
     names(out) <- names(dimnames(x))
     return(out)
+}
+
+
+#' Check if a dimension is an MR selection dimension
+#'
+#' @param dims A Crunch Cube Dimension
+#'
+#' @return A logical vector
+#' @importFrom crunch variables aliases types index
+is.selectedDimension <- function (dims) {
+    #TODO removed when exported from rcrunch
+    is.it <- function (x, dim, MRaliases) {
+        x$alias %in% MRaliases &&
+            x$type == "categorical" &&
+            length(dim$name) == 3 &&
+            dim$name[1] == "Selected"
+    }
+    vars <- variables(dims)
+    # We only need to check if the categories are the magical Selected
+    # categories if there is an MR somewhere with the same alias
+    MRaliases <- aliases(vars)[types(vars) == "subvariable_items"]
+    
+    # determine which dimensions are selected MR dimensions
+    selecteds <- mapply(is.it, x=index(vars), dim=dims@.Data,
+                        MoreArgs=list(MRaliases=MRaliases))
+    names(selecteds) <- dims@names
+    return(selecteds)
 }

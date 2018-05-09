@@ -4,7 +4,7 @@
 summarise_.CrunchDataset <- function (.data, ..., .dots) {
     dots <- all_dots(.dots, ..., all_named = TRUE)
     fmla <- dots_to_formula(dots, groups(.data))
-    out <- as_tibble(crtabs(fmla, data=.data))
+    out <- as_tibble(crtabs(fmla, data=.data), show_metadata = FALSE)
     ## Sort the return columns based on the request order
     out <- out[, c(setdiff(names(out), names(dots)), names(dots))]
     return(out)
