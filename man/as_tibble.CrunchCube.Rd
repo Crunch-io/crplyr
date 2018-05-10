@@ -10,15 +10,16 @@
 \item{x}{a CrunchCube}
 
 \item{show_metadata}{By default this function returns additional metatada
-about the. In particular the unweighted counts for each entry, and whether
-that entry represents a missing value. If false the metadata is suppressed.}
+about the cube. In particular the unweighted counts for each entry, and
+whether that entry represents a missing value. If \code{FALSE} this metadata
+will be suppressed.}
 
 \item{...}{futher arguments passed on to \code{tibble::as_tibble()}}
 }
 \description{
 Crunch Cubes can be expressed as a long data frame instead of a
 multidimensional array. In this form each dimension of the cube is a variable
-of the dataframe and the cube values are expressed columns for each measure.
-This is useful both to better understand what each entry of a cube
-represents, and to work with the cube result using tidyverse tools.
+and the cube values are expressed columns for each measure. This is useful
+both to better understand what each entry of a cube represents, and to work
+with the cube result using tidyverse tools.
 }

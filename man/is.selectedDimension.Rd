@@ -15,3 +15,4 @@ A logical vector
 \description{
 Check if a dimension is an MR selection dimension
 }
+\keyword{internal}

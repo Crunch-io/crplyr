@@ -12,8 +12,6 @@ getDimType(x)
 \value{
 A character vector. This is identical to \code{types()} except that
 the array variable types are more specific.
-
-a character vector of dimension types
 }
 \description{
 This function returns the specific type of each cube dimension. This is useful
@@ -24,7 +22,7 @@ array variable:
 \item \code{ca_items}: Categorical array items
 \item \code{ca_categories}: The categories of the categorical array
 \item \code{mr_items}: Multiple response options or items
-\item \code{mr_selections}: The selection status for a multiple response variable
+\item \code{mr_selections}: The selection status for each item
 }
 }
 \keyword{internal}
