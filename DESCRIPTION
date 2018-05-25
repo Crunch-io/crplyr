@@ -20,13 +20,16 @@ Depends:
     dplyr
 Imports:
     methods,
+    ggplot2,
     lazyeval,
-    purrr, 
+    purrr,
     tibble,
     stringr,
-    rlang (>= 0.1.2)
+    rlang
 Suggests:
     covr,
     httptest
+Remotes:
+    tidyverse/ggplot2
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
