@@ -69,13 +69,17 @@ plotCategorical <- function(x) {
 autoplot.CrunchCube <- function(x, plot_type = c("dot", "grid", "bar"), measure = "count") {
             browser()
     measure <- sym(measure)
-    tibble <- as_tibble(cube) %>% 
+    plot_tbl <- as_tibble(cube) %>% 
         filter(!is_missing) 
     
-    dim_names <- names(tibble)[1:length(dim(x))] #Select the dimension columns from the table
-    mr_vars <- dim_names[getDimTypes(x) == "mr_selection"]
-    
-    dims <- syms(dim_names[getDimTypes(x) != "mr_selection"]) #drop the MR selection dimensions for plotting
+    dim_names <- names(plot_tbl)[1:length(x@dims)] #Select the dimension columns from the table
+
+    # Remove non-selected MR vars
+    mr_selection_vars <- dim_names[getDimTypes(x) == "mr_selections"]
+    plot_tble <- plot_tbl %>% 
+        filter(!!!syms(mr_selection_vars)) %>% 
+
+    dims <- syms(setdiff(dim_names, mr_selection_vars)) #drop the MR selection dimensions for plotting
     
     plot_lookup <- as_tibble(expand.grid(dims = 1:2, type = c("bar", "dot", "grid"))) %>% 
         mutate(plot_function = paste0("crunch_", dims, "d_", type, "_plot"))
@@ -84,7 +88,7 @@ autoplot.CrunchCube <- function(x, plot_type = c("dot", "grid", "bar"), measure 
         filter(dims == min(2, length(dims)), type == plot_type) %>% 
         pull(plot_function) %>% 
         get()
-    out <- f(tibble, dims, measure) +
+    out <- f(plot_tbl, dims, measure) +
         theme_crunch() +
         ggtitle(paste0(unique(names(dimnames(x))), collapse = " + ")) 
     # If there are more than two dimensions, just keep adding facets

@@ -41,7 +41,7 @@ as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
         types <- getDimTypes(x)
         
         # Change MR selection vars to T/F/NA
-        is_selected <- types == "mr_selection"
+        is_selected <- types == "mr_selections"
         dnames <- map2(dnames, is_selected, ~{
             if (.y) {
                 return(c(TRUE, FALSE, NA))
