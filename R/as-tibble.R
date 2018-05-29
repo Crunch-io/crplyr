@@ -15,6 +15,7 @@
 #'
 #' @export
 #' @importFrom tibble as_tibble
+#' @importFrom crunch getDimTypes
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
@@ -37,8 +38,10 @@ as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
     # of the two array dimensions to avoid duplicated variable names in  the
     # tibble.
     if (!is.null(dnames)) {
+        types <- getDimTypes(x)
+        
         # Change MR selection vars to T/F/NA
-        is_selected <- is.selectedDimension(x@dims)
+        is_selected <- types == "mr_selections"
         dnames <- map2(dnames, is_selected, ~{
             if (.y) {
                 return(c(TRUE, FALSE, NA))
@@ -47,7 +50,6 @@ as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
             }
         })
         
-        types <- getDimType(x@dims)
         suffixes <- str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
@@ -66,68 +68,4 @@ as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
         out <- bind_cols(measure_vals)
     }
     return(as_tibble(out, ... ))
-}
-
-
-#' Get dimension type
-#'
-#' This function returns the specific type of each cube dimension. This is useful
-#' when cubes contain categorical array or multiple response variables because it
-#' identifies the dimensions of the cube which refer to the differ parts of
-#' array variable:
-#' - `ca_items`: Categorical array items
-#' - `ca_categories`: The categories of the categorical array
-#' - `mr_items`: Multiple response options or items
-#' - `mr_selections`: The selection status for each item
-#' @param x a CrunchCube or CubeDims object
-#' @return A character vector. This is identical to `types()` except that
-#' the array variable types are more specific.
-#' @keywords internal
-#' @importFrom crunch variables types
-getDimType <-  function (x) {
-    #TODO Remove this when the function is included in rcrunch. 
-    vars <- variables(x)
-    out <- types(vars)
-    out[is.selectedDimension(x)] <- "mr_selections"
-    for (i in seq_along(vars)) {
-        if (i == length(vars)) {
-            break
-        }
-        if (out[i + 1] == "mr_selections") {
-            out[i] <- "mr_items"
-        } else if (out[i] == "subvariable_items") {
-            out[i] <- "ca_items"
-            out[i + 1] <- "ca_categories"
-        }
-    }
-    names(out) <- names(dimnames(x))
-    return(out)
-}
-
-
-#' Check if a dimension is an MR selection dimension
-#'
-#' @param dims A Crunch Cube Dimension
-#'
-#' @return A logical vector
-#' @keywords internal
-#' @importFrom crunch variables aliases types index
-is.selectedDimension <- function (dims) {
-    #TODO removed when exported from rcrunch
-    is.it <- function (x, dim, MRaliases) {
-        x$alias %in% MRaliases &&
-            x$type == "categorical" &&
-            length(dim$name) == 3 &&
-            dim$name[1] == "Selected"
-    }
-    vars <- variables(dims)
-    # We only need to check if the categories are the magical Selected
-    # categories if there is an MR somewhere with the same alias
-    MRaliases <- aliases(vars)[types(vars) == "subvariable_items"]
-    
-    # determine which dimensions are selected MR dimensions
-    selecteds <- mapply(is.it, x = index(vars), dim=dims@.Data,
-                        MoreArgs = list(MRaliases=MRaliases))
-    names(selecteds) <- dims@names
-    return(selecteds)
 }
