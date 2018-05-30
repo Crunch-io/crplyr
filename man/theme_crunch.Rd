@@ -9,12 +9,8 @@ theme_crunch(base_size = 12, base_family = "sans")
 \arguments{
 \item{base_size}{Base text size}
 
-\item{base_family}{}
+\item{base_family}{Base text family}
 }
 \description{
 Style ggplots according to Crunch style.
-}
-\examples{
-qplot(mtcars$mpg) +
-   theme_crunch()
 }
