@@ -1,8 +1,3 @@
-crunch_colors <- c(
-    "#316395", "#cf3e3e", "#fcb73e", "#37ad6c", "#9537b5", "#17becf", 
-    "#e377c2", "#fdae6b", "#0099c6", "#ed5487", "#3366cc"
-    )
-card_colors <- c("#d11141","#007F65")
 
 #' Crunch ggplot theme
 #' 
@@ -16,6 +11,11 @@ card_colors <- c("#d11141","#007F65")
 #' @importFrom ggplot2 element_line element_blank element_text element_rect 
 #' theme_minimal theme  rel unit 
 theme_crunch <- function(base_size = 12, base_family = "sans") {
+    subtitle <- element_text(
+                    hjust =0, 
+                    face = "bold",
+                    size = rel(1), 
+                    color = card_colors[1])
     (theme_minimal() +
             theme(
                 line = element_line(colour = "black"),
@@ -23,22 +23,34 @@ theme_crunch <- function(base_size = 12, base_family = "sans") {
                 axis.ticks = element_blank(),
                 axis.line = element_blank(),
                 panel.grid.minor = element_blank(),
-                plot.title = element_text(hjust = 0, size = rel(1.5), face = "bold", color = "#007F65"),
+                plot.title = element_text(
+                    hjust = 0, 
+                    size = rel(1.5),
+                    face = "bold", 
+                    color = card_colors[2]),
+                plot.subtitle = subtitle,
                 plot.margin = unit(c(1, 1, 1, 1), "lines"),
-                strip.background = element_rect())
+                legend.title = subtitle,
+                strip.background = element_rect(fill = "light gray", linetype = 0))
     )
 }
 
+crunch_colors <- c(
+    "#316395", "#cf3e3e", "#fcb73e", "#37ad6c", "#9537b5", "#17becf", 
+    "#e377c2", "#fdae6b", "#0099c6", "#ed5487", "#3366cc"
+    )
+
+card_colors <- c("#56A08E","#007F65")
+
 #' @importFrom viridis viridis
 #' @importFrom dplyr summarize pull
-generate_colors <- function(tibble, dim) {
-    n_cols <- tibble %>% 
-        summarize(cols = length(unique(!!dim))) %>% 
-        pull(cols)
+generate_colors <- function(var) {
+    n_cols <- length(unique(var))
     if (n_cols > length(crunch_colors)) {
         return(c(crunch_colors, viridis(n_cols - length(crunch_colors))))
-    } 
-    return(crunch_colors)
+    } else {
+        return(crunch_colors)
+    }
 }
 
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot ggtitle
@@ -48,7 +60,7 @@ autoplot.NumericVariable <- function(x) {
     binwidth <- round((max(v) - min(v)) / 5, 0)
     ggplot() +
         aes(v) +
-        geom_histogram(binwidth = binwidth, fill = crunch_colors["dark_green"]) +
+        geom_histogram(binwidth = binwidth, fill = card_colors[1]) +
         theme_crunch() +
         ggtitle(name(x))
 }
@@ -61,6 +73,7 @@ autoplot.CategoricalArrayVariable <- function(x) plotCategorical(x)
 
 #' @export
 autoplot.MultipleResponseVariable <- function(x) plotCategorical(x)
+
 #' @importFrom crunch datasetReference loadDataset
 #' @importFrom ggplot2 autoplot
 plotCategorical <- function(x) {
@@ -69,21 +82,52 @@ plotCategorical <- function(x) {
     autoplot(cube)
 }
 
+#' @importFrom dplyr mutate filter pull
+#' @importFrom tibble as_tibble
+plot_fun_lookup <- function(plot_dim, plot_type) {
+    plot_lookup <- as_tibble(expand.grid(dims = 1:2, type = c("bar", "dot", "grid"))) %>% 
+        mutate(plot_function = paste0("crunch_", dims, "d_", type, "_plot"))
+    plot_fun <- plot_lookup %>% 
+        filter(dims == plot_dim, type == plot_type) %>% 
+        pull(plot_function) %>% 
+        get()
+    return(plot_fun)
+}
+
+#' Autoplot methods for CrunchCubes
+#' 
+#' CrunchCubes are a convenient way to store high dimensional tables. These 
+#' methods provide some default plotting methods which are optimized for the 
+#' dimentionality of your cube. You can select the plot type, and measure you wish 
+#' to plot, and the method will attempt to provide a meaningful plot for your data. 
+#' 
+#' @param plot_type One of `"dot"`, `"grid"`, or `"bar"` which indicates the plot family
+#' you would like to use. Higher dimensional plots add color coding or facets depending
+#' on the dimensionality of the data. 
+#' @param measure The measure you wish to plot. This will usually be `"count"`, the default
+#' but can also be `".unweighted_counts"` or any other measure stored in the cube. 
+#' 
 #' @export
 #' @importFrom rlang sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
-autoplot.CrunchCube <- function(x, plot_type = c("dot", "grid", "bar"), measure = "count") {
+autoplot.CrunchCube <- function(x, 
+    plot_type = c("dot", "grid", "bar"), 
+    measure = "count") {
+    
+    plot_type = match.arg(plot_type)
     display_names <- map(x@dims, "references") %>% 
         map_chr("name")
     measure <- sym(measure)
+
     plot_tbl <- as_tibble(x) %>% 
         filter(!is_missing) 
     
-    dim_names <- names(plot_tbl)[1:length(x@dims)] #Select the dimension columns from the table
-
-    # Remove non-selected MR vars
+    #Select the dimension columns from the table
+    dim_names <- names(plot_tbl)[1:length(x@dims)] 
+    
+    # only include rows where the MR selection dimensions are TRUE
     mr_selection_vars <- dim_names[getDimTypes(x) == "mr_selections"]
     if (length(mr_selection_vars)) {
         plot_tbl <- plot_tbl %>% 
@@ -92,24 +136,21 @@ autoplot.CrunchCube <- function(x, plot_type = c("dot", "grid", "bar"), measure 
 
     dims <- syms(setdiff(dim_names, mr_selection_vars)) #drop the MR selection dimensions for plotting
     
-    plot_lookup <- as_tibble(expand.grid(dims = 1:2, type = c("bar", "dot", "grid"))) %>% 
-        mutate(plot_function = paste0("crunch_", dims, "d_", type, "_plot"))
-    plot_dim <- min(2, length(dims))
-    f <- plot_lookup %>% 
-        filter(dims == plot_dim, type == plot_type) %>% 
-        pull(plot_function) %>% 
-        get()
-    out <- f(plot_tbl, dims, measure, display_names) +
+    plot_fun <- plot_fun_lookup(min(2, length(dims)), plot_type)
+
+    out <- plot_fun(plot_tbl, dims, measure, display_names) +
         theme_crunch() +
-        ggtitle(paste0(unique(display_names), collapse = " + "))
-    
+        labs(title = paste0(unique(display_names), collapse = " + "),
+            subtitle = x@dims[[1]]$references$description)
+
     if (plot_type == "grid") {
         # This is here instead of in the 2d_grid plot function because theme_crunch
-        # includes an axis.text specification. 
+        # overrides the axis.text property 
         out <- out + 
             theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    }
-    # If there are more than two dimensions, just keep adding facets
+    } 
+    
+    # If there are more than two dimensions, add facets for the remaing dimensions
     if (length(dims) > 2) {
         out <- add_facets(out, dims[3:length(dims)])
     }
@@ -149,7 +190,7 @@ crunch_2d_grid_plot <- function(tibble, dims, measure, display_names) {
 
 #' @importFrom ggplot2 ggplot geom_point labs scale_color_manual
 crunch_2d_dot_plot <- function(tibble, dims, measure, display_names) {
-    cols <- generate_colors(tibble, dims[[2]])
+    cols <- generate_colors(tibble[[as.character(dims[[2]])]])
     tibble %>% 
         .crunch_2d_tibble(dims, measure) %>% 
         ggplot(aes(
@@ -164,7 +205,7 @@ crunch_2d_dot_plot <- function(tibble, dims, measure, display_names) {
 
 #' @importFrom ggplot2 aes coord_flip ggplot geom_bar labs scale_fill_manual
 crunch_2d_bar_plot <- function(tibble, dims, measure, display_names) {
-    cols <- generate_colors(tibble, dims[[2]])
+    cols <- generate_colors(tibble[[as.character(dims[[2]])]])
     tibble %>% 
         .crunch_2d_tibble(dims, measure) %>% 
         ggplot(aes(
@@ -191,16 +232,17 @@ crunch_2d_bar_plot <- function(tibble, dims, measure, display_names) {
     return(out)
 }
 #' @importFrom ggplot2 facet_wrap facet_grid vars
-add_facets <- function(plot, dims) {
-    n_dims <- length(dims)
+add_facets <- function(plot, facet_dims) {
+    n_dims <- length(facet_dims)
     if (n_dims == 1) {
-        plot +
-            facet_wrap(vars(!!dims[[1]]))
-    } else if (n_dims == 2) {
-        plot +
-            facet_grid(vars(!!dims[[1]]), vars(!!dims[[2]]))
+        plot + 
+            facet_wrap(vars(!!facet_dims[[1]]))
     } else {
-        stop("Too many dimensions to plot, try subsetting the CrunchCube")
+        idx <- ceiling(n_dims / 2)
+        plot + 
+            facet_grid(
+                vars(!!!facet_dims[(idx + 1):n_dims]), 
+                vars(!!!facet_dims[1:idx])
+            )
     }
-
 }

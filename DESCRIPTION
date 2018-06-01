@@ -28,7 +28,9 @@ Imports:
     rlang
 Suggests:
     covr,
-    httptest
+    httptest,
+    testthat,
+    vdiffr
 Remotes:
     tidyverse/ggplot2
 RoxygenNote: 6.0.1
