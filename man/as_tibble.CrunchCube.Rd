@@ -4,15 +4,10 @@
 \alias{as_tibble.CrunchCube}
 \title{Flatten a Crunch Cube}
 \usage{
-\method{as_tibble}{CrunchCube}(x, show_metadata = TRUE, ...)
+\method{as_tibble}{CrunchCube}(x, ...)
 }
 \arguments{
 \item{x}{a CrunchCube}
-
-\item{show_metadata}{By default this function returns additional metatada
-about the cube. In particular the unweighted counts for each entry, and
-whether that entry represents a missing value. If \code{FALSE} this metadata
-will be suppressed.}
 
 \item{...}{futher arguments passed on to \code{tibble::as_tibble()}}
 }

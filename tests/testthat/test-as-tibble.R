@@ -78,10 +78,5 @@ with_mock_crunch({
             c("animal", "opinion_mr_items", "opinion_mr_selections", "feeling_mr_items", 
                 "feeling_mr_selections", "count", ".unweighted_counts", "is_missing"
             ))
-        expect_equal(
-            names(as_tibble(cat_mr_mr, show_metadata = FALSE)), 
-            c("animal", "opinion_mr_items", "opinion_mr_selections", "feeling_mr_items", 
-                "feeling_mr_selections", "count")
-            )
     })
 })

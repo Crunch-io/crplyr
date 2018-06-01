@@ -7,10 +7,6 @@
 #' with the cube result using tidyverse tools.
 #'
 #' @param x a CrunchCube
-#' @param show_metadata By default this function returns additional metatada
-#'   about the cube. In particular the unweighted counts for each entry, and
-#'   whether that entry represents a missing value. If `FALSE` this metadata
-#'   will be suppressed.
 #' @param ... futher arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
@@ -19,14 +15,10 @@
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
-as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
+as_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     dnames <- dimnames(x@arrays$count)
     measures <- names(x@arrays)
-    if (!show_metadata) {
-        # we need this in part to hide unweighted counts from summarize
-        measures <- setdiff(measures, ".unweighted_counts")
-    }
     
     # Cubes can have multiple measures, which are represented as their own column
     # in the tibble. 
@@ -57,12 +49,10 @@ as_tibble.CrunchCube <- function (x, show_metadata = TRUE, ...) {
         out <- bind_cols(out, measure_vals)
         
         # identify which elements of cube represent missing values
-        if (show_metadata) {
-            out$is_missing <- x@dims %>% 
-                map("missing") %>% 
-                expand.grid() %>% 
-                reduce(`|`)
-        }
+        out$is_missing <- x@dims %>% 
+            map("missing") %>% 
+            expand.grid() %>% 
+            reduce(`|`)
     } else {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)
