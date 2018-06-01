@@ -12,7 +12,7 @@
 #' theme_minimal theme  rel unit 
 theme_crunch <- function(base_size = 12, base_family = "sans") {
     subtitle <- element_text(
-                    hjust =0, 
+                    hjust = 0, 
                     face = "bold",
                     size = rel(1), 
                     color = card_colors[1])
@@ -42,7 +42,7 @@ crunch_colors <- c(
 
 card_colors <- c("#56A08E","#007F65")
 
-#' @importFrom viridis viridis
+#' @importFrom viridisLite viridis
 #' @importFrom dplyr summarize pull
 generate_colors <- function(var) {
     n_cols <- length(unique(var))
@@ -53,9 +53,11 @@ generate_colors <- function(var) {
     }
 }
 
+#' @rdname autoplot
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot ggtitle
 #' @importFrom crunch name
-autoplot.NumericVariable <- function(x) {
+#' @export
+autoplot.NumericVariable <- function(x, ...) {
     v <- as.vector(x)
     binwidth <- round((max(v) - min(v)) / 5, 0)
     ggplot() +
@@ -65,50 +67,52 @@ autoplot.NumericVariable <- function(x) {
         ggtitle(name(x))
 }
 
+#' @rdname autoplot
 #' @export
-autoplot.CategoricalVariable <- function(x) plotCategorical(x)
+autoplot.CategoricalVariable <- function(x, ...) plotCategorical(x, ...)
 
+#' @rdname autoplot
 #' @export
-autoplot.CategoricalArrayVariable <- function(x) plotCategorical(x)
+autoplot.CategoricalArrayVariable <- function(x, ...) plotCategorical(x, ...)
 
+#' @rdname autoplot
 #' @export
-autoplot.MultipleResponseVariable <- function(x) plotCategorical(x)
+autoplot.MultipleResponseVariable <- function(x, ...) plotCategorical(x, ...)
 
-#' @importFrom crunch datasetReference loadDataset
+#' @importFrom crunch  alias datasetReference loadDataset
 #' @importFrom ggplot2 autoplot
-plotCategorical <- function(x) {
+plotCategorical <- function(x, ...) {
     ds <- loadDataset(datasetReference(x))
     cube <- crtabs(paste0("~", alias(x)), ds)
-    autoplot(cube)
+    autoplot(cube, ...)
 }
 
-#' @importFrom dplyr mutate filter pull
-#' @importFrom tibble as_tibble
 plot_fun_lookup <- function(plot_dim, plot_type) {
-    plot_lookup <- as_tibble(expand.grid(dims = 1:2, type = c("bar", "dot", "grid"))) %>% 
-        mutate(plot_function = paste0("crunch_", dims, "d_", type, "_plot"))
-    plot_fun <- plot_lookup %>% 
-        filter(dims == plot_dim, type == plot_type) %>% 
-        pull(plot_function) %>% 
-        get()
-    return(plot_fun)
+    plot_fun <- paste0("crunch_", plot_dim, "d_", plot_type, "_plot")
+    return(get(plot_fun))
 }
 
-#' Autoplot methods for CrunchCubes
+#' Autoplot methods for Crunch Objects
 #' 
-#' CrunchCubes are a convenient way to store high dimensional tables. These 
-#' methods provide some default plotting methods which are optimized for the 
-#' dimentionality of your cube. You can select the plot type, and measure you wish 
-#' to plot, and the method will attempt to provide a meaningful plot for your data. 
+#' Generates ggplot representations of CrunchVariables and CrunchCubes
 #' 
+#' The Crunch autoplot methods provide plots which are optimized for crunch objects
+#' and allow you to plot them without bringing the full object into memory. You can select
+#' between three families of plots which will attempt to accomodate the dimensionality of
+#' the plotted object.
+#' 
+#' @param x a CrunchCube, or CrunchVariable
 #' @param plot_type One of `"dot"`, `"grid"`, or `"bar"` which indicates the plot family
 #' you would like to use. Higher dimensional plots add color coding or facets depending
 #' on the dimensionality of the data. 
 #' @param measure The measure you wish to plot. This will usually be `"count"`, the default
-#' but can also be `".unweighted_counts"` or any other measure stored in the cube. 
+#' but can also be `".unweighted_counts"` or any other measure stored in the cube.
+#' @param ... ignored
 #' 
 #' @export
-#' @importFrom rlang sym syms
+#' @name autoplot
+#' @aliases
+#' @importFrom rlang .data sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
@@ -122,7 +126,7 @@ autoplot.CrunchCube <- function(x,
     measure <- sym(measure)
 
     plot_tbl <- as_tibble(x) %>% 
-        filter(!is_missing) 
+        filter(!.data$is_missing) 
     
     #Select the dimension columns from the table
     dim_names <- names(plot_tbl)[1:length(x@dims)] 
@@ -220,11 +224,12 @@ crunch_2d_bar_plot <- function(tibble, dims, measure, display_names) {
 }
 
 #' @importFrom dplyr summarize
+#' @importFrom rlang .data
 .crunch_2d_tibble <- function(tibble, dims, measure) {
     levs <- tibble %>% 
         group_by(!!dims[[1]]) %>% 
         summarize(order_var = sum(!!measure)) %>% 
-        arrange(order_var) %>% 
+        arrange(.data$order_var) %>% 
         pull(!!dims[[1]])
     
     out <- tibble %>% 
