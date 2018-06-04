@@ -46,13 +46,12 @@ as_tibble.CrunchCube <- function (x, ...) {
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
-        out <- bind_cols(out, measure_vals)
-
-        # identify which elements of cube represent missing values
+        # Identify which elements of cube represent missing values
         out$is_missing <- x@dims %>%
             map("missing") %>%
             expand.grid() %>%
             reduce(`|`)
+        out <- bind_cols(out, measure_vals)
     } else {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)

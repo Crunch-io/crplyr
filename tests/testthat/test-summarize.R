@@ -44,7 +44,7 @@ with_mock_crunch({
                 summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
         expect_is(tbl4, "tbl_df")
         expect_identical(dim(tbl4), c(2L, 6L))
-        expect_identical(names(tbl4), c("vs", ".unweighted_counts", "is_missing", "hp", "sd_hp", "count"))
+        expect_identical(names(tbl4), c("vs", "is_missing", ".unweighted_counts", "hp", "sd_hp", "count"))
         expect_equal(as.numeric(tbl4[tbl4$vs == 1, "count"]), 14)
     })
 
@@ -54,7 +54,7 @@ with_mock_crunch({
                 summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
         expect_is(tbl5, "tbl_df")
         expect_identical(dim(tbl5), c(6L, 7L))
-        expect_identical(names(tbl5), c("vs",  "gear", ".unweighted_counts", "is_missing", "hp", "sd_hp", "count"))
+        expect_identical(names(tbl5), c("vs",  "gear", "is_missing", ".unweighted_counts", "hp", "sd_hp", "count"))
         expect_equal(as.numeric(filter(tbl5, vs == 1 & gear == 4)$count), 10)
     })
 
@@ -65,7 +65,7 @@ with_mock_crunch({
                 summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
         expect_is(tbl6, "tbl_df")
         expect_identical(dim(tbl6), c(2L, 6L))
-        expect_identical(names(tbl6), c("vs", ".unweighted_counts", "is_missing", "hp", "sd_hp", "count"))
+        expect_identical(names(tbl6), c("vs", "is_missing", ".unweighted_counts", "hp", "sd_hp", "count"))
         expect_equal(as.numeric(tbl6[tbl6$vs == 1, "count"]), 4)
     })
 
@@ -77,7 +77,7 @@ with_mock_crunch({
                 summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
         expect_is(tbl7, "tbl_df")
         expect_identical(dim(tbl7), c(6L, 7L))
-        expect_identical(names(tbl7), c("vs", "gear", ".unweighted_counts", "is_missing", "hp", "sd_hp", "count"))
+        expect_identical(names(tbl7), c("vs", "gear", "is_missing", ".unweighted_counts", "hp", "sd_hp", "count"))
         expect_equal(as.numeric(filter(tbl7, vs == 1 & gear == 4)$count), 2)
     })
 })
