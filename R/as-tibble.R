@@ -19,19 +19,19 @@ as_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     dnames <- dimnames(x@arrays$count)
     measures <- names(x@arrays)
-    
+
     # Cubes can have multiple measures, which are represented as their own column
-    # in the tibble. 
+    # in the tibble.
     measure_vals <- sapply(measures, function(y) {
         as.vector(x@arrays[[y]])
     }, simplify = FALSE)
-    
+
     # If there are dimnames, expand.grid and bind them. We also change the names
     # of the two array dimensions to avoid duplicated variable names in  the
     # tibble.
     if (!is.null(dnames)) {
         types <- getDimTypes(x)
-        
+
         # Change MR selection vars to T/F/NA
         is_selected <- types == "mr_selections"
         dnames <- map2(dnames, is_selected, ~{
@@ -41,17 +41,17 @@ as_tibble.CrunchCube <- function (x, ...) {
                 return (.x)
             }
         })
-        
+
         suffixes <- str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
         out <- bind_cols(out, measure_vals)
-        
+
         # identify which elements of cube represent missing values
-        out$is_missing <- x@dims %>% 
-            map("missing") %>% 
-            expand.grid() %>% 
+        out$is_missing <- x@dims %>%
+            map("missing") %>%
+            expand.grid() %>%
             reduce(`|`)
     } else {
         # scalar values, which means no group_by

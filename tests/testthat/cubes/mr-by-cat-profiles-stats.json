@@ -30,13 +30,6 @@
                         "alias": "pdl_gender",
                         "description": "Bitte geben Sie Ihr Geschlecht an.",
                         "name": "Geschlecht",
-                        "view": {
-                            "roles": [
-                                "market_sizing",
-                                "group_definition",
-                                "profiles_datapoints"
-                            ]
-                        }
                     },
                     "type": {
                         "ordinal": false,
@@ -69,13 +62,6 @@
                         "alias": "pdl_holidays_taken_12_months",
                         "description": "Wie oft waren Sie in den letzten 12 Monaten im Urlaub? <br/>Bitte beruecksichtigen Sie hier alle Reisen innerhalb Deutschlands und ins Ausland, bei denen Sie mindestens *einmal uebernachtet* haben, allerdings keine Dienstreisen oder Besuche bei Verwandten oder Freunden.",
                         "name": "Urlaub - Anzahl letzte 12 Monate",
-                        "view": {
-                            "roles": [
-                                "market_sizing",
-                                "group_definition",
-                                "profiles_datapoints"
-                            ]
-                        }
                     },
                     "type": {
                         "ordinal": false,
