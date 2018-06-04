@@ -16,7 +16,7 @@ with_mock_crunch({
         expect_is(autoplot(ds$birthyr), "ggplot")
         expect_is(autoplot(ds$starttime), "ggplot")
     })
-    browser()
+    
     test_that("autoplot triggers correct GETs", {
         expect_GET(autoplot(ds$gender), 
             'https://app.crunch.io/api/datasets/1/cube/', 
