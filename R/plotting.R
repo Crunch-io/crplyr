@@ -53,18 +53,36 @@ generate_colors <- function(var) {
     }
 }
 
+
 #' @rdname autoplot
-#' @importFrom ggplot2 aes autoplot geom_histogram ggplot ggtitle
-#' @importFrom crunch name
+#' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
+#' @importFrom crunch description name
+#' @export
+autoplot.DatetimeVariable <- function(x, ...) {
+    v <- as.vector(x)
+    plot_df <- data_frame(!!sym(name(x)) := as.Date(as.vector(x)))
+
+    ggplot(plot_df, aes(x = !!sym(name(x)))) + 
+        geom_histogram(fill = card_colors[2]) + 
+        theme_crunch() +
+        labs(title = name(x),
+            subtitle = description(x))
+}
+
+#' @rdname autoplot
+#' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
+#' @importFrom crunch description name
+#' @importFrom rlang !! sym :=
 #' @export
 autoplot.NumericVariable <- function(x, ...) {
     v <- as.vector(x)
-    binwidth <- round((max(v) - min(v)) / 5, 0)
-    ggplot() +
-        aes(v) +
+    plot_df <- data_frame(!!sym(name(x)) := v)
+    binwidth <- round((max(plot_df) - min(v)) / 5, 0)
+    ggplot(plot_df, aes(x = !!sym(name(x)))) +
         geom_histogram(binwidth = binwidth, fill = card_colors[1]) +
         theme_crunch() +
-        ggtitle(name(x))
+        labs(title = name(x),
+            subtitle = description(x))
 }
 
 #' @rdname autoplot
@@ -96,10 +114,10 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' 
 #' Generates ggplot representations of CrunchVariables and CrunchCubes
 #' 
-#' The Crunch autoplot methods provide plots which are optimized for crunch objects
-#' and allow you to plot them without bringing the full object into memory. You can select
+#' The Crunch autoplot methods generate plots which are optimized for various crunch objects.
+#' This allows you to visualize the object without bringing it into memory. You can select
 #' between three families of plots which will attempt to accomodate the dimensionality of
-#' the plotted object.
+#' the plotted object. These plots can be further extended and customized with other ggplot methods. 
 #' 
 #' @param x a CrunchCube, or CrunchVariable
 #' @param plot_type One of `"dot"`, `"grid"`, or `"bar"` which indicates the plot family
@@ -111,7 +129,6 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' 
 #' @export
 #' @name autoplot
-#' @aliases
 #' @importFrom rlang .data sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull

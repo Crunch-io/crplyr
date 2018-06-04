@@ -12,9 +12,11 @@ test_that("generate_colors overflows to viridis", {
 
 with_mock_crunch({
     ds <- loadDataset("test ds")
-    test_that("crunch numeric variables produce ggplots", {
+    test_that("crunch variables produce ggplots", {
         expect_is(autoplot(ds$birthyr), "ggplot")
+        expect_is(autoplot(ds$starttime), "ggplot")
     })
+    browser()
     test_that("autoplot triggers correct GETs", {
         expect_GET(autoplot(ds$gender), 
             'https://app.crunch.io/api/datasets/1/cube/', 
