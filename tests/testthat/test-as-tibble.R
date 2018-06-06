@@ -1,11 +1,19 @@
 context("Cube to tibble")
 
-check_cube_match <- function(arr, tibble) {
+test_that("add_duplicate_suffix generates correct character vector", {
+    expect_equal(
+        add_duplicate_suffix(c("a", "a", "b", "c", "b", "c", "d")), 
+        c("a_1", "a_2", "b_1", "c_1", "b_2", "c_2", "d")
+    )
+})
+
+check_cube_match <- function(arr, tibble, dim = "count", debug = FALSE) {
+
     dims <- setdiff(names(tibble), c("count", ".unweighted_counts", "is_missing"))
-    test <- lapply(seq_along(tibble$count), function(i) {
+    test <- lapply(seq_along(tibble[[dim]]), function(i) {
         args <- tibble[i, dims, drop = TRUE]
         args <- lapply(args, as.character)
-        do.call(`[`, c(list(arr), args)) == tibble$count[i]
+        do.call(`[`, c(list(arr), args)) == tibble[[dim]][i]
     })
     return(all(unlist(test)))
 }
@@ -30,40 +38,21 @@ with_mock_crunch({
         expect_true(check_cube_match(cat_cat@arrays$count, cat_tibble))
     })
 
-    test_that("as_tibble with categorical array", {
-        skip("TODO")
-        print(book[[3]][[3]])
-        # , , petloc = Home
-        #
-        #       q1
-        # petloc Cat Dog Bird
-        #   Cat    3   1    0
-        #   Dog    1   1    1
-        #   Bird   1   0    0
-        #
-        # , , petloc = Work
-        #
-        #       q1
-        # petloc Cat Dog Bird
-        #   Cat    3   1    1
-        #   Dog    1   2    0
-        #   Bird   1   1    0
-        print(as_tibble(book[[3]][[3]]))
-    })
-
     test_that("as_tibble when repeated dimension vars", {
-        skip("TODO")
-        print(book[[2]][[3]])
-        #         q1
-        # q1     Cat Dog Bird
-        # Cat    6   0    0
-        # Dog    0   4    0
-        # Bird   0   0    3
-        print(as_tibble(book[[2]][[3]]))
+        tibble <- as_tibble(book[[2]][[3]])
+        expect_is(tibble, "tbl_df")
+        expect_equal(dim(tibble), c(25, 5))
+        expect_equal(names(tibble)[1:2], c("q1_1", "q1_2"))
     })
 
     test_that("If weighted, the '.unweighted_counts' are included", {
-        skip("Need to load a weighted fixture. Also need Cube to know if it is weighted")
+        cube <- loadCube("cubes/feelings-pets-weighted.json")
+        #check that cube has weights applied
+        expect_false(all(cube@arrays$count == cube@arrays$.unweighted_counts))
+        tibble <- as_tibble(cube)
+        expect_true(check_cube_match(cube@arrays$count, tibble))
+        expect_true(check_cube_match(cube@arrays$.unweighted_counts, tibble, ".unweighted_counts"))
+        expect_false(all(tibble$count == tibble$.unweighted_counts))
     })
 
     test_that("as_tibble on a cat_mr_mr cube", {

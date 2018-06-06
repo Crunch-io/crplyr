@@ -41,11 +41,11 @@ as_tibble.CrunchCube <- function (x, ...) {
                 return (.x)
             }
         })
-
         suffixes <- str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
+        names(out) <- add_duplicate_suffix(names(out))
         # Identify which elements of cube represent missing values
         out$is_missing <- x@dims %>%
             map("missing") %>%
@@ -57,4 +57,17 @@ as_tibble.CrunchCube <- function (x, ...) {
         out <- bind_cols(measure_vals)
     }
     return(as_tibble(out, ... ))
+}
+
+
+#' @importFrom purrr walk
+add_duplicate_suffix <- function(names, sep = "_"){
+    u_names <- unique(names)
+    purrr::walk(u_names, ~{
+        dupes <- names == .
+        if (sum(dupes) != 1) {
+            names[dupes] <<- paste0(names[dupes], sep, 1:sum(dupes))
+        }
+    })
+    return(names)
 }
