@@ -24,12 +24,13 @@ Imports:
     lazyeval,
     purrr,
     tibble,
+    rlang,
     stringr,
-    viridisLite,
-    rlang
+    viridisLite
 Suggests:
     covr,
     httptest,
+    magrittr,
     testthat,
     vdiffr
 Remotes:
