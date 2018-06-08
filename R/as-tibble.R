@@ -17,7 +17,8 @@
 #' @importFrom stringr str_extract
 as_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
-    dnames <- dimnames(x@arrays$count)
+    
+    dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
 
     # Cubes can have multiple measures, which are represented as their own column
@@ -25,6 +26,8 @@ as_tibble.CrunchCube <- function (x, ...) {
     measure_vals <- sapply(measures, function(y) {
         as.vector(x@arrays[[y]])
     }, simplify = FALSE)
+    
+    names(measure_vals)[names(measure_vals) == ".unweighted_counts"] <- "row_count"
 
     # If there are dimnames, expand.grid and bind them. We also change the names
     # of the two array dimensions to avoid duplicated variable names in  the
@@ -46,6 +49,7 @@ as_tibble.CrunchCube <- function (x, ...) {
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
         names(out) <- add_duplicate_suffix(names(out))
+        
         # Identify which elements of cube represent missing values
         out$is_missing <- x@dims %>%
             map("missing") %>%
