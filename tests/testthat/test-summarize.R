@@ -83,17 +83,21 @@ with_mock_crunch({
     })
     
     test_that("unweighted_counts", {
-        browser()
+
         tbl8 <- ds %>% 
             summarize(n = unweighted_n())
+        expect_equal(dim(tbl8), c(1,1))
+        expect_equal(names(tbl8), "n")
+        
         tbl9 <- ds %>% 
             summarize(mean = mean(hp), n = unweighted_n())
+        expect_equal(dim(tbl9), c(1,2))
+        expect_equal(names(tbl9), c("mean", "n"))
+        
         tbl10 <- ds %>% 
             group_by(cyl, gear) %>% 
             summarize(mean = mean(hp), n = unweighted_n())
-        tbl11 <- ds %>% 
-            group_by(cyl) %>% 
-            summarize(n = unweighted_n())
-        
+        expect_equal(dim(tbl10), c(9, 5))
+        expect_equal(names(tbl10), c("cyl", "gear", "is_missing", "mean", "n"))
     })
 })

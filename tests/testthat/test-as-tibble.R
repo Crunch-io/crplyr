@@ -9,7 +9,7 @@ test_that("add_duplicate_suffix generates correct character vector", {
 
 check_cube_match <- function(arr, tibble, dim = "count", debug = FALSE) {
 
-    dims <- setdiff(names(tibble), c("count", ".unweighted_counts", "is_missing"))
+    dims <- setdiff(names(tibble), c("count", "row_count", "is_missing"))
     test <- lapply(seq_along(tibble[[dim]]), function(i) {
         args <- tibble[i, dims, drop = TRUE]
         args <- lapply(args, as.character)
@@ -19,6 +19,7 @@ check_cube_match <- function(arr, tibble, dim = "count", debug = FALSE) {
 }
 
 with_mock_crunch({
+
     ds <- loadDataset("test ds")
     ## Load a bunch of different cubes
     with_POST("https://app.crunch.io/api/datasets/1/multitables/apidocs-tabbook/", {
@@ -34,7 +35,7 @@ with_mock_crunch({
         cat_tibble <- as_tibble(cat_cat)
         expect_is(cat_tibble, "tbl_df")
         expect_equal(dim(cat_tibble), c(12, 5))
-        expect_equal(names(cat_tibble), c("v4", "v7", "is_missing", "count", ".unweighted_counts"))
+        expect_equal(names(cat_tibble), c("v4", "v7", "is_missing", "count", "row_count"))
         expect_true(check_cube_match(cat_cat@arrays$count, cat_tibble))
     })
 
@@ -52,7 +53,7 @@ with_mock_crunch({
         tibble <- as_tibble(cube)
         expect_true(check_cube_match(cube@arrays$count, tibble))
         expect_true(check_cube_match(cube@arrays$.unweighted_counts, tibble, ".unweighted_counts"))
-        expect_false(all(tibble$count == tibble$.unweighted_counts))
+        expect_false(all(tibble$count == tibble$row_count))
     })
 
     test_that("as_tibble on a cat_mr_mr cube", {
@@ -65,7 +66,7 @@ with_mock_crunch({
         expect_equal(
             names(cat_mr_mr_tibble),
             c("animal", "opinion_mr_items", "opinion_mr_selections", "feeling_mr_items",
-                "feeling_mr_selections", "is_missing", "count", ".unweighted_counts"
+                "feeling_mr_selections", "is_missing", "count", "row_count"
             ))
     })
 })

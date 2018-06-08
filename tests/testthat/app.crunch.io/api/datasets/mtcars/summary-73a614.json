@@ -1,0 +1,16 @@
+{
+    "element": "shoji:view",
+    "self": "https://app.crunch.io/api/datasets/mtcars/summary/?filter=%7B%7D",
+    "value": {
+        "unweighted": {
+            "filtered": 32,
+            "total": 32
+        },
+        "variables": 11,
+        "weighted": {
+            "filtered": 32,
+            "total": 32
+        },
+        "columns": 11
+    }
+}
