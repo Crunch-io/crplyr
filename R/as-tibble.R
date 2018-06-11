@@ -67,7 +67,7 @@ as_tibble.CrunchCube <- function (x, ...) {
 #' @importFrom purrr walk
 add_duplicate_suffix <- function(names, sep = "_"){
     u_names <- unique(names)
-    purrr::walk(u_names, ~{
+    walk(u_names, ~{
         dupes <- names == .
         if (sum(dupes) != 1) {
             names[dupes] <<- paste0(names[dupes], sep, 1:sum(dupes))

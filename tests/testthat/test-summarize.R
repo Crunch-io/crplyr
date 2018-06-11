@@ -99,5 +99,8 @@ with_mock_crunch({
             summarize(mean = mean(hp), n = unweighted_n())
         expect_equal(dim(tbl10), c(9, 5))
         expect_equal(names(tbl10), c("cyl", "gear", "is_missing", "mean", "n"))
+        
+        expect_error(unweighted_n(), 
+            "This function cannot be called outside of a summarize call.")
     })
 })

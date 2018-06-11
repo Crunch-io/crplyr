@@ -1,10 +1,9 @@
 #' @export
-#' @importFrom dplyr summarise_ select
+#' @importFrom dplyr bind_cols summarise_ select
 #' @importFrom purrr map_chr map_df
 #' @importFrom crunch crtabs
 summarise_.CrunchDataset <- function (.data, ..., .dots) {
     dots <- all_dots(.dots, ..., all_named = TRUE)
-
     unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
     counts <- dots[unweighted]
     non_counts <- dots[!unweighted]
@@ -13,21 +12,26 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
     # When there are no groups or summary functions, we can't 
     # use crtabs to get a cube, but unweighted_n() is equivalent to nrow(ds)
     # Otherwise we can use crtabs to get the cube and extract the unweighted counts
-    # from the cube. 
+    # from the cube. This doesn't work for weighted counts because they 
+    # are not included in some cubes. So in that case we rely on the the server
+    # `n` function. 
     if (length(non_counts) == 0 && length(groups(.data)) == 0) {
-        n_row <- nrow(.data)
-        out <- map_df(counts, ~n_row)
+        out <- map_df(counts, ~nrow(.data))
     } else {
         cube <- crtabs(fmla, data=.data)
-        unweighted_n <-  map_df(dots[unweighted], ~cube@arrays$.unweighted_counts)
+        
+        # map_df is used because the user could be assigning unweighted counts
+        # to several variables. 
+        unweighted_n <-  map_df(counts, ~cube@arrays$.unweighted_counts)
         out <- cube %>% 
             as_tibble() %>% 
             select(-.data$row_count) %>% 
             bind_cols(unweighted_n)
     } 
     
-    # some cubes don't have an "is_missing" column, so we need the 
-    # intersection to handle cubes whether or not they have the column
+    # Some cubes, like those produced from a summarize with no grouping,
+    #  don't have an "is_missing" column, so we need this 
+    # intersect to handle cubes whether or not they have the column
     names <- intersect(
         c(as.character(groups(.data)), "is_missing", names(dots)),
         names(out)
@@ -36,6 +40,27 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
     # sort the return columns based on the request order
     out <- out[, names]
     return(out)
+}
+
+
+#' Return the unweighted counts from summarize
+#' 
+#' This function allows you to return the unweighted counts from a Crunch dataset
+#' or grouped crunch dataset. Currently it can only be used from within a summarize
+#' call.
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' ds %>% 
+#'    group_by(cyl) %>% 
+#'    summarize(
+#'        raw_counts = unweighted_n(),
+#'        mean = mean(wt)
+#'    )
+#' }
+unweighted_n <- function() {
+    stop("This function cannot be called outside of a summarize call.")
 }
 
 #' @importFrom stats as.formula
