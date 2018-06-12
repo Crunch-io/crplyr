@@ -51,10 +51,11 @@ as_tibble.CrunchCube <- function (x, ...) {
         names(out) <- add_duplicate_suffix(names(out))
         
         # Identify which elements of cube represent missing values
-        out$is_missing <- x@dims %>%
+        
+        lgl_df <- x@dims %>%
             map("missing") %>%
-            expand.grid() %>%
-            reduce(`|`)
+            expand.grid()
+        out$is_missing <- apply(lgl_df, 1, any)
         out <- bind_cols(out, measure_vals)
     } else {
         # scalar values, which means no group_by
