@@ -7,17 +7,6 @@ test_that("add_duplicate_suffix generates correct character vector", {
     )
 })
 
-check_cube_match <- function(arr, tibble, dim = "count", debug = FALSE) {
-
-    dims <- setdiff(names(tibble), c("count", "row_count", "is_missing"))
-    test <- lapply(seq_along(tibble[[dim]]), function(i) {
-        args <- tibble[i, dims, drop = TRUE]
-        args <- lapply(args, as.character)
-        do.call(`[`, c(list(arr), args)) == tibble[[dim]][i]
-    })
-    return(all(unlist(test)))
-}
-
 with_mock_crunch({
 
     ds <- loadDataset("test ds")
@@ -36,7 +25,10 @@ with_mock_crunch({
         expect_is(cat_tibble, "tbl_df")
         expect_equal(dim(cat_tibble), c(12, 5))
         expect_equal(names(cat_tibble), c("v4", "v7", "is_missing", "count", "row_count"))
-        expect_true(check_cube_match(cat_cat@arrays$count, cat_tibble))
+        expect_equal(cat_tibble[cat_tibble$v4 == "B" & cat_tibble$v7 == "D", ]$count,
+            3)
+        expect_equal(cat_tibble$row_count, c(5, 5, 0, 3, 2, 0, 2, 3, 0, 0, 0, 0))
+        expect_equal(cat_tibble$is_missing[1:5],c(FALSE, FALSE, TRUE, TRUE, TRUE))
     })
 
     test_that("as_tibble when repeated dimension vars", {
@@ -51,9 +43,11 @@ with_mock_crunch({
         #check that cube has weights applied
         expect_false(all(cube@arrays$count == cube@arrays$.unweighted_counts))
         tibble <- as_tibble(cube)
-        expect_true(check_cube_match(cube@arrays$count, tibble))
-        expect_true(check_cube_match(cube@arrays$.unweighted_counts, tibble, ".unweighted_counts"))
-        expect_false(all(tibble$count == tibble$row_count))
+        sub_tbl <- tibble[tibble$feelings == "extremely happy" & tibble$animals == "cats", ]
+        expect_equal(sub_tbl$count, 119)
+        expect_equal(sub_tbl$row_count, 9)
+        expect_equal(tibble$count[c(2, 7, 15)], c(12, 5, 0))
+        expect_equal(tibble$is_missing[5:10], c(FALSE, TRUE, FALSE, FALSE, FALSE, FALSE))
     })
 
     test_that("as_tibble on a cat_mr_mr cube", {

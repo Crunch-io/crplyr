@@ -5,28 +5,26 @@
 summarise_.CrunchDataset <- function (.data, ..., .dots) {
     dots <- all_dots(.dots, ..., all_named = TRUE)
     unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
-    counts <- dots[unweighted]
-    non_counts <- dots[!unweighted]
-    fmla <- dots_to_formula(non_counts, groups(.data))
+    unweighted_n_measures <- dots[unweighted]
+    measures <- dots[!unweighted]
+    fmla <- dots_to_formula(measures, groups(.data))
     
-    # When there are no groups or summary functions, we can't 
-    # use crtabs to get a cube, but unweighted_n() is equivalent to nrow(ds)
-    # Otherwise we can use crtabs to get the cube and extract the unweighted counts
-    # from the cube. This doesn't work for weighted counts because they 
-    # are not included in some cubes. So in that case we rely on the the server
-    # `n` function. 
-    if (length(non_counts) == 0 && length(groups(.data)) == 0) {
-        out <- map_df(counts, ~nrow(.data))
+    if (length(measures) == 0 && length(groups(.data)) == 0) {
+        # When there are no groups or summary functions, we can't 
+        # use crtabs to get a cube, but unweighted_n() is equivalent to nrow(ds)
+        # Otherwise we can use crtabs to get the cube and extract the unweighted counts
+        # from the cube. This doesn't work for weighted counts because they 
+        # are not included in some cubes. So in that case we rely on the the server
+        # `n` function. 
+        # 
+        # We're using map_df because it's possible that the user asks for several 
+        # unweighted_n's in the same summarize call. 
+        out <- map_df(unweighted_n_measures, ~nrow(.data))
     } else {
-        cube <- crtabs(fmla, data=.data)
-        
-        # map_df is used because the user could be assigning unweighted counts
-        # to several variables. 
-        unweighted_n <-  map_df(counts, ~cube@arrays$.unweighted_counts)
-        out <- cube %>% 
-            as_tibble() %>% 
-            select(-.data$row_count) %>% 
-            bind_cols(unweighted_n)
+        out <- as_tibble(crtabs(fmla, data=.data))
+        unweighted_n <-  map_df(unweighted_n_measures, ~ out$row_count)
+        out$row_count <- NULL
+        out <- bind_cols(out, unweighted_n)
     } 
     
     # Some cubes, like those produced from a summarize with no grouping,
@@ -47,7 +45,7 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
 #' 
 #' This function allows you to return the unweighted counts from a Crunch dataset
 #' or grouped crunch dataset. Currently it can only be used from within a summarize
-#' call.
+#' call. If your dataset is unweighted, then unweighted_n() is equivalent to n().
 #'
 #' @export
 #' @examples
@@ -60,7 +58,7 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
 #'    )
 #' }
 unweighted_n <- function() {
-    stop("This function cannot be called outside of a summarize call.")
+    stop("This function cannot be called outside of a summarize call.", .call = FALSE)
 }
 
 #' @importFrom stats as.formula
