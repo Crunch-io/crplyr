@@ -7,7 +7,7 @@
 #' with the cube result using tidyverse tools.
 #'
 #' @param x a CrunchCube
-#' @param ... futher arguments passed on to `tibble::as_tibble()`
+#' @param ... further arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
 #' @importFrom tibble as_tibble
@@ -17,7 +17,7 @@
 #' @importFrom stringr str_extract
 as_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
-    
+
     dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
 
@@ -26,7 +26,7 @@ as_tibble.CrunchCube <- function (x, ...) {
     measure_vals <- sapply(measures, function(y) {
         as.vector(x@arrays[[y]])
     }, simplify = FALSE)
-    
+
     names(measure_vals)[names(measure_vals) == ".unweighted_counts"] <- "row_count"
 
     # If there are dimnames, expand.grid and bind them. We also change the names
@@ -49,16 +49,16 @@ as_tibble.CrunchCube <- function (x, ...) {
         names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
         out <- do.call(expand.grid, dnames)
         names(out) <- add_duplicate_suffix(names(out))
-        
+
         # Identify which elements of cube represent missing values
-        
+
         lgl_df <- x@dims %>%
             map("missing") %>%
-            expand.grid() 
-        
+            expand.grid()
+
         # apply converts dataframes to matrixes which can be dangerous. In this
         # case it's fine because the data is all logical, but it's good to make
-        # that explicit. 
+        # that explicit.
         out$is_missing <- apply(as.matrix(lgl_df), 1, any)
         out <- bind_cols(out, measure_vals)
     } else {

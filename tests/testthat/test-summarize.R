@@ -6,7 +6,7 @@ with_mock_crunch({
     ds <- loadDataset("https://app.crunch.io/api/datasets/mtcars/")
 
     d2f <- function (...) dots_to_formula(lazyeval::lazy_dots(...))
-    
+
     test_that("dots_to_formula", {
         expect_equal(d2f(avg=mean(birthyr), ct=n()),
             list(avg=mean(birthyr), ct=n()) ~ 1)
@@ -81,39 +81,41 @@ with_mock_crunch({
         expect_identical(names(tbl7), c("vs", "gear", "is_missing", "hp", "sd_hp", "count"))
         expect_equal(as.numeric(filter(tbl7, vs == 1 & gear == 4)$count), 2)
     })
-    
+
     test_that("unweighted_n as sole summary", {
-        tbl8 <- ds %>% 
+        tbl8 <- ds %>%
             summarize(n = unweighted_n())
         expect_equal(dim(tbl8), c(1,1))
         expect_equal(names(tbl8), "n")
     })
-    
+
     test_that("Two unweighted_n's with nothing else", {
-        tbl <- ds %>% 
+        # This is pathological behavior, but in case a user asks for it, we
+        # don't break and they get what they requested
+        tbl <- ds %>%
             summarize(n = unweighted_n(), another_n = unweighted_n())
         expect_equal(dim(tbl), c(1,2))
         expect_equal(names(tbl), c("n", "another_n"))
         expect_true(tbl$n == tbl$another_n)
     })
-    
+
     test_that("unweighted_n with other summary statistic", {
-        tbl9 <- ds %>% 
+        tbl9 <- ds %>%
             summarize(mean = mean(hp), n = unweighted_n())
         expect_equal(dim(tbl9), c(1,2))
         expect_equal(names(tbl9), c("mean", "n"))
     })
-    
-    test_that("unweighted-n with groups", {
-        tbl10 <- ds %>% 
-            group_by(cyl, gear) %>% 
+
+    test_that("unweighted_n with groups", {
+        tbl10 <- ds %>%
+            group_by(cyl, gear) %>%
             summarize(mean = mean(hp), n = unweighted_n())
         expect_equal(dim(tbl10), c(9, 5))
         expect_equal(names(tbl10), c("cyl", "gear", "is_missing", "mean", "n"))
     })
-    
+
     test_that("unweighted_n errors when called directly", {
-        expect_error(unweighted_n(), 
+        expect_error(unweighted_n(),
             "This function cannot be called outside of a summarize call.")
     })
 })

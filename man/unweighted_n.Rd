@@ -13,8 +13,8 @@ call. If your dataset is unweighted, then unweighted_n() is equivalent to n().
 }
 \examples{
 \dontrun{
-ds \%>\% 
-   group_by(cyl) \%>\% 
+ds \%>\%
+   group_by(cyl) \%>\%
    summarize(
        raw_counts = unweighted_n(),
        mean = mean(wt)
