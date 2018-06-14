@@ -10,7 +10,7 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
 Version: 0.1.5
 Authors@R: c(
     person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io"),
-    person("Gordon", "Shotwell", role="ctb", email="gordon@crunch.io"))
+    person("Gordon", "Shotwell", role="aut", email="gordon@crunch.io"))
 URL: http://crunch.io/r/crplyr/, https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
 License: LGPL (>= 3)
@@ -21,10 +21,18 @@ Depends:
 Imports:
     methods,
     lazyeval,
+    purrr,
     tibble,
+    stringr,
     rlang (>= 0.1.2)
 Suggests:
     covr,
-    httptest
+    httptest,
+    magrittr,
+    spelling
+Remotes:
+    Crunch-io/rcrunch
 RoxygenNote: 6.0.1
+Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE)
