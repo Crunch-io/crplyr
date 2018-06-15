@@ -1,7 +1,7 @@
 
 #' Crunch ggplot theme
 #' 
-#' Style ggplots according to Crunch style. 
+#' Style ggplots according to Crunch style.
 #'
 #' @param base_size Base text size
 #' @param base_family Base text family
@@ -129,33 +129,40 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' 
 #' @export
 #' @name autoplot
-#' @importFrom rlang .data sym syms
+#' @importFrom rlang !! !!! .data sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
 autoplot.CrunchCube <- function(x, 
     plot_type = c("dot", "grid", "bar"), 
     measure = "count") {
-    
     plot_type = match.arg(plot_type)
     display_names <- map(x@dims, "references") %>% 
         map_chr("name")
+    
+    if (length(measure) > 1) {
+        # TODO think about how plots can support more than one measure. 
+        # for instance measures could be the grouping variable for 2d dot plots
+        stop("Autoplot can only support one measure.", .call = FALSE)
+    }
     measure <- sym(measure)
-
+    
+    # TODO do we want to make this optional to allow people to plot missing entries?
     plot_tbl <- as_tibble(x) %>% 
         filter(!.data$is_missing) 
     
-    #Select the dimension columns from the table
-    dim_names <- names(plot_tbl)[1:length(x@dims)] 
+    # Select the dimension columns from the table, this is necessary because the
+    # names in the tibble are unique, while the cube dimnames are not. 
+    dim_names <- names(plot_tbl)[seq_len(length(x@dims))] 
     
-    # only include rows where the MR selection dimensions are TRUE
+    # Only include rows where the MR selection dimensions are TRUE
     mr_selection_vars <- dim_names[getDimTypes(x) == "mr_selections"]
     if (length(mr_selection_vars)) {
         plot_tbl <- plot_tbl %>% 
             filter(!!!syms(mr_selection_vars))
     }
-
-    dims <- syms(setdiff(dim_names, mr_selection_vars)) #drop the MR selection dimensions for plotting
+    #drop the MR selection dimensions for plotting
+    dims <- syms(setdiff(dim_names, mr_selection_vars)) 
     
     plot_fun <- plot_fun_lookup(min(2, length(dims)), plot_type)
 
@@ -172,6 +179,7 @@ autoplot.CrunchCube <- function(x,
     } 
     
     # If there are more than two dimensions, add facets for the remaing dimensions
+    # TODO consider adding a max number of dimensions. 
     if (length(dims) > 2) {
         out <- add_facets(out, dims[3:length(dims)])
     }
@@ -200,8 +208,12 @@ crunch_1d_bar_plot <- function(tibble, dims, measure, display_names){
         geom_bar(stat = "identity", fill = card_colors[2]) +
         coord_flip()
 }
+
+# 1d_grid plots are equivalent to dot plots, so we redirect this call
 crunch_1d_grid_plot <- function(...) crunch_1d_dot_plot(...)
 
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 aes geom_point ggplot
 crunch_2d_grid_plot <- function(tibble, dims, measure, display_names) {
     tibble %>% 
         mutate(!!measure := ifelse(!!measure == 0, NA, !!measure)) %>% 
@@ -240,11 +252,11 @@ crunch_2d_bar_plot <- function(tibble, dims, measure, display_names) {
         labs(fill = display_names[2])
 }
 
-#' @importFrom dplyr summarize
+#' @importFrom dplyr arrange group_by mutate pull summarize
 #' @importFrom rlang .data
 .crunch_2d_tibble <- function(tibble, dims, measure) {
     levs <- tibble %>% 
-        group_by(!!dims[[1]]) %>% 
+        group_by(!!dims[[1]]) %>%  
         summarize(order_var = sum(!!measure)) %>% 
         arrange(.data$order_var) %>% 
         pull(!!dims[[1]])
