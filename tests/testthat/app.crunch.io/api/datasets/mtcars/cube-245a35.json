@@ -1,0 +1,157 @@
+{
+    "element": "shoji:view",
+    "self": "https://app.crunch.io/api/datasets/61045b/cube/?query=%7B%22dimensions%22%3A%5B%7B%22variable%22%3A%22https%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2F61045b%2Fvariables%2F000010%2F%22%7D%2C%7B%22variable%22%3A%22https%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2F61045b%2Fvariables%2F000002%2F%22%7D%5D%2C%22measures%22%3A%7B%22mean%22%3A%7B%22function%22%3A%22cube_mean%22%2C%22args%22%3A%5B%7B%22variable%22%3A%22https%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2F61045b%2Fvariables%2F000006%2F%22%7D%5D%7D%7D%2C%22weight%22%3Anull%7D&filter=%7B%7D",
+    "value": {
+        "query": {
+            "measures": {
+                "mean": {
+                    "function": "cube_mean",
+                    "args": [
+                        {
+                            "variable": "https://app.crunch.io/api/datasets/61045b/variables/000006/"
+                        }
+                    ]
+                }
+            },
+            "dimensions": [
+                {
+                    "variable": "https://app.crunch.io/api/datasets/61045b/variables/000010/"
+                },
+                {
+                    "variable": "https://app.crunch.io/api/datasets/61045b/variables/000002/"
+                }
+            ],
+            "weight": null
+        },
+        "query_environment": {
+            "filter": [
+
+            ]
+        },
+        "result": {
+            "dimensions": [
+                {
+                    "references": {
+                        "alias": "cyl",
+                        "name": "cyl"
+                    },
+                    "derived": true,
+                    "type": {
+                        "subtype": {
+                            "class": "numeric",
+                            "missing_rules": {
+
+                            },
+                            "missing_reasons": {
+                                "No Data": -1
+                            }
+                        },
+                        "elements": [
+                            {
+                                "id": 0,
+                                "value": 4.0,
+                                "missing": false
+                            },
+                            {
+                                "id": 1,
+                                "value": 6.0,
+                                "missing": false
+                            },
+                            {
+                                "id": 2,
+                                "value": 8.0,
+                                "missing": false
+                            }
+                        ],
+                        "class": "enum"
+                    }
+                },
+                {
+                    "references": {
+                        "alias": "gear",
+                        "name": "gear"
+                    },
+                    "derived": true,
+                    "type": {
+                        "subtype": {
+                            "class": "numeric",
+                            "missing_rules": {
+
+                            },
+                            "missing_reasons": {
+                                "No Data": -1
+                            }
+                        },
+                        "elements": [
+                            {
+                                "id": 0,
+                                "value": 3.0,
+                                "missing": false
+                            },
+                            {
+                                "id": 1,
+                                "value": 4.0,
+                                "missing": false
+                            },
+                            {
+                                "id": 2,
+                                "value": 5.0,
+                                "missing": false
+                            }
+                        ],
+                        "class": "enum"
+                    }
+                }
+            ],
+            "missing": 0,
+            "measures": {
+                "mean": {
+                    "data": [
+                        97.0,
+                        76.0,
+                        102.0,
+                        107.5,
+                        116.5,
+                        175.0,
+                        194.16666666666666,
+                        {
+                            "?": -8
+                        },
+                        299.5
+                    ],
+                    "n_missing": 0,
+                    "metadata": {
+                        "references": {
+
+                        },
+                        "derived": true,
+                        "type": {
+                            "integer": true,
+                            "missing_rules": {
+
+                            },
+                            "missing_reasons": {
+                                "No Data": -1,
+                                "NaN": -8
+                            },
+                            "class": "numeric"
+                        }
+                    }
+                }
+            },
+            "element": "crunch:cube",
+            "counts": [
+                1,
+                8,
+                2,
+                2,
+                4,
+                1,
+                12,
+                0,
+                2
+            ],
+            "n": 32
+        }
+    }
+}
