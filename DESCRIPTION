@@ -33,10 +33,6 @@ Suggests:
     magrittr,
     spelling
 Remotes:
-    Crunch-io/rcrunch
-    magrittr,
-    testthat,
-    vdiffr
     tidyverse/ggplot2,
     Crunch-io/rcrunch
 RoxygenNote: 6.0.1
