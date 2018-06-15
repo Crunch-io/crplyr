@@ -31,7 +31,8 @@ Suggests:
     covr,
     httptest,
     magrittr,
-    spelling
+    spelling,
+    vdiffr
 Remotes:
     tidyverse/ggplot2,
     Crunch-io/rcrunch
