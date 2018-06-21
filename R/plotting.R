@@ -218,7 +218,7 @@ crunch_2d_grid_plot <- function(tibble, dims, measure, display_names) {
     tibble %>% 
         mutate(!!measure := ifelse(!!measure == 0, NA, !!measure)) %>% 
         ggplot(aes(x = !!dims[[1]], y = !!dims[[2]], size = !!measure)) +
-        geom_point() 
+        geom_point(color = card_colors[2]) 
 }
 
 #' @importFrom ggplot2 ggplot geom_point labs scale_color_manual

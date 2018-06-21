@@ -25,8 +25,4 @@ test_that("autplot matches mocked plots", {
     expect_doppelganger("catarray-x-mr-dot", autoplot(cube, "dot"))
     expect_doppelganger("catarray-x-mr-grid", autoplot(cube, "grid"))
     expect_doppelganger("catarray-x-mr-bar", autoplot(cube, "bar"))
-    
-    # Validate high dimensional faceting so only need the one plot type
-    cube <- loadCube("cubes/cat-cat-cat-catarray.json")
-    expect_doppelganger("cat-cat-cat-catarray-dot", autoplot(cube, "dot"))
 })

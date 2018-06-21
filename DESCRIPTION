@@ -29,10 +29,12 @@ Imports:
     viridisLite
 Suggests:
     covr,
-    httptest,
+    httptest (>= 3.0.0),
     magrittr,
     spelling,
-    vdiffr
+    vdiffr,
+    knitr,
+    rmarkdown
 Remotes:
     tidyverse/ggplot2,
     Crunch-io/rcrunch
@@ -40,3 +42,4 @@ RoxygenNote: 6.0.1
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr
