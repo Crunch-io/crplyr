@@ -30,8 +30,6 @@ Suggests:
     httptest,
     magrittr,
     spelling
-Remotes:
-    Crunch-io/rcrunch
 RoxygenNote: 6.0.1
 Encoding: UTF-8
 Language: en-US
