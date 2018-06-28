@@ -31,6 +31,5 @@ Suggests:
     magrittr,
     spelling
 RoxygenNote: 6.0.1
-Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
