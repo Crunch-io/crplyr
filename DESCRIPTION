@@ -11,7 +11,7 @@ Version: 0.2.0
 Authors@R: c(
     person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io"),
     person("Gordon", "Shotwell", role="aut", email="gordon@crunch.io"))
-URL: http://crunch.io/r/crplyr/, https://github.com/Crunch-io/crplyr
+URL: https://crunch.io/r/crplyr/, https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
 License: LGPL (>= 3)
 Depends:
