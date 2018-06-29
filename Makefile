@@ -22,6 +22,10 @@ check: build
 	if grep "* checking examples ... NONE" crplyr.Rcheck/00check.log; then echo 'Must add examples before submitting to CRAN!'; fi
 	rm -rf crplyr.Rcheck/
 
+release: build
+	-unset INTEGRATION && R CMD CHECK --as-cran crplyr_$(VERSION).tar.gz
+	rm -rf crunch.Rcheck/
+
 man: doc
 	R CMD Rd2pdf man/ --force
 
