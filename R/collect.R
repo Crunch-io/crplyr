@@ -24,20 +24,7 @@
 #'    collect()
 #' }
 collect.CrunchDataset <- function(x, ...) {
-    out <- lapply(x, as.vector)
-    ## Calling as.vector on an array variable returns a dataframe
-    ## this is necessary in order to harmonize the array variable output
-    ## with the non-array variable output.
-    ## TODO replace with purrr::map_if if available.
-    list_to_df <- function (entry, name) {
-        if (!is.data.frame(entry)) {
-            entry <- data_frame(!!name := entry)
-        }
-        return(entry)
-    }
-    out <- mapply(list_to_df, out, names(x), SIMPLIFY = FALSE) %>%
-        bind_cols()
-    return(as_data_frame(out, ...))
+    return(as.data.frame(x, force = TRUE, ...))
 }
 
 #' @importFrom dplyr group_by collect %>%
