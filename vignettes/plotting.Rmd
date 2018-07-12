@@ -58,22 +58,7 @@ You can also define your own themes or use themes from other packages. This is h
 
 ## Extending ggplots
 
-ggplot2 has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together. 
-
-```{r patchwork, fig.height= 10,  fig.width=8}
-library(patchwork)
-p1 <- autoplot(ds$Professional)
-p2 <- autoplot(ds$TabsSpaces)
-p3 <- autoplot(ds$WantWorkMR, "bar")
-
-p3 + {p2 + p1} + plot_layout(ncol = 1)
-```
-
-You can also add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). This allows a user to interact with the plot by clicking and dragging, and lets them select which categories they want to see on the graph. 
-
-```{r plotly,  fig.width=8, fig.height=6}
-plotly::ggplotly(autoplot(ds$ImportantHiring))
-```
+ggplot2 has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with ggplot objects see the [ggplot extensions](https://www.ggplot2-exts.org/) website. 
 
 # Working with CrunchCubes
 
