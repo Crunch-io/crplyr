@@ -32,7 +32,12 @@ collect.CrunchDataset <- function(x, ...) {
 #' @name collect
 #' @export
 collect.GroupedCrunchDataset <- function(x, ...){
-    out <- collect.CrunchDataset(x, ...) %>%
-        group_by(!!!syms(group_vars(x)))
+    out <- transfer_groups(collect.CrunchDataset(x, ...), x)
     return(out)
 }
+
+# Broken out for testing
+transfer_groups <- function(df, grouped_df) {
+    return(group_by(df, !!!syms(group_vars(grouped_df))))
+}
+
