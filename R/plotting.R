@@ -120,7 +120,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' the plotted object. These plots can be further extended and customized with other ggplot methods. 
 #' 
 #' @param x a CrunchCube, or CrunchVariable
-#' @param plot_type One of `"dot"`, `"grid"`, or `"bar"` which indicates the plot family
+#' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the plot family
 #' you would like to use. Higher dimensional plots add color coding or facets depending
 #' on the dimensionality of the data. 
 #' @param measure The measure you wish to plot. This will usually be `"count"`, the default
@@ -134,7 +134,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
 autoplot.CrunchCube <- function(x, 
-    plot_type = c("dot", "grid", "bar"), 
+    plot_type = c("dot", "tile", "bar"), 
     measure = "count") {
     plot_type = match.arg(plot_type)
     display_names <- map(x@dims, "references") %>% 
@@ -171,8 +171,8 @@ autoplot.CrunchCube <- function(x,
         labs(title = paste0(unique(display_names), collapse = " + "),
             subtitle = x@dims[[1]]$references$description)
 
-    if (plot_type == "grid") {
-        # This is here instead of in the 2d_grid plot function because theme_crunch
+    if (plot_type == "tile") {
+        # This is here instead of in the 2d_tile plot function because theme_crunch
         # overrides the axis.text property 
         out <- out + 
             theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -209,16 +209,23 @@ crunch_1d_bar_plot <- function(tibble, dims, measure, display_names){
         coord_flip()
 }
 
-# 1d_grid plots are equivalent to dot plots, so we redirect this call
-crunch_1d_grid_plot <- function(...) crunch_1d_dot_plot(...)
+#' @importFrom ggplot2 coord_flip geom_raster xlab scale_fill_viridis_c
+crunch_1d_tile_plot <- function(tibble, dims, measure, display_names) {
+    .crunch_1d_tibble(tibble, dims, measure) %>%
+        ggplot(aes(y = !!dims[[1]], x = deparse(measure), fill = !!measure)) +
+        xlab("") +
+        geom_raster() +
+        scale_fill_viridis_c()
+}
 
 #' @importFrom dplyr mutate
-#' @importFrom ggplot2 aes geom_point ggplot
-crunch_2d_grid_plot <- function(tibble, dims, measure, display_names) {
+#' @importFrom ggplot2 aes geom_point ggplot scale_fill_viridis_c geom_raster
+crunch_2d_tile_plot <- function(tibble, dims, measure, display_names) {
     tibble %>% 
         mutate(!!measure := ifelse(!!measure == 0, NA, !!measure)) %>% 
-        ggplot(aes(x = !!dims[[1]], y = !!dims[[2]], size = !!measure)) +
-        geom_point(color = card_colors[2]) 
+        ggplot(aes(x = !!dims[[1]], y = !!dims[[2]], fill = !!measure)) +
+        geom_raster() +
+        scale_fill_viridis_c()
 }
 
 #' @importFrom ggplot2 ggplot geom_point labs scale_color_manual

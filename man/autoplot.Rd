@@ -20,7 +20,7 @@
 
 \method{autoplot}{MultipleResponseVariable}(x, ...)
 
-\method{autoplot}{CrunchCube}(x, plot_type = c("dot", "grid", "bar"),
+\method{autoplot}{CrunchCube}(x, plot_type = c("dot", "tile", "bar"),
   measure = "count")
 }
 \arguments{
@@ -28,7 +28,7 @@
 
 \item{...}{ignored}
 
-\item{plot_type}{One of \code{"dot"}, \code{"grid"}, or \code{"bar"} which indicates the plot family
+\item{plot_type}{One of \code{"dot"}, \code{"tile"}, or \code{"bar"} which indicates the plot family
 you would like to use. Higher dimensional plots add color coding or facets depending
 on the dimensionality of the data.}
 
