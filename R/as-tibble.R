@@ -11,13 +11,11 @@
 #'
 #' @export
 #' @importFrom tibble as_tibble
-#' @importFrom crunch getDimTypes
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
 as_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
-
     dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
 
@@ -33,7 +31,7 @@ as_tibble.CrunchCube <- function (x, ...) {
     # of the two array dimensions to avoid duplicated variable names in  the
     # tibble.
     if (!is.null(dnames)) {
-        types <- getDimTypes(x)
+        types <- crunch::getDimTypes(x)
 
         # Change MR selection vars to T/F/NA
         is_selected <- types == "mr_selections"
@@ -46,7 +44,10 @@ as_tibble.CrunchCube <- function (x, ...) {
         })
         suffixes <- str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
-        names(dnames)[is_array_var] <- paste0(names(dnames)[is_array_var], suffixes[is_array_var])
+        names(dnames)[is_array_var] <- paste0(
+            names(dnames)[is_array_var], 
+            suffixes[is_array_var]
+            )
         out <- do.call(expand.grid, dnames)
         names(out) <- add_duplicate_suffix(names(out))
 
@@ -65,9 +66,16 @@ as_tibble.CrunchCube <- function (x, ...) {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)
     }
-    return(as_tibble(out, ... ))
+    out <- as_tibble(out, ...)
+    attr(out, "types") <- c(types, "is_missing", names(measure_vals))
+    meta <- map(x@dims, "references") %>% 
+        map(~.[names(.) != "categories"])
+    meta <- c(meta, rep(NA, ncol(out) - length(meta)))
+    names(meta) <- names(out)
+    attr(out, "cube_metadata")  <- meta
+    class(out) <- c("tbl_crunch", "tbl_df", "tbl", "data.frame")
+    return(out)
 }
-
 
 #' @importFrom purrr walk
 add_duplicate_suffix <- function(names, sep = "_"){
@@ -79,3 +87,28 @@ add_duplicate_suffix <- function(names, sep = "_"){
     })
     return(names)
 }
+
+as_tibble.tbl_crunch <- function(x, ...){
+    attr(x, "types") <- NULL
+    attr(x, "cube_metadata") <- NULL
+    class(x) <- c("tbl_df", "tbl", "data.frame")
+    return(as_tibble(x, ...))
+}
+
+dim_types.tbl_crunch <- function(x) {
+    stopifnot(inherits(x, "tbl_crunch"))
+    return(attr(x, "types"))
+}
+
+#' @importFrom purrr map_lgl
+cube_attribute <- function(x, attr = "all"){
+    stopifnot(inherits(x, "tbl_crunch"))
+    metadata <- attr(x, "cube_metadata")
+    if (attr == "all") {
+        return(metadata)
+    }
+    out <- map(metadata, attr)
+    out[map_lgl(out, is.null)] <- NA
+    return(unlist(out))
+}
+
