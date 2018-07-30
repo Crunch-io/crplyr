@@ -67,12 +67,13 @@ as_tibble.CrunchCube <- function (x, ...) {
         out <- bind_cols(measure_vals)
     }
     out <- as_tibble(out, ...)
-    attr(out, "types") <- c(types, "is_missing", names(measure_vals))
     meta <- map(x@dims, "references") %>% 
         map(~.[names(.) != "categories"])
-    meta <- c(meta, rep(NA, ncol(out) - length(meta)))
+    measure_pad <- rep(NA, ncol(out) - length(meta))
+    meta <- c(meta, measure_pad)
     names(meta) <- names(out)
     attr(out, "cube_metadata")  <- meta
+    attr(out, "types") <- c(types, measure_pad)
     class(out) <- c("tbl_crunch", "tbl_df", "tbl", "data.frame")
     return(out)
 }
@@ -95,9 +96,13 @@ as_tibble.tbl_crunch <- function(x, ...){
     return(as_tibble(x, ...))
 }
 
-dim_types.tbl_crunch <- function(x) {
+dim_types <- function(x) {
     stopifnot(inherits(x, "tbl_crunch"))
     return(attr(x, "types"))
+}
+
+is_dimension <- function(x) {
+    return(!is.na(dim_types(x)))
 }
 
 #' @importFrom purrr map_lgl

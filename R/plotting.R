@@ -110,35 +110,45 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
     return(get(plot_fun))
 }
 
-#' Autoplot methods for Crunch Objects
-#' 
-#' Generates ggplot representations of CrunchVariables and CrunchCubes
-#' 
-#' The Crunch autoplot methods generate plots which are optimized for various crunch objects.
-#' This allows you to visualize the object without bringing it into memory. You can select
-#' between three families of plots which will attempt to accomodate the dimensionality of
-#' the plotted object. These plots can be further extended and customized with other ggplot methods. 
-#' 
 #' @param x a CrunchCube, or CrunchVariable
-#' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the plot family
-#' you would like to use. Higher dimensional plots add color coding or facets depending
-#' on the dimensionality of the data. 
-#' @param measure The measure you wish to plot. This will usually be `"count"`, the default
-#' but can also be `".unweighted_counts"` or any other measure stored in the cube.
-#' @param ... ignored
+#' @param ... further arguments to autoplot
 #' 
 #' @export
+autoplot.CrunchCube <- function(x, 
+    ...) {
+    plot_tbl <- as_tibble(x)
+    autoplot(plot_tbl, ...)
+}
+
+#' Autoplot methods for Crunch Objects
+#'
+#' Generates ggplot representations of CrunchVariables and CrunchCubes
+#'
+#' The Crunch autoplot methods generate plots which are optimized for various
+#' crunch objects. This allows you to visualize the object without bringing it
+#' into memory. You can select between three families of plots which will
+#' attempt to accomodate the dimensionality of the plotted object. These plots
+#' can be further extended and customized with other ggplot methods.
+#'
+#' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the
+#'   plot family you would like to use. Higher dimensional plots add color
+#'   coding or facets depending on the dimensionality of the data.
+#' @param measure The measure you wish to plot. This will usually be `"count"`,
+#'   the default but can also be `".unweighted_counts"` or any other measure
+#'   stored in the cube.
+#'   
 #' @name autoplot
 #' @importFrom rlang !! !!! .data sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
-autoplot.CrunchCube <- function(x, 
+autoplot.tbl_crunch <- function(
+    x, 
     plot_type = c("dot", "tile", "bar"), 
     measure = "count") {
     plot_type = match.arg(plot_type)
-    display_names <- map(x@dims, "references") %>% 
-        map_chr("name")
+    display_names <- cube_attribute(x, "name")
+    display_names <- display_names[!is.na(display_names)]
     
     if (length(measure) > 1) {
         # TODO think about how plots can support more than one measure. 
@@ -153,10 +163,10 @@ autoplot.CrunchCube <- function(x,
     
     # Select the dimension columns from the table, this is necessary because the
     # names in the tibble are unique, while the cube dimnames are not. 
-    dim_names <- names(plot_tbl)[seq_len(length(x@dims))] 
+    dim_names <- names(plot_tbl)[is_dimension(x)] 
     
     # Only include rows where the MR selection dimensions are TRUE
-    mr_selection_vars <- dim_names[getDimTypes(x) == "mr_selections"]
+    mr_selection_vars <- dim_names[dim_types(x) == "mr_selections" & is_dimension(x)]
     if (length(mr_selection_vars)) {
         plot_tbl <- plot_tbl %>% 
             filter(!!!syms(mr_selection_vars))
@@ -165,11 +175,16 @@ autoplot.CrunchCube <- function(x,
     dims <- syms(setdiff(dim_names, mr_selection_vars)) 
     
     plot_fun <- plot_fun_lookup(min(2, length(dims)), plot_type)
-
+    
+    sub_text <- cube_attribute(x, "description")[1]
+    if (is.na(sub_text)) {
+        sub_text <- ""
+    }
+    
     out <- plot_fun(plot_tbl, dims, measure, display_names) +
         theme_crunch() +
         labs(title = paste0(unique(display_names), collapse = " + "),
-            subtitle = x@dims[[1]]$references$description)
+            subtitle = sub_text)
 
     if (plot_type == "tile") {
         # This is here instead of in the 2d_tile plot function because theme_crunch
