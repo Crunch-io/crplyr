@@ -6,6 +6,7 @@
 \alias{autoplot.CategoricalVariable}
 \alias{autoplot.CategoricalArrayVariable}
 \alias{autoplot.MultipleResponseVariable}
+\alias{autoplot.CrunchCube}
 \alias{autoplot}
 \alias{autoplot.tbl_crunch}
 \title{Autoplot methods for Crunch Objects}
@@ -20,9 +21,15 @@
 
 \method{autoplot}{MultipleResponseVariable}(x, ...)
 
+\method{autoplot}{CrunchCube}(x, ...)
+
 \method{autoplot}{tbl_crunch}(x, plot_type = c("dot", "tile", "bar"), measure)
 }
 \arguments{
+\item{x}{a CrunchCube, or CrunchVariable}
+
+\item{...}{further arguments to autoplot}
+
 \item{plot_type}{One of \code{"dot"}, \code{"tile"}, or \code{"bar"} which indicates the
 plot family you would like to use. Higher dimensional plots add color
 coding or facets depending on the dimensionality of the data.}

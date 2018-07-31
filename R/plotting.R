@@ -112,6 +112,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 
 #' @param x a CrunchCube, or CrunchVariable
 #' @param ... further arguments to autoplot
+#' @rdname autoplot
 #' 
 #' @export
 autoplot.CrunchCube <- function(x, 
@@ -182,20 +183,30 @@ autoplot.tbl_crunch <- function(
     #drop the MR selection dimensions for plotting
     dims <- syms(setdiff(dim_names, mr_selection_vars)) 
     
-    plot_fun <- plot_fun_lookup(min(2, length(dims)), plot_type)
+    # If the first two dimensions are CA dimensions, flip them. This is 
+    # because scales are usually on the second CA dimension. 
+    
+    types <- dim_types(x)
+    if (length(dims) != 1 && plot_type != "tile") {
+        if (types[1] == "ca_items" && types[2] == "ca_categories") {
+            dims[c(2, 1)] <- dims[(c(1, 2))]
+        }
+    }
     
     sub_text <- cube_attribute(x, "description")[1]
     if (is.na(sub_text)) {
         sub_text <- ""
     }
-
+    
+    plot_fun <- plot_fun_lookup(min(2, length(dims)), plot_type)
+    
     out <- plot_fun(plot_tbl, dims, measure, display_names) +
         theme_crunch() +
         labs(title = paste0(unique(display_names), collapse = " + "),
             subtitle = sub_text)
     
     # Prevent duplicatation of legend name for categorical array
-    if (dim_types(x)[2] == "ca_categories"){
+    if (types[2] == "ca_categories"){
         out <- out + theme(legend.title=element_blank())
     }
     
