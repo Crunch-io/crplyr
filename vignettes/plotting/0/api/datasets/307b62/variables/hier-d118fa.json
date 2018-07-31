@@ -3,7 +3,6 @@
     "self": "/api/datasets/307b62/variables/hier/?relative=on",
     "description": "Hierarchical order from folder structure of dataset variables",
     "graph": [
-        "../000017/",
         "../000013/",
         "../000016/",
         "../000001/",
@@ -19,7 +18,8 @@
         "../b24eff/",
         {
             "__hidden__": [
-                "../000014/"
+                "../000014/",
+                "../000017/"
             ]
         }
     ]

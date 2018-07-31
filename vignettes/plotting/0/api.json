@@ -12,6 +12,7 @@
         "sources": "/api/sources/",
         "projects": "/api/projects/",
         "geodata": "/api/geodata/",
+        "orgs": "/api/orgs/",
         "public": "/api/public/",
         "lobs": "/api/lobs/"
     },

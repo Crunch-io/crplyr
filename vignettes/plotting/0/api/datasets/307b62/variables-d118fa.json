@@ -34,7 +34,7 @@
             "description": ""
         },
         "000017/": {
-            "discarded": false,
+            "discarded": true,
             "alias": "Respondent",
             "name": "Respondent",
             "type": "numeric",
