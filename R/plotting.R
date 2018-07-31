@@ -145,10 +145,14 @@ autoplot.CrunchCube <- function(x,
 autoplot.tbl_crunch <- function(
     x, 
     plot_type = c("dot", "tile", "bar"), 
-    measure = "count") {
-    plot_type = match.arg(plot_type)
+    measure) {
+    plot_type <- match.arg(plot_type)
     display_names <- cube_attribute(x, "name")
     display_names <- display_names[!is.na(display_names)]
+    
+    if (missing(measure)) {
+        measure <- names(x)[dim_types(x) == "measure"][1]
+    }
     
     if (length(measure) > 1) {
         # TODO think about how plots can support more than one measure. 

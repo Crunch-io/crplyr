@@ -32,6 +32,7 @@ as_tibble.CrunchCube <- function (x, ...) {
     # tibble.
     if (!is.null(dnames)) {
         types <- crunch::getDimTypes(x)
+        names(types) <- names(dnames)
 
         # Change MR selection vars to T/F/NA
         is_selected <- types == "mr_selections"
@@ -69,11 +70,15 @@ as_tibble.CrunchCube <- function (x, ...) {
     out <- as_tibble(out, ...)
     meta <- map(x@dims, "references") %>% 
         map(~.[names(.) != "categories"])
-    measure_pad <- rep(NA, ncol(out) - length(meta))
-    meta <- c(meta, measure_pad)
+
+    meta <- c(meta, rep(NA, length(measure_vals) + 1)) # the '1' is for the is_missing column
     names(meta) <- names(out)
     attr(out, "cube_metadata")  <- meta
-    attr(out, "types") <- c(types, measure_pad)
+    
+    types <- c(types, "missing", rep("measure", length(measure_vals)))
+    names(types) <- names(out)
+    attr(out, "types") <- types
+    
     class(out) <- c("tbl_crunch", "tbl_df", "tbl", "data.frame")
     return(out)
 }
@@ -102,7 +107,9 @@ dim_types <- function(x) {
 }
 
 is_dimension <- function(x) {
-    return(!is.na(dim_types(x)))
+    return(
+        dim_types(x) != "missing" & dim_types(x) != "measure"
+    )
 }
 
 #' @importFrom purrr map_lgl
@@ -117,3 +124,16 @@ cube_attribute <- function(x, attr = "all"){
     return(unlist(out))
 }
 
+`[.tbl_crunch` <- function(x, i, j, drop = FALSE) {
+    out <- as_tibble(x)[i, j, drop]
+    class(out) <- class(x)
+    attr(out, "cube_metadata") <- attr(x, "cube_metadata")[j]
+    attr(out, "types") <- attr(x, "types")[j]
+    return(out)
+}
+
+`[[.tbl_crunch` <- function(x, i, j) {
+    if (missing(j)) {
+        return(x[, i])
+    }
+}
