@@ -45,6 +45,7 @@ card_colors <- c("#56A08E","#007F65")
 #' @importFrom viridisLite viridis
 #' @importFrom dplyr summarize pull
 generate_colors <- function(var) {
+    var <- as_tibble(var) 
     n_cols <- length(unique(var))
     if (n_cols > length(crunch_colors)) {
         return(c(crunch_colors, viridis(n_cols - length(crunch_colors))))
@@ -142,6 +143,7 @@ autoplot.CrunchCube <- function(x,
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
+#' @export
 autoplot.tbl_crunch <- function(
     x, 
     plot_type = c("dot", "tile", "bar"), 
@@ -160,10 +162,13 @@ autoplot.tbl_crunch <- function(
         stop("Autoplot can only support one measure.", .call = FALSE)
     }
     measure <- sym(measure)
-    
-    # TODO do we want to make this optional to allow people to plot missing entries?
-    plot_tbl <- as_tibble(x) %>% 
-        filter(!.data$is_missing) 
+
+    # Remove missing values based on the useNA value for the cube. 
+    if (attr(x, "useNA") == "no" && "is_missing" %in% names(x)) {
+        plot_tbl <- x[!x$is_missing, ]
+    } else {
+        plot_tbl <- x
+    }
     
     # Select the dimension columns from the table, this is necessary because the
     # names in the tibble are unique, while the cube dimnames are not. 
@@ -184,7 +189,7 @@ autoplot.tbl_crunch <- function(
     if (is.na(sub_text)) {
         sub_text <- ""
     }
-    
+
     out <- plot_fun(plot_tbl, dims, measure, display_names) +
         theme_crunch() +
         labs(title = paste0(unique(display_names), collapse = " + "),

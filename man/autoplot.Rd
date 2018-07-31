@@ -20,8 +20,7 @@
 
 \method{autoplot}{MultipleResponseVariable}(x, ...)
 
-\method{autoplot}{tbl_crunch}(x, plot_type = c("dot", "tile", "bar"),
-  measure = "count")
+\method{autoplot}{tbl_crunch}(x, plot_type = c("dot", "tile", "bar"), measure)
 }
 \arguments{
 \item{plot_type}{One of \code{"dot"}, \code{"tile"}, or \code{"bar"} which indicates the

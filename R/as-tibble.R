@@ -78,7 +78,7 @@ as_tibble.CrunchCube <- function (x, ...) {
     types <- c(types, "missing", rep("measure", length(measure_vals)))
     names(types) <- names(out)
     attr(out, "types") <- types
-    
+    attr(out, "useNA") <- x@useNA
     class(out) <- c("tbl_crunch", "tbl_df", "tbl", "data.frame")
     return(out)
 }
@@ -129,11 +129,15 @@ cube_attribute <- function(x, attr = "all"){
     class(out) <- class(x)
     attr(out, "cube_metadata") <- attr(x, "cube_metadata")[j]
     attr(out, "types") <- attr(x, "types")[j]
+    attr(out, "useNA") <- attr(x, "useNA")
     return(out)
 }
 
 `[[.tbl_crunch` <- function(x, i, j) {
     if (missing(j)) {
+        if (length(i) == 1) {
+            return(as_tibble(x)[[i]])
+        } 
         return(x[, i])
     }
 }
