@@ -45,7 +45,6 @@ card_colors <- c("#56A08E","#007F65")
 #' @importFrom viridisLite viridis
 #' @importFrom dplyr summarize pull
 generate_colors <- function(var) {
-    var <- as_tibble(var) 
     n_cols <- length(unique(var))
     if (n_cols > length(crunch_colors)) {
         return(c(crunch_colors, viridis(n_cols - length(crunch_colors))))
@@ -194,7 +193,12 @@ autoplot.tbl_crunch <- function(
         theme_crunch() +
         labs(title = paste0(unique(display_names), collapse = " + "),
             subtitle = sub_text)
-
+    
+    # Prevent duplicatation of legend name for categorical array
+    if (dim_types(x)[2] == "ca_categories"){
+        out <- out + theme(legend.title=element_blank())
+    }
+    
     if (plot_type == "tile") {
         # This is here instead of in the 2d_tile plot function because theme_crunch
         # overrides the axis.text property 
