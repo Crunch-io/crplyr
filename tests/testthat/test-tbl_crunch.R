@@ -26,6 +26,11 @@ test_that("tbl_crunch metadata is accessible", {
           "feeling_mr", NA, NA, NA)
     )
     expect_equal(names(aliases), names(tbl))
+
+    metadata <- cube_attribute(tbl, "all")
+    expect_is(metadata[1], "list")
+    expect_equal(metadata$animal$alias, "animal")
+    expect_equal(names(metadata), names(tbl))
 })
 
 check_subset <- function(x) {
