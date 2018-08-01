@@ -97,6 +97,7 @@ add_duplicate_suffix <- function(names, sep = "_"){
 as_tibble.tbl_crunch <- function(x, ...){
     attr(x, "types") <- NULL
     attr(x, "cube_metadata") <- NULL
+    attr(x, "useNA") <- NULL
     class(x) <- c("tbl_df", "tbl", "data.frame")
     return(as_tibble(x, ...))
 }

@@ -140,7 +140,8 @@ autoplot.CrunchCube <- function(x,
 #'   coding or facets depending on the dimensionality of the data.
 #' @param measure The measure you wish to plot. This will usually be `"count"`,
 #'   the default but can also be `".unweighted_counts"` or any other measure
-#'   stored in the cube.
+#'   stored in the cube. If ommitted, autoplot will select the first measure
+#'   appearing in the data.
 #'   
 #' @name autoplot
 #' @importFrom rlang !! !!! .data sym syms
