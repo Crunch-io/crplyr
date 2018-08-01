@@ -19,7 +19,11 @@ theme_crunch <- function(base_size = 12, base_family = "sans") {
     (theme_minimal() +
             theme(
                 line = element_line(colour = "black"),
-                axis.title = element_blank(),
+                axis.title.y = element_blank(),
+                axis.title.x =  element_text(
+                    face = "bold",
+                    size = rel(1), 
+                    color = card_colors[2]),
                 axis.ticks = element_blank(),
                 axis.line = element_blank(),
                 panel.grid.minor = element_blank(),
