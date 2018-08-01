@@ -36,7 +36,7 @@ coding or facets depending on the dimensionality of the data.}
 
 \item{measure}{The measure you wish to plot. This will usually be \code{"count"},
 the default but can also be \code{".unweighted_counts"} or any other measure
-stored in the cube. If ommitted, autoplot will select the first measure
+stored in the cube. If omitted, autoplot will select the first measure
 appearing in the data.}
 }
 \description{
