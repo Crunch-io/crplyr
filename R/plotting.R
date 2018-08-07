@@ -63,7 +63,6 @@ generate_colors <- function(var) {
 #' @importFrom crunch description name
 #' @export
 autoplot.DatetimeVariable <- function(x, ...) {
-    v <- as.vector(x)
     plot_df <- data_frame(!!sym(name(x)) := as.Date(as.vector(x)))
 
     ggplot(plot_df, aes(x = !!sym(name(x)))) + 
@@ -79,6 +78,8 @@ autoplot.DatetimeVariable <- function(x, ...) {
 #' @importFrom rlang !! sym :=
 #' @export
 autoplot.NumericVariable <- function(x, ...) {
+    # TODO revisit when cut is implemented in zz9
+    # https://www.pivotaltracker.com/n/projects/931610/stories/155299834
     v <- as.vector(x)
     plot_df <- data_frame(!!sym(name(x)) := v)
     binwidth <- round((max(plot_df) - min(v)) / 5, 0)
@@ -149,13 +150,11 @@ autoplot.CrunchCube <- function(x,
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
 #' @export
-autoplot.tbl_crunch <- function(
-    x, 
-    plot_type = c("dot", "tile", "bar"), 
-    measure) {
+autoplot.tbl_crunch <- function(x, 
+                                plot_type = c("dot", "tile", "bar"), 
+                                measure) {
     plot_type <- match.arg(plot_type)
-    display_names <- cube_attribute(x, "name")
-    display_names <- display_names[!is.na(display_names)]
+    display_names <- cube_attribute(x, "name")[is_dimension(x)]
     
     if (missing(measure)) {
         measure <- names(x)[dim_types(x) == "measure"][1]
@@ -169,6 +168,7 @@ autoplot.tbl_crunch <- function(
     measure <- sym(measure)
 
     # Remove missing values based on the useNA value for the cube. 
+    # TODO handle useNA = "ifany"
     if (attr(x, "useNA") == "no" && "is_missing" %in% names(x)) {
         plot_tbl <- x[!x$is_missing, ]
     } else {
@@ -190,7 +190,6 @@ autoplot.tbl_crunch <- function(
     
     # If the first two dimensions are CA dimensions, flip them. This is 
     # because scales are usually on the second CA dimension. 
-    
     types <- dim_types(x)
     if (length(dims) != 1 && plot_type != "tile") {
         if (types[1] == "ca_items" && types[2] == "ca_categories") {

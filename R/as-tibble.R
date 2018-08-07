@@ -126,6 +126,8 @@ cube_attribute <- function(x, attr = "all"){
 }
 
 `[.tbl_crunch` <- function(x, i, j, drop = FALSE) {
+    # TODO see if there's a way to subset the tibble directly without reassigning
+    # the attributes. 
     out <- as_tibble(x)[i, j, drop]
     class(out) <- class(x)
     attr(out, "cube_metadata") <- attr(x, "cube_metadata")[j]

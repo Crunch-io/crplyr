@@ -36,9 +36,6 @@ Suggests:
     knitr,
     testthat,
     rmarkdown
-Remotes:
-    tidyverse/ggplot2,
-    Crunch-io/rcrunch
 RoxygenNote: 6.0.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
