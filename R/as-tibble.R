@@ -79,7 +79,7 @@ as_tibble.CrunchCube <- function (x, ...) {
     names(types) <- names(out)
     attr(out, "types") <- types
     attr(out, "useNA") <- x@useNA
-    class(out) <- c("tbl_crunch", "tbl_df", "tbl", "data.frame")
+    class(out) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
     return(out)
 }
 
@@ -94,7 +94,7 @@ add_duplicate_suffix <- function(names, sep = "_"){
     return(names)
 }
 
-as_tibble.tbl_crunch <- function(x, ...){
+as_tibble.tbl_crunch_cube <- function(x, ...){
     attr(x, "types") <- NULL
     attr(x, "cube_metadata") <- NULL
     attr(x, "useNA") <- NULL
@@ -103,7 +103,7 @@ as_tibble.tbl_crunch <- function(x, ...){
 }
 
 dim_types <- function(x) {
-    stopifnot(inherits(x, "tbl_crunch"))
+    stopifnot(inherits(x, "tbl_crunch_cube"))
     return(attr(x, "types"))
 }
 
@@ -115,7 +115,7 @@ is_dimension <- function(x) {
 
 #' @importFrom purrr map_lgl
 cube_attribute <- function(x, attr = "all"){
-    stopifnot(inherits(x, "tbl_crunch"))
+    stopifnot(inherits(x, "tbl_crunch_cube"))
     metadata <- attr(x, "cube_metadata")
     if (attr == "all") {
         return(metadata)
@@ -125,7 +125,7 @@ cube_attribute <- function(x, attr = "all"){
     return(unlist(out))
 }
 
-`[.tbl_crunch` <- function(x, i, j, drop = FALSE) {
+`[.tbl_crunch_cube` <- function(x, i, j, drop = FALSE) {
     # TODO see if there's a way to subset the tibble directly without reassigning
     # the attributes. 
     out <- as_tibble(x)[i, j, drop]
@@ -136,7 +136,7 @@ cube_attribute <- function(x, attr = "all"){
     return(out)
 }
 
-`[[.tbl_crunch` <- function(x, i, j) {
+`[[.tbl_crunch_cube` <- function(x, i, j) {
     if (missing(j)) {
         if (length(i) == 1) {
             return(as_tibble(x)[[i]])

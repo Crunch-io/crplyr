@@ -8,22 +8,22 @@
 \alias{autoplot.MultipleResponseVariable}
 \alias{autoplot.CrunchCube}
 \alias{autoplot}
-\alias{autoplot.tbl_crunch}
+\alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
-\method{autoplot}{DatetimeVariable}(x, ...)
+autoplot.DatetimeVariable(x, ...)
 
-\method{autoplot}{NumericVariable}(x, ...)
+autoplot.NumericVariable(x, ...)
 
-\method{autoplot}{CategoricalVariable}(x, ...)
+autoplot.CategoricalVariable(x, ...)
 
-\method{autoplot}{CategoricalArrayVariable}(x, ...)
+autoplot.CategoricalArrayVariable(x, ...)
 
-\method{autoplot}{MultipleResponseVariable}(x, ...)
+autoplot.MultipleResponseVariable(x, ...)
 
-\method{autoplot}{CrunchCube}(x, ...)
+autoplot.CrunchCube(x, ...)
 
-\method{autoplot}{tbl_crunch}(x, plot_type = c("dot", "tile", "bar"), measure)
+autoplot.tbl_crunch_cube(x, plot_type = c("dot", "tile", "bar"), measure)
 }
 \arguments{
 \item{x}{a CrunchCube, or CrunchVariable}

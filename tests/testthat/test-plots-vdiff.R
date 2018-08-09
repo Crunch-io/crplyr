@@ -26,9 +26,9 @@ test_that("autplot matches mocked plots", {
     expect_doppelganger("catarray-x-mr-dot", autoplot(cube, "dot"))
     expect_doppelganger("catarray-x-mr-tile", autoplot(cube, "tile"))
     expect_doppelganger("catarray-x-mr-bar", autoplot(cube, "bar"))
-    
+
     tbl <- readRDS("tbl_crunch_mocks/4d_tbl_crunch.Rds")
-    expect_is(tbl, "tbl_crunch")
+    expect_is(tbl, "tbl_crunch_cube")
     expect_doppelganger("catarray-x-cat-x-cat-dot", autoplot(tbl, "dot"))
     expect_doppelganger("catarray-x-cat-x-cat-tile", autoplot(tbl, "tile"))
     expect_doppelganger("catarray-x-cat-x-cat-bar", autoplot(tbl, "bar"))

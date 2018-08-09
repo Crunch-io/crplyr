@@ -1,10 +1,10 @@
-context("tbl_crunch methods")
+context("tbl_crunch_cube methods")
 
 cube <- loadCube("cubes/cat-x-mr-x-mr.json")
 tbl <- as_tibble(cube)
 
-test_that("tbl_crunch object is generated", {
-    expect_is(tbl, "tbl_crunch")
+test_that("tbl_crunch_cube object is generated", {
+    expect_is(tbl, "tbl_crunch_cube")
     expect_equal(
         names(tbl), 
         c("animal", "opinion_mr_items", "opinion_mr_selections", "feeling_mr_items", 
@@ -12,7 +12,7 @@ test_that("tbl_crunch object is generated", {
     )
 })
 
-test_that("tbl_crunch metadata is accessible", {
+test_that("tbl_crunch_cube metadata is accessible", {
     expect_equivalent(
         dim_types(tbl), 
         c("categorical", "mr_items", "mr_selections", "mr_items", 

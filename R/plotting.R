@@ -150,7 +150,7 @@ autoplot.CrunchCube <- function(x,
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
 #' @export
-autoplot.tbl_crunch <- function(x, 
+autoplot.tbl_crunch_cube <- function(x, 
                                 plot_type = c("dot", "tile", "bar"), 
                                 measure) {
     plot_type <- match.arg(plot_type)
