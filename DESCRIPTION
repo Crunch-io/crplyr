@@ -20,16 +20,23 @@ Depends:
     dplyr
 Imports:
     methods,
+    ggplot2,
     lazyeval,
     purrr,
     tibble,
+    rlang,
     stringr,
-    rlang (>= 0.1.2)
+    viridisLite
 Suggests:
     covr,
-    httptest,
+    httptest (>= 3.0.0),
     magrittr,
-    spelling
+    spelling,
+    vdiffr,
+    knitr,
+    testthat,
+    rmarkdown
 RoxygenNote: 6.0.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr

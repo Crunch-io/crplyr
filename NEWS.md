@@ -1,3 +1,7 @@
+# crplyr 0.2.1 (In progress)
+* New autoplot methods make it easy to plot crunch variables and cubes
+* `as_tibble` and `summarize` now 
+
 # crplyr 0.2.0
 * Added `collect` method, which pulls the requested columns of data from the server.
 * `summarize()` and `as_tibble.CrunchCube()` methods now better handle array and multiple-response data and include metadata on which dimension values should be interpreted as missing.
