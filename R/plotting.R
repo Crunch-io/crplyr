@@ -196,7 +196,7 @@ autoplot.tbl_crunch_cube <- function(x,
             dims[c(2, 1)] <- dims[(c(1, 2))]
         }
     }
-    
+
     sub_text <- cube_attribute(x, "description")[1]
     if (is.na(sub_text)) {
         sub_text <- ""

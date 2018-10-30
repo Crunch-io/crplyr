@@ -144,3 +144,32 @@ cube_attribute <- function(x, attr = "all"){
         return(x[, i])
     }
 }
+
+
+as_tibble.CrunchCubeCalculation <- function(x){
+    dnames <- dimnames(x)
+    types <- crunch::getDimTypes(attr(x, "dims"))
+    names(types) <- names(dnames)
+    suffixes <- str_extract(types, "_.*$")
+    is_array_var <- !is.na(suffixes)
+    names(dnames)[is_array_var] <- paste0(
+        names(dnames)[is_array_var], 
+        suffixes[is_array_var]
+    )
+    out <- expand.grid(dnames)
+
+    meta <- map(attr(x, "dims"), "references") %>% 
+        map(~.[names(.) != "categories"])
+    
+    meta <- c(meta, NA)
+    calc_type <- attr(x, "type")
+    out[[calc_type]] <- as.vector(x)
+
+    attr(out, "types") <- structure(
+        c(types, "measure"), 
+        names = c(names(types), calc_type)
+    )
+    attr(out, "cube_metadata") <- meta
+    class(out) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
+    return(out)
+}
