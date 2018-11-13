@@ -132,14 +132,24 @@ autoplot.CrunchCube <- function(x,
 #' @rdname autoplot
 #' 
 #' @export
-autoplot.CrunchCubeCalculation <- function(x, 
-    ...) {
+autoplot.CrunchCubeCalculation <- function(x,
+                                           plot_type = "dot",
+                                           ...) {
     plot_tbl <- as_tibble(x)
-    out <- autoplot(plot_tbl, ...)
-    if (attr(x, "type") == "proportion"){
-        browser()
-        out <- out + 
-            ggplot2::scale_x_continuous(labels = scales::percent)
+    out <- autoplot(plot_tbl, plot_type, ...)
+    if (attr(x, "type") == "proportion") {
+        if (plot_type == "dot") {
+            out <- out + 
+                ggplot2::scale_x_continuous(labels = scales::percent)
+        }
+        if (plot_type == "tile") {
+            out <- out + 
+                ggplot2::scale_fill_viridis_c(labels = scales::percent)
+        }
+        if (plot_type == "bar") {
+            out <- out + 
+                ggplot2::scale_y_continuous(labels = scales::percent)
+        }
     }
     return(out)
 }
