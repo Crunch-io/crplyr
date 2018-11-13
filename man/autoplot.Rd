@@ -7,23 +7,27 @@
 \alias{autoplot.CategoricalArrayVariable}
 \alias{autoplot.MultipleResponseVariable}
 \alias{autoplot.CrunchCube}
+\alias{autoplot.CrunchCubeCalculation}
 \alias{autoplot}
 \alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
-autoplot.DatetimeVariable(x, ...)
+\method{autoplot}{DatetimeVariable}(x, ...)
 
-autoplot.NumericVariable(x, ...)
+\method{autoplot}{NumericVariable}(x, ...)
 
-autoplot.CategoricalVariable(x, ...)
+\method{autoplot}{CategoricalVariable}(x, ...)
 
-autoplot.CategoricalArrayVariable(x, ...)
+\method{autoplot}{CategoricalArrayVariable}(x, ...)
 
-autoplot.MultipleResponseVariable(x, ...)
+\method{autoplot}{MultipleResponseVariable}(x, ...)
 
-autoplot.CrunchCube(x, ...)
+\method{autoplot}{CrunchCube}(x, ...)
 
-autoplot.tbl_crunch_cube(x, plot_type = c("dot", "tile", "bar"), measure)
+\method{autoplot}{CrunchCubeCalculation}(x, ...)
+
+\method{autoplot}{tbl_crunch_cube}(x, plot_type = c("dot", "tile",
+  "bar"), measure)
 }
 \arguments{
 \item{x}{a CrunchCube, or CrunchVariable}
@@ -38,6 +42,10 @@ coding or facets depending on the dimensionality of the data.}
 the default but can also be \code{".unweighted_counts"} or any other measure
 stored in the cube. If omitted, autoplot will select the first measure
 appearing in the data.}
+
+\item{x}{a CrunchCube, or CrunchVariable}
+
+\item{...}{further arguments to autoplot}
 }
 \description{
 Generates ggplot representations of CrunchVariables and CrunchCubes

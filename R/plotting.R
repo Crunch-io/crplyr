@@ -126,6 +126,24 @@ autoplot.CrunchCube <- function(x,
     autoplot(plot_tbl, ...)
 }
 
+#' @param x a CrunchCube, or CrunchVariable
+#' @param ... further arguments to autoplot
+#' @importFrom ggplot2 scale_x_continuous
+#' @rdname autoplot
+#' 
+#' @export
+autoplot.CrunchCubeCalculation <- function(x, 
+    ...) {
+    plot_tbl <- as_tibble(x)
+    out <- autoplot(plot_tbl, ...)
+    if (attr(x, "type") == "proportion"){
+        browser()
+        out <- out + 
+            ggplot2::scale_x_continuous(labels = scales::percent)
+    }
+    return(out)
+}
+
 #' Autoplot methods for Crunch Objects
 #'
 #' Generates ggplot representations of CrunchVariables and CrunchCubes
