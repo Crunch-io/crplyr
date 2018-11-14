@@ -24,7 +24,7 @@
 
 \method{autoplot}{CrunchCube}(x, ...)
 
-\method{autoplot}{CrunchCubeCalculation}(x, ...)
+\method{autoplot}{CrunchCubeCalculation}(x, plot_type = "dot", ...)
 
 \method{autoplot}{tbl_crunch_cube}(x, plot_type = c("dot", "tile",
   "bar"), measure)

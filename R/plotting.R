@@ -128,7 +128,7 @@ autoplot.CrunchCube <- function(x,
 
 #' @param x a CrunchCube, or CrunchVariable
 #' @param ... further arguments to autoplot
-#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 scale_x_continuous scale_fill_viridis_c scale_y_continuous
 #' @rdname autoplot
 #' 
 #' @export
@@ -140,15 +140,15 @@ autoplot.CrunchCubeCalculation <- function(x,
     if (attr(x, "type") == "proportion") {
         if (plot_type == "dot") {
             out <- out + 
-                ggplot2::scale_x_continuous(labels = scales::percent)
+                scale_x_continuous(labels = scales::percent)
         }
         if (plot_type == "tile") {
             out <- out + 
-                ggplot2::scale_fill_viridis_c(labels = scales::percent)
+                scale_fill_viridis_c(labels = scales::percent)
         }
         if (plot_type == "bar") {
             out <- out + 
-                ggplot2::scale_y_continuous(labels = scales::percent)
+                scale_y_continuous(labels = scales::percent)
         }
     }
     return(out)
