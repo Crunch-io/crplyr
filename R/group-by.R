@@ -1,6 +1,6 @@
 #' @export
-#' @importFrom dplyr group_by_ group_by_prepare
-group_by_.CrunchDataset <- function (.data, ..., .dots, add=FALSE) {
+#' @importFrom dplyr group_by group_by_prepare
+group_by.CrunchDataset <- function (.data, ..., .dots, add=FALSE) {
     groups <- group_by_prepare(.data, ..., .dots=.dots, add=add)
     missing_cols <- !(groups$groups %in% names(.data))
     if (any(missing_cols)) {
@@ -8,8 +8,8 @@ group_by_.CrunchDataset <- function (.data, ..., .dots, add=FALSE) {
         if (sum(missing_cols) > 1) {
             err <- " are"
         }
-        stop(paste0(groups$groups[missing_cols], collapse = ", "), 
-            err, 
+        stop(paste0(groups$groups[missing_cols], collapse = ", "),
+            err,
             " not present in the Dataset")
     }
     out <- GroupedCrunchDataset(groups$data)
