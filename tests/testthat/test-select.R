@@ -22,4 +22,11 @@ with_mock_crunch({
             filter(gender == "Male")
         expect_identical(both, ds[ds$gender == "Male", c("mymrset", "starttime", "gender")])
     })
+
+    test_that("select_ warning", {
+        expect_error(
+            select_(ds, .dots = "catfish"),
+            "The select_.* function is no longer supported, please use select.* instead"
+        )
+    })
 })

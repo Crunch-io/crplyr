@@ -4,6 +4,8 @@
     ## Put stuff here you want to run when your package is loaded
     invisible()
 }
+# TODO add user agent
+
 
 ## TODO
 # -   `mutate()` adds new variables that are functions of existing variables
