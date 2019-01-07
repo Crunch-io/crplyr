@@ -1,9 +1,10 @@
 #' @export
-#' @importFrom dplyr bind_cols summarise_ select
+#' @importFrom dplyr bind_cols summarise select
 #' @importFrom purrr map_chr map_df
 #' @importFrom crunch crtabs
-summarise_.CrunchDataset <- function (.data, ..., .dots) {
-    dots <- all_dots(.dots, ..., all_named = TRUE)
+#' @importFrom lazyeval lazy_dots
+summarise.CrunchDataset <- function (.data, ...) {
+    dots <- lazy_dots(...)
     unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
     unweighted_n_measures <- dots[unweighted]
     measures <- dots[!unweighted]
@@ -39,6 +40,12 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
     # sort the return columns based on the request order
     out <- out[, names]
     return(out)
+}
+
+#' @export
+#' @importFrom dplyr summarise_
+summarise_.CrunchDataset <- function (.data, ..., .dots) {
+    stop("The summarise_() function is no longer supported, please use summarise() instead.")
 }
 
 

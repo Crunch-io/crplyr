@@ -1,5 +1,6 @@
 #' @export
 #' @importFrom dplyr filter_
+#' @importFrom lazyeval all_dots
 filter_.CrunchDataset <- function (.data, ..., .dots) {
     dots <- all_dots(.dots, ...)
     env <- as.environment(.data)

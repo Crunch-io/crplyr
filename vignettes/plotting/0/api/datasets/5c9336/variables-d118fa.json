@@ -1,15 +1,14 @@
 {
     "element": "shoji:catalog",
-    "self": "/api/datasets/307b62/variables/?relative=on",
+    "self": "/api/datasets/5c9336/variables/?relative=on",
     "catalogs": {
-        "private": "/api/datasets/307b62/variables/private/"
+        "private": "/api/datasets/5c9336/variables/private/"
     },
     "orders": {
-        "personal": "/api/datasets/307b62/variables/personal/",
-        "weights": "/api/datasets/307b62/variables/weights/",
-        "hier": "/api/datasets/307b62/variables/hier/"
+        "personal": "/api/datasets/5c9336/variables/personal/",
+        "weights": "/api/datasets/5c9336/variables/weights/",
+        "hier": "/api/datasets/5c9336/variables/hier/"
     },
-    "specification": "/api/specifications/variables/",
     "description": "List of Variables of this dataset",
     "index": {
         "000010/": {
@@ -34,7 +33,7 @@
             "description": ""
         },
         "000017/": {
-            "discarded": true,
+            "discarded": false,
             "alias": "Respondent",
             "name": "Respondent",
             "type": "numeric",
@@ -42,30 +41,6 @@
             "derived": false,
             "id": "000017",
             "description": ""
-        },
-        "767031/": {
-            "description": "",
-            "derived": false,
-            "subvariables": [
-                "767031/subvariables/000021/",
-                "767031/subvariables/000022/",
-                "767031/subvariables/000003/",
-                "767031/subvariables/000008/",
-                "767031/subvariables/000002/",
-                "767031/subvariables/000019/",
-                "767031/subvariables/000018/",
-                "767031/subvariables/000000/",
-                "767031/subvariables/000020/",
-                "767031/subvariables/000015/"
-            ],
-            "id": "767031",
-            "subvariables_catalog": "767031/subvariables/",
-            "scale": "interval",
-            "name": "ImportantHiring",
-            "notes": "",
-            "discarded": false,
-            "alias": "ImportantHiring",
-            "type": "categorical_array"
         },
         "000016/": {
             "discarded": false,
@@ -88,6 +63,54 @@
             "derived": false,
             "id": "000013",
             "description": ""
+        },
+        "1861d5/": {
+            "description": "",
+            "derived": true,
+            "subvariables": [
+                "1861d5/subvariables/VBA/",
+                "1861d5/subvariables/TypeScript/",
+                "1861d5/subvariables/Java/",
+                "1861d5/subvariables/Scala/",
+                "1861d5/subvariables/JavaScript/",
+                "1861d5/subvariables/Perl/",
+                "1861d5/subvariables/Lua/",
+                "1861d5/subvariables/Matlab/",
+                "1861d5/subvariables/Erlang/",
+                "1861d5/subvariables/Assembly/",
+                "1861d5/subvariables/VB_NET/",
+                "1861d5/subvariables/Python/",
+                "1861d5/subvariables/Common Lisp/",
+                "1861d5/subvariables/Dart/",
+                "1861d5/subvariables/CoffeeScript/",
+                "1861d5/subvariables/Elixir/",
+                "1861d5/subvariables/Ruby/",
+                "1861d5/subvariables/Groovy/",
+                "1861d5/subvariables/C/",
+                "1861d5/subvariables/F/",
+                "1861d5/subvariables/Hack/",
+                "1861d5/subvariables/C++/",
+                "1861d5/subvariables/Objective-C/",
+                "1861d5/subvariables/R/",
+                "1861d5/subvariables/Clojure/",
+                "1861d5/subvariables/Rust/",
+                "1861d5/subvariables/Swift/",
+                "1861d5/subvariables/Julia/",
+                "1861d5/subvariables/Haskell/",
+                "1861d5/subvariables/Visual Basic 6/",
+                "1861d5/subvariables/SQL/",
+                "1861d5/subvariables/Go/",
+                "1861d5/subvariables/PHP/",
+                "1861d5/subvariables/Smalltalk/"
+            ],
+            "id": "1861d5",
+            "subvariables_catalog": "1861d5/subvariables/",
+            "uniform_basis": true,
+            "name": "WantWorkMR",
+            "notes": "",
+            "discarded": false,
+            "alias": "WantWorkMR",
+            "type": "multiple_response"
         },
         "000012/": {
             "discarded": false,
@@ -120,6 +143,16 @@
             "id": "000007",
             "description": ""
         },
+        "92dd37/": {
+            "discarded": false,
+            "alias": "weight",
+            "name": "weight",
+            "type": "numeric",
+            "notes": "",
+            "derived": true,
+            "id": "92dd37",
+            "description": ""
+        },
         "000009/": {
             "discarded": false,
             "alias": "Country",
@@ -131,53 +164,29 @@
             "id": "000009",
             "description": ""
         },
-        "b24eff/": {
+        "f79935/": {
             "description": "",
-            "derived": true,
+            "derived": false,
             "subvariables": [
-                "b24eff/subvariables/VBA/",
-                "b24eff/subvariables/TypeScript/",
-                "b24eff/subvariables/Java/",
-                "b24eff/subvariables/Scala/",
-                "b24eff/subvariables/JavaScript/",
-                "b24eff/subvariables/Perl/",
-                "b24eff/subvariables/Lua/",
-                "b24eff/subvariables/Matlab/",
-                "b24eff/subvariables/Erlang/",
-                "b24eff/subvariables/Assembly/",
-                "b24eff/subvariables/VB_NET/",
-                "b24eff/subvariables/Python/",
-                "b24eff/subvariables/Common Lisp/",
-                "b24eff/subvariables/Dart/",
-                "b24eff/subvariables/CoffeeScript/",
-                "b24eff/subvariables/Elixir/",
-                "b24eff/subvariables/Ruby/",
-                "b24eff/subvariables/Groovy/",
-                "b24eff/subvariables/C/",
-                "b24eff/subvariables/F/",
-                "b24eff/subvariables/Hack/",
-                "b24eff/subvariables/C++/",
-                "b24eff/subvariables/Objective-C/",
-                "b24eff/subvariables/R/",
-                "b24eff/subvariables/Clojure/",
-                "b24eff/subvariables/Rust/",
-                "b24eff/subvariables/Swift/",
-                "b24eff/subvariables/Julia/",
-                "b24eff/subvariables/Haskell/",
-                "b24eff/subvariables/Visual Basic 6/",
-                "b24eff/subvariables/SQL/",
-                "b24eff/subvariables/Go/",
-                "b24eff/subvariables/PHP/",
-                "b24eff/subvariables/Smalltalk/"
+                "f79935/subvariables/000021/",
+                "f79935/subvariables/000022/",
+                "f79935/subvariables/000003/",
+                "f79935/subvariables/000008/",
+                "f79935/subvariables/000002/",
+                "f79935/subvariables/000019/",
+                "f79935/subvariables/000018/",
+                "f79935/subvariables/000000/",
+                "f79935/subvariables/000020/",
+                "f79935/subvariables/000015/"
             ],
-            "id": "b24eff",
-            "subvariables_catalog": "b24eff/subvariables/",
-            "uniform_basis": true,
-            "name": "WantWorkMR",
+            "id": "f79935",
+            "subvariables_catalog": "f79935/subvariables/",
+            "scale": "interval",
+            "name": "ImportantHiring",
             "notes": "",
             "discarded": false,
-            "alias": "WantWorkMR",
-            "type": "multiple_response"
+            "alias": "ImportantHiring",
+            "type": "categorical_array"
         },
         "000004/": {
             "discarded": false,

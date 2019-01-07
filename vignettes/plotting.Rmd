@@ -10,18 +10,19 @@ vignette: >
 
 ```{r, message=FALSE}
 library(crunch)
+library(crplyr)
+library(ggplot2)
 ```
-```{r, results='hide', include = FALSE}
+
+```{r, include=FALSE}
 library(httptest)
 start_vignette("plotting")
+login()
 ```
 
 The Crunch web app provides a number of excellent visualizations and summary statistics to help communicate survey results to clients, but by its nature a web interface can't accommodate every type of plot or analysis. As a result one of our core design principles at Crunch is to let users access their data in as convenient a way as possible. This lets you seamlessly integrate Crunch data into your tool of choice, and customize how you communicate that data. This vignette goes through how you can use `ggplot2` and `tidyverse` tools to analyze and display crunch data using tidy tools. First we need to load a dataset into R. If this is a new process to you, see the [crunch vignettes](https://crunch.io/r/crunch/articles/crunch.html).
 
 ```{r setup, include = FALSE}
-library(crunch)
-library(crplyr)
-library(ggplot2)
 ds <- loadDataset("SO_survey")
 ```
 
@@ -29,13 +30,13 @@ ds <- loadDataset("SO_survey")
 
 You can now plot crunch variables using `ggplot2`'s `autoplot()` method. This will generate a plot which looks a lot like the plots produced on the app, but can be customized with ggplot methods.
 
-```{r basic card plots, fig.width=8, fig.height=6}
+```{r basic-card-plots, fig.width=8, fig.height=6}
 autoplot(ds$CompanySize)
 ```
 
 Crunch autoplot methods can produce three families of charts: dot plots, bar plots, and tile plots. These methods will automatically adjust for the dimensionality of the data which is sent into the plotting method. For instance, categorical array variables have two dimensions, so when they are plotted, you get a two dimensional plot.
 
-```{r CA plotting,  fig.width=8, fig.height=6}
+```{r CA-plotting,  fig.width=8, fig.height=6}
 autoplot(ds$ImportantHiring)
 autoplot(ds$ImportantHiring, "tile")
 autoplot(ds$ImportantHiring, "bar")
