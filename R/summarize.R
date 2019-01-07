@@ -2,9 +2,9 @@
 #' @importFrom dplyr bind_cols summarise select
 #' @importFrom purrr map_chr map_df
 #' @importFrom crunch crtabs
-#' @importFrom lazyeval all_dots
+#' @importFrom lazyeval lazy_dots
 summarise.CrunchDataset <- function (.data, ...) {
-    dots <- lazyeval::lazy_dots(...)
+    dots <- lazy_dots(...)
     unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
     unweighted_n_measures <- dots[unweighted]
     measures <- dots[!unweighted]
