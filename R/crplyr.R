@@ -2,7 +2,13 @@
 
 .onAttach <- function (lib, pkgname="crplyr") {
     ## Put stuff here you want to run when your package is loaded
-    invisible()
+
+    ## (try) to add the crplyr useragent, though if that fails for any reason
+    ## (like using an old version of the crunch package, don't fail totally)
+    cr_useragent <- paste0("crplyr", "/", as.character(packageVersion("crplyr")))
+    try({add_to_crunch_useragent(cr_useragent)})
+
+    return(invisible())
 }
 
 ## TODO
