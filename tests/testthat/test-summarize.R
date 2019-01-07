@@ -29,6 +29,13 @@ with_mock_crunch({
         expect_equal(as.numeric(tbl2[1,3]), 32)
     })
 
+    test_that("summarise_ warning", {
+        expect_error(
+            summarise_(ds, .dots = c(hp="mean(hp)", sd_hp="sd(hp)", count="n()")),
+            "The summarise_.* function is no longer supported, please use summarise.* instead"
+        )
+    })
+
     test_that("summarize after filter", {
         tbl3 <- ds %>%
                 filter(cyl == 6) %>%
@@ -101,7 +108,7 @@ with_mock_crunch({
 
     test_that("unweighted_n with other summary statistic", {
         tbl9 <- ds %>%
-            summarize(mean = mean(hp), n = unweighted_n())
+            summarise(mean = mean(hp), n = unweighted_n())
         expect_equal(dim(tbl9), c(1,2))
         expect_equal(names(tbl9), c("mean", "n"))
     })

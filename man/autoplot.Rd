@@ -11,19 +11,20 @@
 \alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
-autoplot.DatetimeVariable(x, ...)
+\method{autoplot}{DatetimeVariable}(x, ...)
 
-autoplot.NumericVariable(x, ...)
+\method{autoplot}{NumericVariable}(x, ...)
 
-autoplot.CategoricalVariable(x, ...)
+\method{autoplot}{CategoricalVariable}(x, ...)
 
-autoplot.CategoricalArrayVariable(x, ...)
+\method{autoplot}{CategoricalArrayVariable}(x, ...)
 
-autoplot.MultipleResponseVariable(x, ...)
+\method{autoplot}{MultipleResponseVariable}(x, ...)
 
-autoplot.CrunchCube(x, ...)
+\method{autoplot}{CrunchCube}(x, ...)
 
-autoplot.tbl_crunch_cube(x, plot_type = c("dot", "tile", "bar"), measure)
+\method{autoplot}{tbl_crunch_cube}(x, plot_type = c("dot", "tile",
+  "bar"), measure)
 }
 \arguments{
 \item{x}{a CrunchCube, or CrunchVariable}

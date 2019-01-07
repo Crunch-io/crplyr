@@ -3,7 +3,6 @@
 \name{collect}
 \alias{collect}
 \alias{collect.CrunchDataset}
-\alias{collect}
 \alias{collect.GroupedCrunchDataset}
 \title{Collect a crunch dataset from the server}
 \usage{
