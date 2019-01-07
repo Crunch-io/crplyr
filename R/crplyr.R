@@ -2,6 +2,8 @@
 
 .onAttach <- function (lib, pkgname="crplyr") {
     ## Put stuff here you want to run when your package is loaded
+
+    # add to crunch::crunchUserAgent()
     invisible()
 }
 
