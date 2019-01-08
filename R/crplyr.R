@@ -1,15 +1,10 @@
 # Here's a good place to put your top-level package documentation
 
-.onAttach <- function (lib, pkgname="crplyr") {
-    ## Put stuff here you want to run when your package is loaded
+.onLoad <- function (lib, pkgname="crplyr") {
+    # Re-set the API config so that crplyr shows up in the user-agent string
+    crunch::set_crunch_config()
     invisible()
 }
-# TODO add user agent
-
-
-## TODO
-# -   `mutate()` adds new variables that are functions of existing variables
-# -   `collect()`
 
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
