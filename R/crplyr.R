@@ -2,7 +2,7 @@
 
 .onLoad <- function (lib, pkgname="crplyr") {
     # Re-set the API config so that crplyr shows up in the user-agent string
-    crunch::set_crunch_config()
+    crunch::set_crunch_config(update=TRUE)
     invisible()
 }
 
