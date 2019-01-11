@@ -55,11 +55,11 @@ autoplot(ds$ImportantHiring) +
 ```
 
 
-You can also define your own themes or use themes from other packages. This is helpful if you would like to send plots to a client using their style guide. For examples of sample corporate themes, take a look at the [ggtech](https://github.com/ricardo-bion/ggtech) package from AirBnb, or the [ggthemes](https://cran.r-project.org/web/packages/ggthemes/vignettes/ggthemes.html) package.
+You can also define your own themes or use themes from other packages. This is helpful if you would like to send plots to a client using their style guide. For examples of sample corporate themes, take a look at the [ggtech](https://github.com/ricardo-bion/ggtech) package from AirBnb, or the [ggthemes](https://CRAN.R-project.org/package=pkgname) package.
 
 ## Extending ggplots
 
-`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot extensions](https://www.ggplot2-exts.org/) website.
+`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example, you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot extensions](https://www.ggplot2-exts.org/) website.
 
 # Working with CrunchCubes
 
@@ -68,9 +68,9 @@ Crunch datasets are often large enough that you can't easily calculate summary s
 CrunchCubes are n-dimensional arrays where each dimension corresponds to one of the variables used to calculate the cross tab. For instance `crtabs(~ Professional + CompanySize + Country, ds)` will generate a three dimensional array where each entry is the number of respondents who selected a given category along the three dimensions. You can plot high dimensional CrunchCubes in the same way that you can plot Crunch Variables and the additional dimensions will be assigned to plot facets.
 
 ```{r fig.width= 10,  fig.width=8, fig.height=6}
-ds %>% 
-    group_by(CompanySize, Professional, TabsSpaces) %>% 
-    summarize(count = n(Country)) %>% 
+ds %>%
+    group_by(CompanySize, Professional, TabsSpaces) %>%
+    summarize(count = n(Country)) %>%
     autoplot()
 ```
 
@@ -78,7 +78,7 @@ Autoplots are great, but cubes can quickly become too complex for a general plot
 to do a good job at representing the plot. If we include lots of dimensions in a cube, or include a dimension with a lot of categories the plot becomes unreadable. We can still work with these types of cubes by using the `as_tibble` method to convert it into a long data frame. This lets us further process the data to produce a readable plot.
 
 ```{r}
-cube <- crtabs(~ Country + Professional + TabsSpaces, ds) 
+cube <- crtabs(~ Country + Professional + TabsSpaces, ds)
 cube_tbl <- as_tibble(cube)
 cube_tbl
 ```
@@ -115,7 +115,7 @@ In the tibble output, each array variable is decomposed into two columns. The mu
 
 # Going further
 
-This vignette provided the basics of plotting Crunch objects, and processing CrunchCubes using tidy tools. You can use these to conduct analyses and generate custom visualizations of Crunch data, but you can also send these custom plots back into the Crunch app by including them in a [shiny app](https://github.com/Crunch-io/crunchy) or a [flexdashboard](https://github.com/Crunch-io/crunchy/blob/master/vignettes/flexdashboards.Rmd) and hosting them on the Crunch shiny infrastructure.
+This vignette provided the basics of plotting Crunch objects, and processing CrunchCubes using tidy tools. You can use these to conduct analyses and generate custom visualizations of Crunch data, but you can also send these custom plots back into the Crunch app by including them in a [Shiny app](https://github.com/Crunch-io/crunchy) or a [flexdashboard](https://github.com/Crunch-io/crunchy/blob/master/vignettes/flexdashboards.Rmd) and hosting them on the Crunch shiny infrastructure.
 
 ```{r, include=FALSE}
 logout()
