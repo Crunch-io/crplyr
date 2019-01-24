@@ -46,7 +46,7 @@ as_tibble.CrunchCube <- function (x, ...) {
         suffixes <- str_extract(types, "_.*$")
         is_array_var <- !is.na(suffixes)
         names(dnames)[is_array_var] <- paste0(
-            names(dnames)[is_array_var], 
+            names(dnames)[is_array_var],
             suffixes[is_array_var]
             )
         out <- do.call(expand.grid, dnames)
@@ -68,13 +68,13 @@ as_tibble.CrunchCube <- function (x, ...) {
         out <- bind_cols(measure_vals)
     }
     out <- as_tibble(out, ...)
-    meta <- map(x@dims, "references") %>% 
+    meta <- map(x@dims, "references") %>%
         map(~.[names(.) != "categories"])
 
     meta <- c(meta, rep(NA, length(measure_vals) + 1)) # the '1' is for the is_missing column
     names(meta) <- names(out)
     attr(out, "cube_metadata")  <- meta
-    
+
     types <- c(types, "missing", rep("measure", length(measure_vals)))
     names(types) <- names(out)
     attr(out, "types") <- types
@@ -127,7 +127,7 @@ cube_attribute <- function(x, attr = "all"){
 
 `[.tbl_crunch_cube` <- function(x, i, j, drop = FALSE) {
     # TODO see if there's a way to subset the tibble directly without reassigning
-    # the attributes. 
+    # the attributes.
     out <- as_tibble(x)[i, j, drop]
     class(out) <- class(x)
     attr(out, "cube_metadata") <- attr(x, "cube_metadata")[j]
@@ -140,7 +140,7 @@ cube_attribute <- function(x, attr = "all"){
     if (missing(j)) {
         if (length(i) == 1) {
             return(as_tibble(x)[[i]])
-        } 
+        }
         return(x[, i])
     }
 }
@@ -150,23 +150,26 @@ as_tibble.CrunchCubeCalculation <- function(x){
     dnames <- dimnames(x)
     types <- crunch::getDimTypes(attr(x, "dims"))
     names(types) <- names(dnames)
+    # _items, _categories, and _selections, indicate that this dimension is part
+    # of an array. In order to not duplicate names, we add the suffix back to
+    # the name if it exists.
     suffixes <- str_extract(types, "_.*$")
     is_array_var <- !is.na(suffixes)
     names(dnames)[is_array_var] <- paste0(
-        names(dnames)[is_array_var], 
+        names(dnames)[is_array_var],
         suffixes[is_array_var]
     )
     out <- expand.grid(dnames)
 
-    meta <- map(attr(x, "dims"), "references") %>% 
+    meta <- map(attr(x, "dims"), "references") %>%
         map(~.[names(.) != "categories"])
-    
+
     meta <- c(meta, NA)
     calc_type <- attr(x, "type")
     out[[calc_type]] <- as.vector(x)
 
     attr(out, "types") <- structure(
-        c(types, "measure"), 
+        c(types, "measure"),
         names = c(names(types), calc_type)
     )
     attr(out, "cube_metadata") <- meta
