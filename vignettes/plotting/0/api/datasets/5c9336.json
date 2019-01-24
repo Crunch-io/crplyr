@@ -1,0 +1,83 @@
+{
+    "element": "shoji:entity",
+    "self": "/api/datasets/5c9336/",
+    "catalogs": {
+        "folders": "/api/datasets/5c9336/folders/",
+        "batches": "/api/datasets/5c9336/batches/",
+        "users": "/api/datasets/5c9336/users/",
+        "variables": "/api/datasets/5c9336/variables/",
+        "actions": "/api/datasets/5c9336/actions/",
+        "savepoints": "/api/datasets/5c9336/savepoints/",
+        "boxdata": "/api/datasets/5c9336/boxdata/",
+        "filters": "/api/datasets/5c9336/filters/",
+        "multitables": "/api/datasets/5c9336/multitables/",
+        "forks": "/api/datasets/5c9336/forks/",
+        "permissions": "/api/datasets/5c9336/permissions/",
+        "decks": "/api/datasets/5c9336/decks/",
+        "parent": "/api/datasets/",
+        "project": "/api/projects/shared/",
+        "variables_private": "/api/datasets/5c9336/variables/private/"
+    },
+    "fragments": {
+        "state": "/api/datasets/5c9336/state/",
+        "exclusion": "/api/datasets/5c9336/exclusion/",
+        "stream": "/api/datasets/5c9336/stream/",
+        "settings": "/api/datasets/5c9336/settings/",
+        "pk": "/api/datasets/5c9336/pk/",
+        "table": "/api/datasets/5c9336/table/",
+        "preferences": "/api/datasets/5c9336/preferences/"
+    },
+    "views": {
+        "cube": "/api/datasets/5c9336/cube/",
+        "export": "/api/datasets/5c9336/export/",
+        "summary": "/api/datasets/5c9336/summary/",
+        "applied_filters": "/api/datasets/5c9336/filters/applied/"
+    },
+    "description": "Detail for a given dataset",
+    "body": {
+        "size": {
+            "rows": 1634,
+            "unfiltered_rows": 1634,
+            "columns": 19
+        },
+        "current_editor_name": "Gordon Shotwell",
+        "owner_name": "Gordon Shotwell",
+        "maintainer": "/api/users/7bbff9/",
+        "name": "SO_survey",
+        "end_date": null,
+        "modification_time": "2018-10-11T17:04:57.706000",
+        "access_time": "2019-01-05T23:58:56.868000",
+        "notes": "",
+        "current_editor": "/api/users/7bbff9/",
+        "creation_time": "2018-06-19T18:12:19.122000",
+        "archived": false,
+        "start_date": null,
+        "streaming": "no",
+        "app_settings": {
+            "crunch": {
+                "discarded_to_hidden": true,
+                "deleted_rogue_vp": true
+            }
+        },
+        "owner": "/api/users/7bbff9/",
+        "permissions": {
+            "edit": true,
+            "admin": true,
+            "change_permissions": true,
+            "view": true
+        },
+        "is_published": true,
+        "id": "5c9336",
+        "description": ""
+    },
+    "orders": {
+        "variables_weights": "/api/datasets/5c9336/variables/weights/",
+        "variables_hier": "/api/datasets/5c9336/variables/hier/",
+        "variables_personal": "/api/datasets/5c9336/variables/personal/"
+    },
+    "urls": {
+        "owner_url": "/api/projects/d4eccd/",
+        "editor_url": "/api/users/7bbff9/",
+        "user_url": "/api/users/8e01e9/"
+    }
+}

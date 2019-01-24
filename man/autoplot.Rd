@@ -6,9 +6,9 @@
 \alias{autoplot.CategoricalVariable}
 \alias{autoplot.CategoricalArrayVariable}
 \alias{autoplot.MultipleResponseVariable}
+\alias{autoplot}
 \alias{autoplot.CrunchCube}
 \alias{autoplot.CrunchCubeCalculation}
-\alias{autoplot}
 \alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
@@ -42,10 +42,6 @@ coding or facets depending on the dimensionality of the data.}
 the default but can also be \code{".unweighted_counts"} or any other measure
 stored in the cube. If omitted, autoplot will select the first measure
 appearing in the data.}
-
-\item{x}{a CrunchCube, or CrunchVariable}
-
-\item{...}{further arguments to autoplot}
 }
 \description{
 Generates ggplot representations of CrunchVariables and CrunchCubes
