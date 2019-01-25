@@ -11,3 +11,5 @@ inst/doc/*.html
 *.Rproj
 docs/
 inst/doc
+.Rhistory
+.RData

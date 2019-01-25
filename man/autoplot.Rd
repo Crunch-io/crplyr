@@ -6,8 +6,9 @@
 \alias{autoplot.CategoricalVariable}
 \alias{autoplot.CategoricalArrayVariable}
 \alias{autoplot.MultipleResponseVariable}
-\alias{autoplot.CrunchCube}
 \alias{autoplot}
+\alias{autoplot.CrunchCube}
+\alias{autoplot.CrunchCubeCalculation}
 \alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
@@ -22,6 +23,8 @@
 \method{autoplot}{MultipleResponseVariable}(x, ...)
 
 \method{autoplot}{CrunchCube}(x, ...)
+
+\method{autoplot}{CrunchCubeCalculation}(x, plot_type = "dot", ...)
 
 \method{autoplot}{tbl_crunch_cube}(x, plot_type = c("dot", "tile",
   "bar"), measure)

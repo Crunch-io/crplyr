@@ -25,6 +25,7 @@ Imports:
     purrr,
     tibble,
     rlang,
+    scales,
     stringr,
     viridisLite
 Suggests:

@@ -10,16 +10,23 @@ test_that("autplot matches mocked plots", {
     expect_doppelganger("cat-cat-dot", autoplot(cube, "dot"))
     expect_doppelganger("cat-cat-tile", autoplot(cube, "tile"))
     expect_doppelganger("cat-cat-bar", autoplot(cube, "bar"))
+    
+    prop_cube <- crunch::prop.table(cube, 2)
+    expect_doppelganger("cat-cat_prop_dot", autoplot(prop_cube, "dot"))
+    expect_doppelganger("cat-cat_prop_bar", autoplot(prop_cube, "bar"))
+    expect_doppelganger("cat-cat_prop_tile", autoplot(prop_cube, "tile"))
 
     cube <- loadCube("cubes/cat-x-mr-x-mr.json")
     expect_doppelganger("cat-x-mr-x-mr-dot", autoplot(cube, "dot"))
     expect_doppelganger("cat-x-mr-x-mr-tile", autoplot(cube, "tile"))
     expect_doppelganger("cat-x-mr-x-mr-bar", autoplot(cube, "bar"))
+    expect_doppelganger("cat_x_mr_x_mr_prop", autoplot(crunch::prop.table(cube, 1:2)))
 
     cube <- loadCube("cubes/catarray-x-cat.json")
     expect_doppelganger("catarray-x-cat-dot", autoplot(cube, "dot"))
     expect_doppelganger("catarray-x-cat-tile", autoplot(cube, "tile"))
     expect_doppelganger("catarray-x-cat-bar", autoplot(cube, "bar"))
+    expect_doppelganger("catarray_x_cat_prop", autoplot(crunch::prop.table(cube, 1:2)))
 
     cube <- loadCube("cubes/catarray-x-mr.json")
     cube@useNA <- "always"
