@@ -7,8 +7,55 @@ test_that("add_duplicate_suffix generates correct character vector", {
     )
 })
 
-with_mock_crunch({
+test_that("as_tibble on prop.table", {
+    cube <- loadCube("cubes/cat-x-mr-x-mr.json")
+    prop <- crunch::prop.table(cube, 1:2)
+    expect_is(prop, "CrunchCubeCalculation")
+    prop_tbl <- as_tibble(prop)
+    expect_is(prop_tbl, "tbl_crunch_cube")
+    expect_equal(
+        names(prop_tbl), 
+        c("animal", "opinion_mr_items", "feeling_mr_items", "proportion")
+    )
+    expect_equal(dim(prop_tbl), c(12, 4))
+    expect_equal(prop[1,1,1], prop_tbl$proportion[1])
+    expect_equal(prop[2,1,2], prop_tbl$proportion[8])
+    
+    expect_equal(
+        attr(prop_tbl, "types"),
+        structure(c("categorical", "subvariable_items", "subvariable_items", 
+                    "measure"), .Names = c("animal", "opinion_mr", "feeling_mr", 
+                                           "proportion"))
+    )
+    expect_is(attr(prop_tbl, "cube_metadata"), "list")
+    expect_equal(length(attr(prop_tbl, "cube_metadata")), 4)
+})
 
+test_that("as_tibble on margin.table", {
+    cube <- loadCube("cubes/cat-x-mr-x-mr.json")
+    marg <- crunch::margin.table(cube, 1:2)
+    expect_is(marg, "CrunchCubeCalculation")
+    marg_tbl <- as_tibble(marg)
+    expect_is(marg_tbl, "tbl_crunch_cube")
+    expect_equal(
+        names(marg_tbl), 
+        c("animal", "opinion_mr_items", "feeling_mr_items", "margin")
+    )
+    expect_equal(dim(marg_tbl), c(12, 4))
+    expect_equal(marg[1,1,1], marg_tbl$margin[1])
+    expect_equal(marg[2,1,2], marg_tbl$margin[8])
+    
+    expect_equal(
+        attr(marg_tbl, "types"),
+        structure(c("categorical", "subvariable_items", "subvariable_items", 
+                    "measure"), .Names = c("animal", "opinion_mr", "feeling_mr", 
+                                           "margin"))
+    )
+    expect_is(attr(marg_tbl, "cube_metadata"), "list")
+    expect_equal(length(attr(marg_tbl, "cube_metadata")), 4)
+})
+
+with_mock_crunch({
     ds <- loadDataset("test ds")
     ## Load a bunch of different cubes
     with_POST("https://app.crunch.io/api/datasets/1/multitables/apidocs-tabbook/", {
@@ -63,4 +110,6 @@ with_mock_crunch({
                 "feeling_mr_selections", "is_missing", "count", "row_count"
             ))
     })
+
+
 })

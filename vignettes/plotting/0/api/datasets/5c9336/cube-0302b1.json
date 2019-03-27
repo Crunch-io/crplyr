@@ -1,0 +1,168 @@
+{
+    "element": "shoji:view",
+    "self": "/api/datasets/5c9336/cube/?query=%7B%22dimensions%22%3A%5B%7B%22variable%22%3A%22%2Fapi%2Fdatasets%2F5c9336%2Fvariables%2F000016%2F%22%7D%5D%2C%22measures%22%3A%7B%22count%22%3A%7B%22function%22%3A%22cube_count%22%2C%22args%22%3A%5B%5D%7D%7D%2C%22weight%22%3Anull%7D&filter=%7B%7D",
+    "value": {
+        "query": {
+            "measures": {
+                "count": {
+                    "function": "cube_count",
+                    "args": [
+
+                    ]
+                }
+            },
+            "dimensions": [
+                {
+                    "variable": "/api/datasets/5c9336/variables/000016/"
+                }
+            ],
+            "weight": null
+        },
+        "query_environment": {
+            "filter": [
+
+            ]
+        },
+        "result": {
+            "dimensions": [
+                {
+                    "references": {
+                        "alias": "CompanySize",
+                        "name": "CompanySize"
+                    },
+                    "derived": false,
+                    "type": {
+                        "ordinal": false,
+                        "class": "categorical",
+                        "categories": [
+                            {
+                                "numeric_value": 1,
+                                "id": 1,
+                                "name": "1,000 to 4,999 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 2,
+                                "id": 2,
+                                "name": "10 to 19 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 3,
+                                "id": 3,
+                                "name": "10,000 or more employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 4,
+                                "id": 4,
+                                "name": "100 to 499 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 5,
+                                "id": 5,
+                                "name": "20 to 99 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 6,
+                                "id": 6,
+                                "name": "5,000 to 9,999 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 7,
+                                "id": 7,
+                                "name": "500 to 999 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 8,
+                                "id": 8,
+                                "name": "Fewer than 10 employees",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 9,
+                                "id": 9,
+                                "name": "I don't know",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": 10,
+                                "id": 10,
+                                "name": "I prefer not to answer",
+                                "missing": false
+                            },
+                            {
+                                "numeric_value": null,
+                                "id": -1,
+                                "name": "No Data",
+                                "missing": true
+                            }
+                        ]
+                    }
+                }
+            ],
+            "missing": 386,
+            "measures": {
+                "count": {
+                    "data": [
+                        153,
+                        98,
+                        256,
+                        232,
+                        220,
+                        70,
+                        71,
+                        84,
+                        44,
+                        20,
+                        386
+                    ],
+                    "n_missing": 386,
+                    "metadata": {
+                        "references": {
+
+                        },
+                        "derived": true,
+                        "type": {
+                            "integer": true,
+                            "missing_rules": {
+
+                            },
+                            "missing_reasons": {
+                                "No Data": -1
+                            },
+                            "class": "numeric"
+                        }
+                    }
+                }
+            },
+            "n": 1634,
+            "unfiltered": {
+                "unweighted_n": 1634,
+                "weighted_n": 1634
+            },
+            "filtered": {
+                "unweighted_n": 1634,
+                "weighted_n": 1634
+            },
+            "counts": [
+                153,
+                98,
+                256,
+                232,
+                220,
+                70,
+                71,
+                84,
+                44,
+                20,
+                386
+            ],
+            "element": "crunch:cube"
+        }
+    }
+}

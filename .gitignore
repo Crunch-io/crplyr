@@ -10,3 +10,6 @@ inst/doc/*.html
 .Rproj.user
 *.Rproj
 docs/
+inst/doc
+.Rhistory
+.RData

@@ -7,7 +7,7 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
     'mutate', 'group_by', and 'summarize' are implemented in such a way as to
     perform as much computation on the server and pull as little data locally
     as possible.
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
     person("Neal", "Richardson", role=c("aut", "cre"), email="neal@crunch.io"),
     person("Gordon", "Shotwell", role="aut", email="gordon@crunch.io"))
@@ -20,16 +20,24 @@ Depends:
     dplyr
 Imports:
     methods,
+    ggplot2,
     lazyeval,
     purrr,
     tibble,
+    rlang,
+    scales,
     stringr,
-    rlang (>= 0.1.2)
+    viridisLite
 Suggests:
     covr,
-    httptest,
+    httptest (>= 3.0.0),
     magrittr,
-    spelling
-RoxygenNote: 6.0.1
+    spelling,
+    vdiffr,
+    knitr,
+    testthat,
+    rmarkdown
+RoxygenNote: 6.1.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
+VignetteBuilder: knitr

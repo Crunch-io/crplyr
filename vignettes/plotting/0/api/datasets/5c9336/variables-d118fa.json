@@ -1,0 +1,233 @@
+{
+    "element": "shoji:catalog",
+    "self": "/api/datasets/5c9336/variables/?relative=on",
+    "catalogs": {
+        "private": "/api/datasets/5c9336/variables/private/"
+    },
+    "orders": {
+        "personal": "/api/datasets/5c9336/variables/personal/",
+        "weights": "/api/datasets/5c9336/variables/weights/",
+        "hier": "/api/datasets/5c9336/variables/hier/"
+    },
+    "description": "List of Variables of this dataset",
+    "index": {
+        "000010/": {
+            "discarded": false,
+            "alias": "HaveWorkedLanguage",
+            "name": "HaveWorkedLanguage",
+            "type": "text",
+            "notes": "",
+            "derived": false,
+            "id": "000010",
+            "description": ""
+        },
+        "000005/": {
+            "discarded": false,
+            "alias": "Gender",
+            "scale": "interval",
+            "name": "Gender",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000005",
+            "description": ""
+        },
+        "000017/": {
+            "discarded": false,
+            "alias": "Respondent",
+            "name": "Respondent",
+            "type": "numeric",
+            "notes": "",
+            "derived": false,
+            "id": "000017",
+            "description": ""
+        },
+        "000016/": {
+            "discarded": false,
+            "alias": "CompanySize",
+            "scale": "interval",
+            "name": "CompanySize",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000016",
+            "description": ""
+        },
+        "000013/": {
+            "discarded": false,
+            "alias": "Professional",
+            "scale": "interval",
+            "name": "Professional",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000013",
+            "description": ""
+        },
+        "1861d5/": {
+            "description": "",
+            "derived": true,
+            "subvariables": [
+                "1861d5/subvariables/VBA/",
+                "1861d5/subvariables/TypeScript/",
+                "1861d5/subvariables/Java/",
+                "1861d5/subvariables/Scala/",
+                "1861d5/subvariables/JavaScript/",
+                "1861d5/subvariables/Perl/",
+                "1861d5/subvariables/Lua/",
+                "1861d5/subvariables/Matlab/",
+                "1861d5/subvariables/Erlang/",
+                "1861d5/subvariables/Assembly/",
+                "1861d5/subvariables/VB_NET/",
+                "1861d5/subvariables/Python/",
+                "1861d5/subvariables/Common Lisp/",
+                "1861d5/subvariables/Dart/",
+                "1861d5/subvariables/CoffeeScript/",
+                "1861d5/subvariables/Elixir/",
+                "1861d5/subvariables/Ruby/",
+                "1861d5/subvariables/Groovy/",
+                "1861d5/subvariables/C/",
+                "1861d5/subvariables/F/",
+                "1861d5/subvariables/Hack/",
+                "1861d5/subvariables/C++/",
+                "1861d5/subvariables/Objective-C/",
+                "1861d5/subvariables/R/",
+                "1861d5/subvariables/Clojure/",
+                "1861d5/subvariables/Rust/",
+                "1861d5/subvariables/Swift/",
+                "1861d5/subvariables/Julia/",
+                "1861d5/subvariables/Haskell/",
+                "1861d5/subvariables/Visual Basic 6/",
+                "1861d5/subvariables/SQL/",
+                "1861d5/subvariables/Go/",
+                "1861d5/subvariables/PHP/",
+                "1861d5/subvariables/Smalltalk/"
+            ],
+            "id": "1861d5",
+            "subvariables_catalog": "1861d5/subvariables/",
+            "uniform_basis": true,
+            "name": "WantWorkMR",
+            "notes": "",
+            "discarded": false,
+            "alias": "WantWorkMR",
+            "type": "multiple_response"
+        },
+        "000012/": {
+            "discarded": false,
+            "alias": "JobSatisfaction",
+            "name": "JobSatisfaction",
+            "type": "numeric",
+            "notes": "",
+            "derived": false,
+            "id": "000012",
+            "description": ""
+        },
+        "000011/": {
+            "discarded": false,
+            "alias": "Race",
+            "scale": "interval",
+            "name": "Race",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000011",
+            "description": ""
+        },
+        "000007/": {
+            "discarded": false,
+            "alias": "Salary",
+            "name": "Salary",
+            "type": "numeric",
+            "notes": "",
+            "derived": false,
+            "id": "000007",
+            "description": ""
+        },
+        "92dd37/": {
+            "discarded": false,
+            "alias": "weight",
+            "name": "weight",
+            "type": "numeric",
+            "notes": "",
+            "derived": true,
+            "id": "92dd37",
+            "description": ""
+        },
+        "000009/": {
+            "discarded": false,
+            "alias": "Country",
+            "scale": "interval",
+            "name": "Country",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000009",
+            "description": ""
+        },
+        "f79935/": {
+            "description": "",
+            "derived": false,
+            "subvariables": [
+                "f79935/subvariables/000021/",
+                "f79935/subvariables/000022/",
+                "f79935/subvariables/000003/",
+                "f79935/subvariables/000008/",
+                "f79935/subvariables/000002/",
+                "f79935/subvariables/000019/",
+                "f79935/subvariables/000018/",
+                "f79935/subvariables/000000/",
+                "f79935/subvariables/000020/",
+                "f79935/subvariables/000015/"
+            ],
+            "id": "f79935",
+            "subvariables_catalog": "f79935/subvariables/",
+            "scale": "interval",
+            "name": "ImportantHiring",
+            "notes": "",
+            "discarded": false,
+            "alias": "ImportantHiring",
+            "type": "categorical_array"
+        },
+        "000004/": {
+            "discarded": false,
+            "alias": "TabsSpaces",
+            "scale": "interval",
+            "name": "TabsSpaces",
+            "type": "categorical",
+            "notes": "",
+            "derived": false,
+            "id": "000004",
+            "description": ""
+        },
+        "000006/": {
+            "discarded": false,
+            "alias": "ExpectedSalary",
+            "name": "ExpectedSalary",
+            "type": "numeric",
+            "notes": "",
+            "derived": false,
+            "id": "000006",
+            "description": ""
+        },
+        "000014/": {
+            "discarded": true,
+            "alias": "WantWorkLanguage",
+            "name": "WantWorkLanguage",
+            "type": "text",
+            "notes": "",
+            "derived": false,
+            "id": "000014",
+            "description": ""
+        },
+        "000001/": {
+            "discarded": false,
+            "alias": "CareerSatisfaction",
+            "name": "CareerSatisfaction",
+            "type": "numeric",
+            "notes": "",
+            "derived": false,
+            "id": "000001",
+            "description": ""
+        }
+    }
+}
