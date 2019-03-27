@@ -17,6 +17,16 @@ with_mock_crunch({
             '{"filter":null,"where":{"function":"select","args":[{"map":{"66ae9881e3524f7db84970d556c34552":{"variable":"https://app.crunch.io/api/datasets/1/variables/gender/"},"f78ca47313144b57adfb495893968e70":{"variable":"https://app.crunch.io/api/datasets/1/variables/birthyr/"}}}]},"options":{"use_category_ids":true}}'
         )
     })
+    test_that("collect on grouped dataset", {
+        expect_POST(
+            ds %>%
+                select(gender, birthyr) %>%
+                group_by(gender) %>%
+                collect(),
+            'https://app.crunch.io/api/datasets/1/export/csv/',
+            '{"filter":null,"where":{"function":"select","args":[{"map":{"66ae9881e3524f7db84970d556c34552":{"variable":"https://app.crunch.io/api/datasets/1/variables/gender/"},"f78ca47313144b57adfb495893968e70":{"variable":"https://app.crunch.io/api/datasets/1/variables/birthyr/"}}}]},"options":{"use_category_ids":true}}'
+        )
+    })
     ds3 <- loadDataset("ECON.sav")
     test_that("collect can pull hidden variables", {
         expect_POST(

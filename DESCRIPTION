@@ -38,6 +38,8 @@ Suggests:
     knitr,
     testthat,
     rmarkdown
+Remotes:
+    Crunch-io/rcrunch
 RoxygenNote: 6.1.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
