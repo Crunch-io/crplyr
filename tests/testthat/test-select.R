@@ -26,7 +26,7 @@ with_mock_crunch({
     test_that("select_ warning", {
         expect_error(
             select_(ds, .dots = "catfish"),
-            "The select_.* function is no longer supported, please use select.* instead"
+            "The select_.* function is no longer supported. Please use select.* instead"
         )
     })
 })

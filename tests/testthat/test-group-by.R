@@ -14,7 +14,7 @@ with_mock_crunch({
     test_that("group_by_ has been removed", {
         expect_error(
             group_by_(ds, .dots = "catfish"),
-            "The group_by_.* function is no longer supported, please use group_by.* instead"
+            "The group_by_.* function is no longer supported. Please use group_by.* instead"
         )
     })
 

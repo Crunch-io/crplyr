@@ -38,9 +38,12 @@ group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
         if (sum(missing_cols) > 1) {
             err <- " are"
         }
-        stop(paste0(groups$groups[missing_cols], collapse = ", "),
+        stop(
+            paste0(groups$groups[missing_cols], collapse = ", "),
             err,
-            " not present in the Dataset")
+            " not present in the Dataset",
+            call.=FALSE
+        )
     }
     out <- GroupedCrunchDataset(groups$data)
     out@groupBy <- groups$groups
@@ -50,7 +53,11 @@ group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
 #' @export
 #' @importFrom dplyr group_by_
 group_by_.CrunchDataset <- function (.data, ..., .dots, add = FALSE) {
-    stop("The group_by_() function is no longer supported, please use group_by() instead.")
+    stop(
+        "The group_by_() function is no longer supported. ",
+        "Please use group_by() instead.",
+        call.=FALSE
+    )
 }
 
 #' @export
