@@ -102,12 +102,11 @@ autoplot.CategoricalArrayVariable <- function(x, ...) plotCategorical(x, ...)
 #' @export
 autoplot.MultipleResponseVariable <- function(x, ...) plotCategorical(x, ...)
 
-#' @importFrom crunch  alias datasetReference loadDataset
+#' @importFrom crunch alias datasetReference loadDataset
 #' @importFrom ggplot2 autoplot
 plotCategorical <- function(x, ...) {
     ds <- loadDataset(datasetReference(x))
-    cube <- crtabs(paste0("~", alias(x)), ds)
-    autoplot(cube, ...)
+    autoplot(crtabs(paste0("~", alias(x)), ds), ...)
 }
 
 plot_fun_lookup <- function(plot_dim, plot_type) {
