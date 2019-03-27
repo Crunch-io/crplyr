@@ -45,7 +45,11 @@ summarise.CrunchDataset <- function (.data, ...) {
 #' @export
 #' @importFrom dplyr summarise_
 summarise_.CrunchDataset <- function (.data, ..., .dots) {
-    stop("The summarise_() function is no longer supported, please use summarise() instead.")
+    stop(
+        "The summarise_() function is no longer supported. ",
+        "Please use summarise() instead.",
+        call.=FALSE
+    )
 }
 
 
@@ -66,8 +70,10 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
 #'    )
 #' }
 unweighted_n <- function () {
-    stop("This function cannot be called outside of a summarize call.",
-        .call = FALSE)
+    stop(
+        "This function cannot be called outside of a summarize call.",
+        .call = FALSE
+    )
 }
 
 #' @importFrom stats as.formula

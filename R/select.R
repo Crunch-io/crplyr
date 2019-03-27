@@ -9,5 +9,9 @@ select.CrunchDataset <- function (.data, ...) {
 #' @export
 #' @importFrom dplyr select_
 select_.CrunchDataset <- function (.data, ..., .dots) {
-    stop("The select_() function is no longer supported, please use select() instead.")
+    stop(
+        "The select_() function is no longer supported. ",
+        "Please use select() instead.",
+        call.=FALSE
+    )
 }

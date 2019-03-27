@@ -32,7 +32,7 @@ with_mock_crunch({
     test_that("summarise_ warning", {
         expect_error(
             summarise_(ds, .dots = c(hp="mean(hp)", sd_hp="sd(hp)", count="n()")),
-            "The summarise_.* function is no longer supported, please use summarise.* instead"
+            "The summarise_.* function is no longer supported. Please use summarise.* instead"
         )
     })
 
