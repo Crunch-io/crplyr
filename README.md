@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr) [![Build status](https://ci.appveyor.com/api/projects/status/wjc1inaakamltdq1/branch/master?svg=true)](https://ci.appveyor.com/project/nealrichardson/crplyr/branch/master) [![cran](https://www.r-pkg.org/badges/version-last-release/crplyr)](https://cran.r-project.org/package=crplyr)
 
-[dplyr](http://dplyr.tidyverse.org/) defines "a grammar of data manipulation" popular among R users. In order to facilitate analysis of datasets hosted by Crunch, this package implements 'dplyr' methods on top of the Crunch backend. The usual methods "select", "filter", "mutate", "group_by", and "summarize" are implemented in such a way as to perform as much computation on the server and pull as little data locally as possible.
+[dplyr](https://dplyr.tidyverse.org/) defines "a grammar of data manipulation" popular among R users. In order to facilitate analysis of datasets hosted by Crunch, this package implements 'dplyr' methods on top of the Crunch backend. The usual methods "select", "filter", "group_by", "summarize", and "collect" are implemented in such a way as to perform as much computation on the server and pull as little data locally as possible.
 
 With a local `data.frame`, you might chain together a series of manipulations and create a table, such as:
 
@@ -45,18 +45,18 @@ Install the CRAN release of `crplyr` with
 
     install.packages("crplyr")
 
-The pre-release version of the package can be pulled from GitHub using the [devtools](https://github.com/hadley/devtools) package:
+The pre-release version of the package can be pulled from GitHub using the [remotes](https://remotes.r-lib.org/) package:
 
-    # install.packages("devtools")
-    devtools::install_github("Crunch-io/crplyr")
+    # install.packages("remotes")
+    remotes::install_github("Crunch-io/crplyr")
 
 ## For developers
 
-The repository includes a Makefile to facilitate some common tasks.
+The repository includes a Makefile to facilitate some common tasks, if you're into that sort of thing.
 
 ### Running tests
 
-`$ make test`. Requires the [httptest](http://enpiar.com/r/httptest/) package. You can also specify a specific test file or files to run by adding a "file=" argument, like `$ make test file=select`. `test_package` will do a regular-expression pattern match within the file names. See its documentation in the [testthat](http://testthat.r-lib.org/) package.
+`$ make test`. Requires the [httptest](https://enpiar.com/r/httptest/) package. You can also specify a specific test file or files to run by adding a "file=" argument, like `$ make test file=select`. `test_package` will do a regular-expression pattern match within the file names. See its documentation in the [testthat](https://testthat.r-lib.org/) package.
 
 ### Updating documentation
 

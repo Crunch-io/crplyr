@@ -1,13 +1,10 @@
-
 #' Crunch ggplot theme
 #'
 #' Style ggplots according to Crunch style.
 #'
 #' @param base_size Base text size
 #' @param base_family Base text family
-#'
 #' @export
-#'
 #' @importFrom ggplot2 element_line element_blank element_text element_rect
 #' theme_minimal theme  rel unit
 theme_crunch <- function(base_size = 12, base_family = "sans") {
@@ -57,8 +54,25 @@ generate_colors <- function(var) {
     }
 }
 
-
-#' @rdname autoplot
+#' Autoplot methods for Crunch Objects
+#'
+#' The Crunch autoplot methods generate `ggplots` that are tailored to various
+#' Crunch objects. This allows you to visualize the object without bringing it
+#' into memory. You can select between three families of plots, which will
+#' attempt to accomodate the dimensionality of the plotted object. These plots
+#' can be further extended and customized with other ggplot methods.
+#'
+#' @param x A Crunch variable or cube aggregation
+#' @param ... additional plotting arguments
+#' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the
+#'   plot family you would like to use. Higher dimensional plots add color
+#'   coding or facets depending on the dimensionality of the data.
+#' @param measure The measure you wish to plot. This will usually be `"count"`,
+#'   the default but can also be `".unweighted_counts"` or any other measure
+#'   stored in the cube. If omitted, autoplot will select the first measure
+#'   appearing in the data.
+#' @return A `ggplot` object.
+#' @name autoplot
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
 #' @importFrom crunch description name
 #' @export
@@ -114,10 +128,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
     return(get(plot_fun))
 }
 
-#' @param x a CrunchCube, or CrunchVariable
-#' @param ... further arguments to autoplot
-#' @name autoplot
-#'
+#' @rdname autoplot
 #' @export
 autoplot.CrunchCube <- function(x,
     ...) {
@@ -127,7 +138,6 @@ autoplot.CrunchCube <- function(x,
 
 #' @importFrom ggplot2 scale_x_continuous scale_fill_viridis_c scale_y_continuous
 #' @rdname autoplot
-#'
 #' @export
 autoplot.CrunchCubeCalculation <- function(x,
                                            plot_type = "dot",
@@ -151,25 +161,7 @@ autoplot.CrunchCubeCalculation <- function(x,
     return(out)
 }
 
-#' Autoplot methods for Crunch Objects
-#'
-#' Generates ggplot representations of CrunchVariables and CrunchCubes
-#'
-#' The Crunch autoplot methods generate plots which are optimized for various
-#' crunch objects. This allows you to visualize the object without bringing it
-#' into memory. You can select between three families of plots which will
-#' attempt to accomodate the dimensionality of the plotted object. These plots
-#' can be further extended and customized with other ggplot methods.
-#'
-#' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the
-#'   plot family you would like to use. Higher dimensional plots add color
-#'   coding or facets depending on the dimensionality of the data.
-#' @param measure The measure you wish to plot. This will usually be `"count"`,
-#'   the default but can also be `".unweighted_counts"` or any other measure
-#'   stored in the cube. If omitted, autoplot will select the first measure
-#'   appearing in the data.
-#'
-#' @name autoplot
+#' @rdname autoplot
 #' @importFrom rlang !! !!! .data sym syms
 #' @importFrom purrr map map_chr
 #' @importFrom dplyr mutate filter pull
@@ -254,7 +246,7 @@ autoplot.tbl_crunch_cube <- function(x,
     return(out)
 }
 
-#' @importFrom dplyr arrange desc mutate
+#' @importFrom dplyr arrange desc mutate %>%
 #' @importFrom stats reorder
 .crunch_1d_tibble <- function(tibble, dims, measure, display_names) {
     tibble %>%

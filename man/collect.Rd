@@ -4,26 +4,28 @@
 \alias{collect}
 \alias{collect.CrunchDataset}
 \alias{collect.GroupedCrunchDataset}
-\title{Collect a crunch dataset from the server}
+\title{Collect a Crunch dataset from the server}
 \usage{
 \method{collect}{CrunchDataset}(x, ...)
 
 \method{collect}{GroupedCrunchDataset}(x, ...)
 }
 \arguments{
-\item{x}{A crunch Dataset}
+\item{x}{A Crunch Dataset}
 
-\item{...}{Other arguments passed on to \code{\link[tibble:as_data_frame]{tibble::as_data_frame()}}}
+\item{...}{Other arguments passed to \code{crunch::as.data.frame()}}
 }
 \value{
-a tbl_df or grouped_df
+A \code{tbl_df} or \code{grouped_df}
 }
 \description{
 This function brings a Crunch dataset into memory so that you can
 work with the data using R functions. Since this can create a long running
 query it is recommended that you try to filter the dataset down as much as possible
-before running \code{collect()}. When collecting a grouped CrunchDataset,
-the grouping will be preserved.
+before running \code{collect()}.
+}
+\details{
+When collecting a grouped CrunchDataset, the grouping will be preserved.
 }
 \examples{
 \dontrun{

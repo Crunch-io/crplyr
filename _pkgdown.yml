@@ -5,12 +5,24 @@ template:
     bootswatch: simplex
     ganalytics: UA-50332119-2
 reference:
-- title: All functions
+- title: Main methods
   contents:
+  - select
+  - filter
+  - group_by
+  - summarize
   - collect
+- title: Visualization
+  contents:
+  - autoplot
+  - theme_crunch
 navbar:
   left:
     - text: Reference
       href: reference/
     - text: News
       href: news/
+    - text: Articles
+      menu:
+      -  text: Plotting
+         href: articles/plotting.html
