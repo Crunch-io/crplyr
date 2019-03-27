@@ -28,9 +28,6 @@
 #' @export
 #' @importFrom dplyr group_by group_by_prepare
 group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
-    # Note that group_by_prepare will try to mutate() if you request vars that
-    # don't exist, and we don't support mutate yet. Consider capturing the
-    # error message and throwing something more useful.
     groups <- group_by_prepare(.data, ..., add=add)
     missing_cols <- !(groups$groups %in% aliases(allVariables(.data)))
     if (any(missing_cols)) {

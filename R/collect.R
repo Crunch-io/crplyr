@@ -22,8 +22,9 @@
 #'    select(cyl, gear) %>%
 #'    collect()
 #' }
-collect.CrunchDataset <- function(x, ...) as.data.frame(x, force = TRUE, ...)
-# TODO ^^^ should return a tibble, not a data.frame
+collect.CrunchDataset <- function(x, ...) {
+    as_tibble(as.data.frame(x, force = TRUE, ...))
+}
 
 #' @rdname collect
 #' @export
