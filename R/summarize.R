@@ -1,3 +1,22 @@
+#' Aggregate a Crunch dataset
+#'
+#' This is an alternate interface to `crunch::crtabs()` that, in addition to
+#' being "tidy", makes it easier to query multiple measures at the same time.
+#'
+#' Note that while `mutate()` is not generally supported in `crplyr`, you can
+#' derive expressions on the fly in `summarize()`.
+#'
+#' @param .data A `CrunchDataset`
+#' @param ... named aggregations to include in the resulting table.
+#' @return A `tbl_df` of results.
+#' @name summarize
+#' @examples
+#' \dontrun{
+#' ds %>%
+#'     filter(cyl == 6) %>%
+#'     group_by(vs) %>%
+#'     summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
+#' }
 #' @export
 #' @importFrom dplyr bind_cols summarise select
 #' @importFrom purrr map_chr map_df
@@ -56,7 +75,7 @@ summarise_.CrunchDataset <- function (.data, ..., .dots) {
 #' Return the unweighted counts from summarize
 #'
 #' This function allows you to return the unweighted counts from a Crunch dataset
-#' or grouped crunch dataset. Currently it can only be used from within a summarize
+#' or grouped crunch dataset. It can only be used from within a `summarise()`
 #' call. If your dataset is unweighted, then unweighted_n() is equivalent to n().
 #'
 #' @export

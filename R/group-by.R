@@ -1,3 +1,30 @@
+#' Group-by for Crunch datasets
+#'
+#' `group_by()` sets grouping variables that affect what [summarize()] computes.
+#' `ungroup()` removes any grouping variables.
+#'
+#' Note that `group_by()` only supports grouping on variables that exist in the
+#' dataset, not ones that are derived on the fly. `dplyr::group_by()` supports
+#' that by calling `mutate()` internally, but `mutate` is not yet supported in
+#' `crplyr`.
+#'
+#' @param .data For `group_by()`, a Crunch Dataset
+#' @param x For `ungroup()`, a Crunch Dataset
+#' @param ... references to variables to group by, passed to
+#' [dplyr::group_by_prepare()]
+#' @param add Logical: add the variables in `...` to any existing grouping
+#' variables, or replace them (the default).
+#' @return `group_by()` returns a `GroupedCrunchDataset` object (a
+#' `CrunchDataset` with grouping annotations). `ungroup()` returns a
+#' `CrunchDataset`.
+#' @name group_by
+#' @examples
+#' \dontrun{
+#' ds %>%
+#'    group_by(cyl) %>%
+#'    select(cyl, gear) %>%
+#'    collect()
+#' }
 #' @export
 #' @importFrom dplyr group_by group_by_prepare
 group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
@@ -47,13 +74,11 @@ group_vars.GroupedCrunchDataset <- function (x) as.character(x@groupBy)
 #' @export
 group_vars.CrunchDataset <- function (x) NULL
 
+#' @name group_by
 #' @export
 #' @importFrom dplyr ungroup
-ungroup.CrunchDataset <- function (x, ...) x
-
-#' @export
 #' @importFrom crunch CrunchDataset
-ungroup.GroupedCrunchDataset <- function (x, ...) CrunchDataset(x)
+ungroup.CrunchDataset <- function (x, ...) CrunchDataset(x)
 
 #' @export
 #' @importFrom dplyr tbl_vars

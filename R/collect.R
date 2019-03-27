@@ -1,19 +1,18 @@
-#' Collect a crunch dataset from the server
+#' Collect a Crunch dataset from the server
 #'
 #' This function brings a Crunch dataset into memory so that you can
 #' work with the data using R functions. Since this can create a long running
 #' query it is recommended that you try to filter the dataset down as much as possible
-#' before running `collect()`. When collecting a grouped CrunchDataset,
-#' the grouping will be preserved.
+#' before running `collect()`.
 #'
-#' @param x A crunch Dataset
-#' @param ... Other arguments passed on to [tibble::as_data_frame()]
+#' When collecting a grouped CrunchDataset, the grouping will be preserved.
 #'
-#' @return a tbl_df or grouped_df
+#' @param x A Crunch Dataset
+#' @param ... Other arguments passed to `crunch::as.data.frame()`
+#' @return A `tbl_df` or `grouped_df`
 #' @export
 #' @importFrom tibble data_frame as_data_frame
-#' @importFrom dplyr collect bind_cols
-#' @importFrom rlang !! :=
+#' @importFrom dplyr collect
 #' @name collect
 #'
 #' @examples
@@ -24,10 +23,9 @@
 #'    collect()
 #' }
 collect.CrunchDataset <- function(x, ...) as.data.frame(x, force = TRUE, ...)
+# TODO ^^^ should return a tibble, not a data.frame
 
-#' @importFrom dplyr group_by collect %>%
-#' @importFrom rlang !!! syms
-#' @name collect
+#' @rdname collect
 #' @export
 collect.GroupedCrunchDataset <- function(x, ...) {
     return(transfer_groups(collect.CrunchDataset(x, ...), x))

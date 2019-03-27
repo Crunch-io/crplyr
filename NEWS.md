@@ -1,10 +1,15 @@
-# crplyr 0.2.1 (In progress)
-* New autoplot methods make it easy to plot crunch variables and cubes as well as cube calculations (proportions from `prop.table()` margins from `margin.table()`, etc.)
-* `summarize_`, `select_`, and `filter_` now error following their deprecation from dplyr.
-* `as_tibble` and `summarize` now can return full underlying cube representations (where multiple response items are represented as an array of multiple dichotomous choices (selected, not-selected, missing) for each item).
+# crplyr 0.3.0
+
+* New `autoplot()` methods make it easy to plot crunch variables and cubes as well as cube calculations (proportions from `prop.table()` margins from `margin.table()`, etc.). See `vignette("plotting", package="crplyr")` for discussion and examples.
+* `as_tibble()` and `summarize()` return full underlying cube representations, where multiple-response items are represented as an array of multiple dichotomous choices (selected, not-selected, missing) for each item.
+* `select()`, `group_by()`, and `collect()` now correctly support taking hidden variables (#13)
+* `collect()` uses `crunch::as.data.frame()` export, which should be faster especially for larger data pulls.
+* Internal methods `summarize_()`, `select_()`, and `group_by_()`, deprecated in `dplyr`, now error.
+* Improved documentation and error messages.
 
 # crplyr 0.2.0
-* Added `collect` method, which pulls the requested columns of data from the server.
+
+* Added `collect()` method, which pulls the requested columns of data from the server.
 * `summarize()` and `as_tibble.CrunchCube()` methods now better handle array and multiple-response data and include metadata on which dimension values should be interpreted as missing.
 * `unweighted_n()` aggregation method for `summarize()`, which returns the unweighted counts even when the dataset has a weight applied.
 

@@ -8,7 +8,7 @@ unweighted_n()
 }
 \description{
 This function allows you to return the unweighted counts from a Crunch dataset
-or grouped crunch dataset. Currently it can only be used from within a summarize
+or grouped crunch dataset. It can only be used from within a \code{summarise()}
 call. If your dataset is unweighted, then unweighted_n() is equivalent to n().
 }
 \examples{
