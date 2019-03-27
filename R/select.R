@@ -1,7 +1,8 @@
 #' @export
 #' @importFrom dplyr select select_vars
 select.CrunchDataset <- function (.data, ...) {
-    vars <- select_vars(names(.data), ...)
+    # Use allVariables so we can include hidden variables
+    vars <- select_vars(aliases(allVariables(.data)), ...)
     return(.data[vars])
 }
 
