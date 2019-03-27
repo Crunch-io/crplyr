@@ -23,7 +23,7 @@ login()
 The Crunch web app provides a number of excellent visualizations and summary statistics to help communicate survey results to clients, but by its nature a web interface can't accommodate every type of plot or analysis. As a result one of our core design principles at Crunch is to let users access their data in as convenient a way as possible. This lets you seamlessly integrate Crunch data into your tool of choice, and customize how you communicate that data. This vignette goes through how you can use `ggplot2` and `tidyverse` tools to analyze and display crunch data using tidy tools. First we need to load a dataset into R. If this is a new process to you, see the [crunch vignettes](https://crunch.io/r/crunch/articles/crunch.html).
 
 ```{r setup, include = FALSE}
-ds <- loadDataset("SO_survey")
+ds <- loadDataset("https://app.crunch.io/api/datasets/5c9336/")
 ```
 
 # ggplots
