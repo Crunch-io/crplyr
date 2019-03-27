@@ -23,21 +23,17 @@
 #'    select(cyl, gear) %>%
 #'    collect()
 #' }
-collect.CrunchDataset <- function(x, ...) {
-    return(as.data.frame(x, force = TRUE, ...))
-}
+collect.CrunchDataset <- function(x, ...) as.data.frame(x, force = TRUE, ...)
 
 #' @importFrom dplyr group_by collect %>%
 #' @importFrom rlang !!! syms
 #' @name collect
 #' @export
-collect.GroupedCrunchDataset <- function(x, ...){
-    out <- transfer_groups(collect.CrunchDataset(x, ...), x)
-    return(out)
+collect.GroupedCrunchDataset <- function(x, ...) {
+    return(transfer_groups(collect.CrunchDataset(x, ...), x))
 }
 
 # Broken out for testing
 transfer_groups <- function(df, grouped_df) {
     return(group_by(df, !!!syms(group_vars(grouped_df))))
 }
-
