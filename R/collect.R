@@ -23,29 +23,17 @@
 #'    select(cyl, gear) %>%
 #'    collect()
 #' }
-collect.CrunchDataset <- function(x, ...) {
-    out <- lapply(x, as.vector)
-    ## Calling as.vector on an array variable returns a dataframe
-    ## this is necessary in order to harmonize the array variable output
-    ## with the non-array variable output.
-    ## TODO replace with purrr::map_if if available.
-    list_to_df <- function (entry, name) {
-        if (!is.data.frame(entry)) {
-            entry <- data_frame(!!name := entry)
-        }
-        return(entry)
-    }
-    out <- mapply(list_to_df, out, names(x), SIMPLIFY = FALSE) %>%
-        bind_cols()
-    return(as_data_frame(out, ...))
-}
+collect.CrunchDataset <- function(x, ...) as.data.frame(x, force = TRUE, ...)
 
 #' @importFrom dplyr group_by collect %>%
 #' @importFrom rlang !!! syms
 #' @name collect
 #' @export
-collect.GroupedCrunchDataset <- function(x, ...){
-    out <- collect.CrunchDataset(x, ...) %>%
-        group_by(!!!syms(group_vars(x)))
-    return(out)
+collect.GroupedCrunchDataset <- function(x, ...) {
+    return(transfer_groups(collect.CrunchDataset(x, ...), x))
+}
+
+# Broken out for testing
+transfer_groups <- function(df, grouped_df) {
+    return(group_by(df, !!!syms(group_vars(grouped_df))))
 }
