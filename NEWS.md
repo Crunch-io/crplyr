@@ -4,7 +4,8 @@
 * `as_tibble()` and `summarize()` return full underlying cube representations, where multiple-response items are represented as an array of multiple dichotomous choices (selected, not-selected, missing) for each item.
 * `select()`, `group_by()`, and `collect()` now correctly support taking hidden variables (#13)
 * `collect()` uses `crunch::as.data.frame()` export, which should be faster especially for larger data pulls.
-* Internal methods `summarize_()`, `select_()`, and `filter_()`, deprecated in `dplyr`, now error.
+* Internal methods `summarize_()`, `select_()`, and `group_by_()`, deprecated in `dplyr`, now error.
+* Improved documentation and error messages.
 
 # crplyr 0.2.0
 

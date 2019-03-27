@@ -12,6 +12,7 @@ reference:
   - group_by
   - summarize
   - collect
+  - mutate
 - title: Visualization
   contents:
   - autoplot
