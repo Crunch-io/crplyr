@@ -24,7 +24,7 @@ check: build
 
 release: build
 	-unset INTEGRATION && R CMD CHECK --as-cran crplyr_$(VERSION).tar.gz
-	rm -rf crunch.Rcheck/
+	rm -rf crplyr.Rcheck/
 
 man: doc
 	R CMD Rd2pdf man/ --force
