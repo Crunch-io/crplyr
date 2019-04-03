@@ -1,3 +1,5 @@
+# crplyr 0.3.1 (under development)
+
 # crplyr 0.3.0
 
 * New `autoplot()` methods make it easy to plot crunch variables and cubes as well as cube calculations (proportions from `prop.table()` margins from `margin.table()`, etc.). See `vignette("plotting", package="crplyr")` for discussion and examples.
