@@ -56,7 +56,7 @@ autoplot(ds$ImportantHiring) +
 ```
 
 
-You can also define your own themes or use themes from other packages. This is helpful if you would like to send plots to a client using their style guide. For examples of sample corporate themes, take a look at the [ggtech](https://github.com/ricardo-bion/ggtech) package from AirBnb, or the [ggthemes](https://CRAN.R-project.org/package=pkgname) package.
+You can also define your own themes or use themes from other packages. This is helpful if you would like to send plots to a client using their style guide. For examples of sample corporate themes, take a look at the [ggtech](https://github.com/ricardo-bion/ggtech) package from AirBnb, or the [ggthemes](https://CRAN.R-project.org/package=ggthemes) package.
 
 ## Extending ggplots
 
