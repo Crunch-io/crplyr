@@ -1,4 +1,5 @@
-# crplyr 0.3.1 (under development)
+# crplyr 0.3.1 
+* New maintainer
 
 # crplyr 0.3.0
 
