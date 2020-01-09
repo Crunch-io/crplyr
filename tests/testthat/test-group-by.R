@@ -75,6 +75,6 @@ with_mock_crunch({
     })
     test_that("Grouping helpers work on CrunchDatasets", {
         expect_null(group_vars(ds))
-        expect_identical(tbl_vars(ds), names(ds))
+        expect_identical(as.character(tbl_vars(ds)), names(ds))
     })
 })
