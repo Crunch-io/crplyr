@@ -39,6 +39,8 @@ Suggests:
     knitr,
     testthat,
     rmarkdown
+Remotes:
+    github::tidyverse/ggplot2
 RoxygenNote: 6.1.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
