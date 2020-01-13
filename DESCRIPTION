@@ -7,12 +7,13 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
     'group_by', 'summarize', and 'collect' are implemented in such a way as to
     perform as much computation on the server and pull as little data locally
     as possible.
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
-    person("Neal", "Richardson", role="aut", email="neal.p.richardson@gmail.com"),
+    person("Greg", "Freedman Ellis", role="aut", email="greg@crunch.io"),
     person("Jonathan", "Keane", role="aut", email="jkeane@gmail.com"),
-    person("Gordon", "Shotwell", role="aut", email="gordon.shotwell@gmail.com"),
-    person("Mike", "Malecki", role=c("aut", "cre"), email="mike@crunch.io"))
+    person("Neal", "Richardson", role="aut", email="neal.p.richardson@gmail.com"),
+    person("Mike", "Malecki", role=c("aut", "cre"), email="mike@crunch.io"),
+    person("Gordon", "Shotwell", role="aut", email="gordon.shotwell@gmail.com"))
 URL: https://crunch.io/r/crplyr/, https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
 License: LGPL (>= 3)
@@ -39,7 +40,7 @@ Suggests:
     knitr,
     testthat,
     rmarkdown
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Language: en-US
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
