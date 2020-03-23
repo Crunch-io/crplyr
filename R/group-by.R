@@ -27,8 +27,8 @@
 #' }
 #' @export
 #' @importFrom dplyr group_by group_by_prepare
-group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
-    groups <- group_by_prepare(.data, ..., add=add)
+group_by.CrunchDataset <- function (.data, ..., .add=FALSE) {
+    groups <- group_by_prepare(.data, ..., .add=.add)
     missing_cols <- !(groups$groups %in% aliases(allVariables(.data)))
     if (any(missing_cols)) {
         err <- " is"
