@@ -30,6 +30,7 @@ Imports:
     rlang,
     scales,
     stringr,
+    tidyselect,
     viridisLite
 Suggests:
     covr,

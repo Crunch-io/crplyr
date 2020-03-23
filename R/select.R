@@ -5,7 +5,7 @@
 #'
 #' @param .data A `CrunchDataset`
 #' @param ... names of variables in `.data` or other valid selection functions,
-#' passed to `dplyr::select_vars()`
+#' passed to `tidyselect::vars_select()`
 #' @return `.data` with only the selected variables.
 #' @name select
 #' @examples
@@ -20,7 +20,7 @@
 #' @importFrom crunch aliases allVariables
 select.CrunchDataset <- function (.data, ...) {
     # Use allVariables so we can include hidden variables
-    vars <- select_vars(aliases(allVariables(.data)), ...)
+    vars <- tidyselect::vars_select(aliases(allVariables(.data)), ...)
     return(.data[vars])
 }
 
