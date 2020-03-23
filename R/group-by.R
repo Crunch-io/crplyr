@@ -128,11 +128,12 @@ crunch_group_by_prepare <- function(
 
 
 # Internal function from dplyr
+#' @importFrom rlang quo_is_symbol quo_is_call quo_get_expr node_cadr sym node_car node_cdr is_symbol is_string
 quo_is_variable_reference <- function(quo) {
     if (quo_is_symbol(quo)) {
         return(TRUE)
     }
-    
+
     if (quo_is_call(quo, n = 2)) {
         expr <- quo_get_expr(quo)
         
@@ -149,4 +150,6 @@ quo_is_variable_reference <- function(quo) {
             }
         }
     }
+
+    FALSE
 }

@@ -8,7 +8,7 @@ with_mock_crunch({
             "You can, however, derive"
         )
         expect_error(
-            mutate_(ds, men=gender == "Male"),
+            suppressWarnings(mutate_(ds, men=gender == "Male")),
             "You can, however, derive"
         )
     })
