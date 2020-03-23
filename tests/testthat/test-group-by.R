@@ -19,9 +19,9 @@ with_mock_crunch({
     })
 
     test_that("group_by errors if assigned columns not in dataset", {
-        expect_error(group_by(ds, catfish), "catfish is not present in the Dataset")
+        expect_error(group_by(ds, catfish), "`catfish`")
         expect_error(group_by(ds, catfish, dogfish),
-            "catfish, dogfish are not present in the Dataset")
+            "`catfish`.+`dogfish`")
     })
 
     test_that("group_by hidden variables", {

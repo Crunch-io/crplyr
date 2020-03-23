@@ -25,6 +25,7 @@ Imports:
     methods,
     ggplot2,
     lazyeval,
+    lifecycle,
     purrr,
     tibble,
     rlang,
