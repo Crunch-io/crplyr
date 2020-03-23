@@ -2,17 +2,19 @@
 % Please edit documentation in R/filter.R
 \name{filter}
 \alias{filter}
-\alias{filter_.CrunchDataset}
+\alias{filter.CrunchDataset}
 \title{Filter a Crunch dataset}
 \usage{
-\method{filter_}{CrunchDataset}(.data, ..., .dots)
+\method{filter}{CrunchDataset}(.data, ..., .preserve = FALSE)
 }
 \arguments{
 \item{.data}{A \code{CrunchDataset}}
 
 \item{...}{filter expressions}
 
-\item{.dots}{More dots!}
+\item{.preserve}{Relevant when the \code{.data} input is grouped. If
+\code{.presrve = FALSE} (the default), the grouping structure is recalculated
+based on the resulting data, otherwise the grouping is kept as is.}
 }
 \value{
 \code{.data} with the filter expressions applied.
