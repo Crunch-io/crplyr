@@ -132,7 +132,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' @export
 autoplot.CrunchCube <- function(x,
     ...) {
-    plot_tbl <- as_tibble(x)
+    plot_tbl <- as_tibble(x, .name_repair = "unique")
     autoplot(plot_tbl, ...)
 }
 
@@ -142,7 +142,7 @@ autoplot.CrunchCube <- function(x,
 autoplot.CrunchCubeCalculation <- function(x,
                                            plot_type = "dot",
                                            ...) {
-    plot_tbl <- as_tibble(x)
+    plot_tbl <- as_tibble(x, .name_repair = "unique")
     out <- autoplot(plot_tbl, plot_type, ...)
     if (attr(x, "type") == "proportion") {
         if (plot_type == "dot") {

@@ -98,8 +98,8 @@ as_tibble.tbl_crunch_cube <- function(x, ...){
     attr(x, "types") <- NULL
     attr(x, "cube_metadata") <- NULL
     attr(x, "useNA") <- NULL
-    class(x) <- c("tbl_df", "tbl", "data.frame")
-    return(as_tibble(x, ...))
+    class(x) <- c("data.frame")
+    return(as_tibble(x, ..., .name_repair = "unique"))
 }
 
 dim_types <- function(x) {
