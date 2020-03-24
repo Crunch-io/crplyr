@@ -62,7 +62,7 @@ as_tibble.CrunchCube <- function (x, ...) {
         # case it's fine because the data is all logical, but it's good to make
         # that explicit.
         out$is_missing <- apply(as.matrix(lgl_df), 1, any)
-        out <- bind_cols(out, measure_vals)
+        out <- bind_cols(out, as.data.frame(measure_vals))
     } else {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)
