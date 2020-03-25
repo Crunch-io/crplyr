@@ -186,10 +186,9 @@ autoplot.tbl_crunch_cube <- function(x,
 
     # Remove missing values based on the useNA value for the cube.
     # TODO handle useNA = "ifany"
+    plot_tbl <- as_tibble(x)
     if (attr(x, "useNA") == "no" && "is_missing" %in% names(x)) {
-        plot_tbl <- x[!x$is_missing, ]
-    } else {
-        plot_tbl <- x
+        plot_tbl <- plot_tbl[!plot_tbl$is_missing, ]
     }
 
     # Select the dimension columns from the table, this is necessary because the
