@@ -21,6 +21,8 @@
 select.CrunchDataset <- function (.data, ...) {
     # Use allVariables so we can include hidden variables
     vars <- tidyselect::vars_select(aliases(allVariables(.data)), ...)
+    names_match <- names(vars) == unname(vars)
+    if (!all(names_match)) warning("Renaming variables is not supported by crplyr")
     return(.data[vars])
 }
 
