@@ -5,7 +5,7 @@ with_mock_crunch({
     ## Fixture dataset created from mtcars
     ds <- loadDataset("https://app.crunch.io/api/datasets/mtcars/")
 
-    d2f <- function (...) dots_to_formula(lazyeval::lazy_dots(...))
+    d2f <- function (...) dots_to_formula(rlang::enquos(...))
 
     test_that("dots_to_formula", {
         expect_equal(d2f(avg=mean(birthyr), ct=n()),
@@ -31,7 +31,7 @@ with_mock_crunch({
 
     test_that("summarise_ warning", {
         expect_error(
-            summarise_(ds, .dots = c(hp="mean(hp)", sd_hp="sd(hp)", count="n()")),
+            suppressWarnings(summarise_(ds, .dots = c(hp="mean(hp)", sd_hp="sd(hp)", count="n()"))),
             "The summarise_.* function is no longer supported. Please use summarise.* instead"
         )
     })
@@ -81,7 +81,7 @@ with_mock_crunch({
         tbl7 <- ds %>%
                 group_by(vs) %>%
                 filter(cyl == 6) %>%
-                group_by(gear, add=TRUE) %>%
+                group_by(gear, .add=TRUE) %>%
                 summarize(hp=mean(hp), sd_hp=sd(hp), count=n())
         expect_is(tbl7, "tbl_df")
         expect_identical(dim(tbl7), c(6L, 6L))

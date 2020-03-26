@@ -21,10 +21,11 @@
 #' @importFrom dplyr bind_cols summarise select
 #' @importFrom purrr map_chr map_df
 #' @importFrom crunch crtabs
-#' @importFrom lazyeval lazy_dots
+#' @importFrom rlang enquos quo_text
 summarise.CrunchDataset <- function (.data, ...) {
-    dots <- lazy_dots(...)
-    unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
+    dots <- enquos(...)
+    dots_text <- lapply(dots, quo_text)
+    unweighted <- dots_text == "unweighted_n()"
     unweighted_n_measures <- dots[unweighted]
     measures <- dots[!unweighted]
     fmla <- dots_to_formula(measures, groups(.data))
@@ -43,9 +44,13 @@ summarise.CrunchDataset <- function (.data, ...) {
         # If unweighted_n() is requested, map it to the requested column names
         # from where it naturally appears in the tbl as "row_count". Then
         # remove "row_count"
-        unweighted_n <-  map_df(unweighted_n_measures, ~ out$row_count)
-        out$row_count <- NULL
-        out <- bind_cols(out, unweighted_n)
+        if (any(unweighted)) {
+            unweighted_n <-  map_df(unweighted_n_measures, ~ out$row_count)
+            out$row_count <- NULL
+            out <- bind_cols(out, unweighted_n)
+        } else {
+            out$row_count <- NULL
+        }
     }
 
     # Some cubes, like those produced from a summarize with no grouping,
@@ -118,4 +123,5 @@ groups_to_RHS <- function (grps) {
     }
 }
 
-dots_to_list <- function (dots) lapply(dots, function (ex) deparse(ex$expr))
+#' @importFrom rlang quo_text
+dots_to_list <- function (dots) lapply(dots, function (ex) quo_text(ex))
