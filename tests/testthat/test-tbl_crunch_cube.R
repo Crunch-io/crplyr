@@ -43,27 +43,27 @@ check_subset <- function(x) {
 test_that("attributes are subset along with table with `[`", {
     tbl2 <- tbl[1:2, 1:2]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[1:2, 1:2])
+    expect_equivalent(tbl2, as.data.frame(tbl)[1:2, 1:2])
     
     tbl2 <- tbl[2, 1:2]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[2, 1:2])
+    expect_equivalent(tbl2, as.data.frame(tbl)[2, 1:2])
     
     tbl2 <- tbl[2, ]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[2, ])
+    expect_equivalent(tbl2, as.data.frame(tbl)[2, ])
     
     tbl2 <- tbl[, c(3, 2, 4)]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[, c(3, 2, 4)])
+    expect_equivalent(tbl2, as.data.frame(tbl)[, c(3, 2, 4)])
     
     tbl2 <- tbl[, names(tbl) == "animal"]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[, names(tbl) == "animal", drop = FALSE])
+    expect_equivalent(tbl2, as.data.frame(tbl)[, names(tbl) == "animal", drop = FALSE])
     
     tbl2 <- tbl[, c("animal", "count", "opinion_mr_items")]
     expect_true(check_subset(tbl2))
-    expect_equal(tbl2, as.data.frame(tbl)[, c("animal", "count", "opinion_mr_items")])
+    expect_equivalent(tbl2, as.data.frame(tbl)[, c("animal", "count", "opinion_mr_items")])
 })
 
 test_that("attributes are subset with `[[`", {
