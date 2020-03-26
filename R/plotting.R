@@ -75,9 +75,10 @@ generate_colors <- function(var) {
 #' @name autoplot
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
 #' @importFrom crunch description name
+#' @importFrom tibble tibble
 #' @export
 autoplot.DatetimeVariable <- function(x, ...) {
-    plot_df <- data_frame(!!sym(name(x)) := as.Date(as.vector(x)))
+    plot_df <- tibble(!!sym(name(x)) := as.Date(as.vector(x)))
 
     ggplot(plot_df, aes(x = !!sym(name(x)))) +
         geom_histogram(fill = card_colors[2]) +
@@ -90,12 +91,13 @@ autoplot.DatetimeVariable <- function(x, ...) {
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
 #' @importFrom crunch description name
 #' @importFrom rlang !! sym :=
+#' @importFrom tibble tibble
 #' @export
 autoplot.NumericVariable <- function(x, ...) {
     # TODO revisit when cut is implemented in zz9
     # https://www.pivotaltracker.com/n/projects/931610/stories/155299834
     v <- as.vector(x)
-    plot_df <- data_frame(!!sym(name(x)) := v)
+    plot_df <- tibble(!!sym(name(x)) := v)
     binwidth <- round((max(plot_df) - min(v)) / 5, 0)
     ggplot(plot_df, aes(x = !!sym(name(x)))) +
         geom_histogram(binwidth = binwidth, fill = card_colors[1]) +
