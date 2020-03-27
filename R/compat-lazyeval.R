@@ -3,7 +3,9 @@
 # This file serves as a reference for compatibility functions for lazyeval.
 # Please find the most recent version in rlang's repository.
 
-
+#' @importFrom rlang as_quosure expr_text get_env get_expr is_formula is_null 
+#' @importFrom rlang is_quosure names2 new_quosure parse_quo quo warn
+#' @importFrom stats setNames
 warn_underscored <- function() {
   return(NULL)
   warn(paste(
