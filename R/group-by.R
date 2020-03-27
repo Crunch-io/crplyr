@@ -12,7 +12,7 @@
 #' @param x For `ungroup()`, a Crunch Dataset
 #' @param ... references to variables to group by, passed to
 #' [dplyr::group_by_prepare()]
-#' @param add Logical: add the variables in `...` to any existing grouping
+#' @param .add Logical: add the variables in `...` to any existing grouping
 #' variables, or replace them (the default).
 #' @return `group_by()` returns a `GroupedCrunchDataset` object (a
 #' `CrunchDataset` with grouping annotations). `ungroup()` returns a
