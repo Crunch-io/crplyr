@@ -1,3 +1,9 @@
+# crplyr development version
+* Updates for upcoming dplyr 1.0 release
+
+# crplyr 0.3.2
+* Fixes  to get back on CRAN
+
 # crplyr 0.3.1 
 * New maintainer
 
