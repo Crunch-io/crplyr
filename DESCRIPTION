@@ -9,10 +9,10 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
     as possible.
 Version: 0.3.3
 Authors@R: c(
-    person("Greg", "Freedman Ellis", role="aut", email="greg@crunch.io"),
+    person("Greg", "Freedman Ellis", role=c("aut", "cre"), email="greg@crunch.io"),
     person("Jonathan", "Keane", role="aut", email="jkeane@gmail.com"),
     person("Neal", "Richardson", role="aut", email="neal.p.richardson@gmail.com"),
-    person("Mike", "Malecki", role=c("aut", "cre"), email="mike@crunch.io"),
+    person("Mike", "Malecki", role="aut", email="mike@crunch.io"),
     person("Gordon", "Shotwell", role="aut", email="gordon.shotwell@gmail.com"))
 URL: https://crunch.io/r/crplyr/, https://github.com/Crunch-io/crplyr
 BugReports: https://github.com/Crunch-io/crplyr/issues
