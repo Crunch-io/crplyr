@@ -89,10 +89,6 @@ crunch_group_by_prepare <- function(
     }
 
     new_groups <- enquos(...)
-    if (!missing(.dots)) {
-        deprecate_soft("1.0.0", "dplyr::group_by(.dots = )")
-        new_groups <- c(new_groups, compat_lazy_dots(.dots, env = caller_env()))
-    }
 
     new_groups <- new_groups[!vapply(new_groups, quo_is_missing, logical(1))]
     is_symbol <- vapply(new_groups, quo_is_variable_reference, logical(1))

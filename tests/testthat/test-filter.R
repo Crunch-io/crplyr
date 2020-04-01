@@ -27,4 +27,23 @@ with_mock_crunch({
             select(mymrset, starttime)
         expect_identical(both, ds[ds$gender == "Male", c("mymrset", "starttime")])
     })
+    
+    test_that("no filter works", {
+        expect_equal(ds, ds %>% filter())
+    })
+    
+    test_that(".preserve gives error message", {
+        expect_error(
+            ds %>% filter(gender == "Male", .preserve = TRUE), 
+            "not supported by CrunchDatasets"
+        )
+    })
+    
+    test_that("filter_ still works", {
+        suppressWarnings(result <- filter_(ds, .dots = compat_as_lazy_dots(gender == "Male")))
+            expect_identical(
+                result,
+                ds[ds$gender == "Male",]
+            )
+    })
 })

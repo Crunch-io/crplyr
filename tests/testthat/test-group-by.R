@@ -77,4 +77,14 @@ with_mock_crunch({
         expect_null(group_vars(ds))
         expect_identical(as.character(tbl_vars(ds)), names(ds))
     })
+    test_that("obscure variable references to get to 100% test coverage", {
+        expect_identical(groupVars(group_by(ds2, .data$gender, .data[["birthyr"]])), c("gender", "birthyr"))
+    })
+    
+    test_that("add argument deprecated", {
+        expect_warning(
+            expect_identical(groupVars(group_by(ds2, birthyr, add=TRUE)),
+                             c("gender", "birthyr"))
+        )
+    })
 })
