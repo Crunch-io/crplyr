@@ -10,11 +10,16 @@
 #' @param ... further arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
+as_crubble <- function(x, ...) {
+    UseMethod("as_crubble")
+}
+
+#' @export
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
-as_tibble.CrunchCube <- function (x, ...) {
+as_crubble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
@@ -83,6 +88,12 @@ as_tibble.CrunchCube <- function (x, ...) {
     return(out)
 }
 
+#' @export
+#' @importFrom tibble as_tibble
+as_tibble.CrunchCube <- function (x, ...) {
+    as_tibble(as_crubble(x, ...))
+}
+
 #' @importFrom purrr walk
 add_duplicate_suffix <- function(names, sep = "_"){
     walk(unique(names), ~{
@@ -146,7 +157,7 @@ cube_attribute <- function(x, attr = "all"){
 }
 
 
-as_tibble.CrunchCubeCalculation <- function(x){
+as_crubble.CrunchCubeCalculation <- function(x){
     dnames <- dimnames(x)
     types <- crunch::getDimTypes(attr(x, "dims"))
     names(types) <- names(dnames)
@@ -175,4 +186,8 @@ as_tibble.CrunchCubeCalculation <- function(x){
     attr(out, "cube_metadata") <- meta
     class(out) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
     return(out)
+}
+
+as_tibble.CrunchCubeCalculation <- function(x) {
+    as_tibble(as_crubble(x))
 }
