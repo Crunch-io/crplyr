@@ -204,11 +204,3 @@ as_crubble.tbl_df <- function(x, cube_metadata = NULL, types = NULL, useNA = NUL
     class(x) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
     return(x)
 }
-
-# Learned from vctrs:::vec_cbind_frame_ptype.sf
-# is what allows dplyr 1.0 bind_cols to work on tibble derivatives
-#' @importFrom vctrs vec_cbind_frame_ptype
-#' @export
-vec_cbind_frame_ptype.tbl_crunch_cube <- function(x, ...) {
-    data.frame()
-}

@@ -32,7 +32,6 @@ Imports:
     scales,
     stringr,
     tidyselect,
-    vctrs,
     viridisLite
 Suggests:
     covr,

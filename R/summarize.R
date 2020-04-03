@@ -53,7 +53,7 @@ summarise.CrunchDataset <- function (.data, ...) {
             unweighted_n <- map_df(unweighted_n_measures, ~ out$row_count)
             old_attr <- attributes(out)
             out$row_count <- NULL
-            out <- bind_cols(out, unweighted_n) # loses attributes in dplyr 1.0
+            out <- bind_cols(as_tibble(out), unweighted_n)
             out <- as_crubble(
                 out, 
                 cube_metadata = old_attr$cube_metadata,
