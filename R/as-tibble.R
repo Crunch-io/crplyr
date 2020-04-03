@@ -5,6 +5,11 @@
 #' and the cube values are expressed as columns for each measure. This is useful
 #' both to better understand what each entry of a cube represents, and to work
 #' with the cube result using tidyverse tools.
+#' 
+#' The `crubble` class is a subclass of `tibble` that has extra metadata
+#' to allow `ggplot::autoplot()` to work. If you find that this extra
+#' metadata is getting in the way, you can use `as_tibble()` to get 
+#' a true `tibble`.
 #'
 #' @param x a CrunchCube
 #' @param ... further arguments passed on to `tibble::as_tibble()`
@@ -190,4 +195,20 @@ as_crubble.CrunchCubeCalculation <- function(x){
 
 as_tibble.CrunchCubeCalculation <- function(x) {
     as_tibble(as_crubble(x))
+}
+
+as_crubble.tbl_df <- function(x, cube_metadata = NULL, types = NULL, useNA = NULL, ...) {
+    attr(x, "cube_metadata") <- cube_metadata
+    attr(x, "types") <- types
+    attr(x, "useNA") <- useNA
+    class(x) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
+    return(x)
+}
+
+# Learned from vctrs:::vec_cbind_frame_ptype.sf
+# is what allows dplyr 1.0 bind_cols to work on tibble derivatives
+#' @importFrom vctrs vec_cbind_frame_ptype
+#' @export
+vec_cbind_frame_ptype.tbl_crunch_cube <- function(x, ...) {
+    data.frame()
 }

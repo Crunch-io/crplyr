@@ -18,3 +18,9 @@ and the cube values are expressed as columns for each measure. This is useful
 both to better understand what each entry of a cube represents, and to work
 with the cube result using tidyverse tools.
 }
+\details{
+The \code{crubble} class is a subclass of \code{tibble} that has extra metadata
+to allow \code{ggplot::autoplot()} to work. If you find that this extra
+metadata is getting in the way, you can use \code{as_tibble()} to get
+a true \code{tibble}.
+}

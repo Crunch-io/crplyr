@@ -84,7 +84,7 @@ cube_tbl <- as_tibble(cube)
 cube_tbl
 ```
 
-The tibble contains the same information as the cube data structure, but it is easier to work with using tidy tools. The first few columns will always correspond to the dimensions of the cube. The `is_missing` column represents whether any of the constituent categories are missing, which lets you easily filter out missing elements from the table. The last columns contain the cube measures which will usually be `count` and `row_count`. The `row_count` column contains the unweighted counts, and the `count` column contains the weighted counts. If there is no weighting applied to the dataset, then `count` and `row_count` will be the same.  
+The tibble contains most of the same information as the cube data structure, but it is easier to work with using tidy tools. The first few columns will always correspond to the dimensions of the cube. The `is_missing` column represents whether any of the constituent categories are missing, which lets you easily filter out missing elements from the table. The last columns contain the cube measures which will usually be `count` and `row_count`. The `row_count` column contains the unweighted counts, and the `count` column contains the weighted counts. If there is no weighting applied to the dataset, then `count` and `row_count` will be the same.  
 
 The cube output is now in the correct format to feed into tidyverse tools. Here we filter the dataset to produce a readable chart.
 
