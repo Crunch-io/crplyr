@@ -6,7 +6,7 @@
 #' both to better understand what each entry of a cube represents, and to work
 #' with the cube result using tidyverse tools.
 #' 
-#' The `crubble` class is a subclass of `tibble` that has extra metadata
+#' The `cr_tibble` class is a subclass of `tibble` that has extra metadata
 #' to allow `ggplot::autoplot()` to work. If you find that this extra
 #' metadata is getting in the way, you can use `as_tibble()` to get 
 #' a true `tibble`.
@@ -15,8 +15,8 @@
 #' @param ... further arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
-as_crubble <- function(x, ...) {
-    UseMethod("as_crubble")
+as_cr_tibble <- function(x, ...) {
+    UseMethod("as_cr_tibble")
 }
 
 #' @export
@@ -24,7 +24,7 @@ as_crubble <- function(x, ...) {
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
-as_crubble.CrunchCube <- function (x, ...) {
+as_cr_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
@@ -96,7 +96,7 @@ as_crubble.CrunchCube <- function (x, ...) {
 #' @export
 #' @importFrom tibble as_tibble
 as_tibble.CrunchCube <- function (x, ...) {
-    as_tibble(as_crubble(x, ...))
+    as_tibble(as_cr_tibble(x, ...))
 }
 
 #' @importFrom purrr walk
@@ -162,7 +162,7 @@ cube_attribute <- function(x, attr = "all"){
 }
 
 
-as_crubble.CrunchCubeCalculation <- function(x){
+as_cr_tibble.CrunchCubeCalculation <- function(x){
     dnames <- dimnames(x)
     types <- crunch::getDimTypes(attr(x, "dims"))
     names(types) <- names(dnames)
@@ -194,10 +194,10 @@ as_crubble.CrunchCubeCalculation <- function(x){
 }
 
 as_tibble.CrunchCubeCalculation <- function(x) {
-    as_tibble(as_crubble(x))
+    as_tibble(as_cr_tibble(x))
 }
 
-as_crubble.tbl_df <- function(x, cube_metadata = NULL, types = NULL, useNA = NULL, ...) {
+as_cr_tibble.tbl_df <- function(x, cube_metadata = NULL, types = NULL, useNA = NULL, ...) {
     attr(x, "cube_metadata") <- cube_metadata
     attr(x, "types") <- types
     attr(x, "useNA") <- useNA

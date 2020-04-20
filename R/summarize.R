@@ -8,7 +8,7 @@
 #'
 #' @param .data A `CrunchDataset`
 #' @param ... named aggregations to include in the resulting table.
-#' @return A `tbl_crunch_cube` or `crubble` of results. This subclass
+#' @return A `tbl_crunch_cube` or `cr_tibble` of results. This subclass
 #' of `tibble` allows `ggplot2::autoplot` to work, but can get in the way
 #' in some tidyverse operations. You may wish to convert to a tibble using 
 #' `as_tibble()`.
@@ -41,11 +41,11 @@ summarise.CrunchDataset <- function (.data, ...) {
         # several unweighted_n's in the same summarize call. map_df here
         # generalizes to 0, 1, or many.
         #
-        # TODO: make a crubble so we have consistent return types?
+        # TODO: make a cr_tibble so we have consistent return types?
         out <- map_df(unweighted_n_measures, ~nrow(.data))
     } else {
         # The usual case: call crtabs.
-        out <- as_crubble(crtabs(fmla, data=.data))
+        out <- as_cr_tibble(crtabs(fmla, data=.data))
         # If unweighted_n() is requested, map it to the requested column names
         # from where it naturally appears in the tbl as "row_count". Then
         # remove "row_count"
@@ -54,7 +54,7 @@ summarise.CrunchDataset <- function (.data, ...) {
             old_attr <- attributes(out)
             out$row_count <- NULL
             out <- bind_cols(as_tibble(out), unweighted_n)
-            out <- as_crubble(
+            out <- as_cr_tibble(
                 out, 
                 cube_metadata = old_attr$cube_metadata,
                 types = old_attr$types,

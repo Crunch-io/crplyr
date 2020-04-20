@@ -1,7 +1,7 @@
 context("tbl_crunch_cube methods")
 
 cube <- loadCube("cubes/cat-x-mr-x-mr.json")
-tbl <- as_crubble(cube)
+tbl <- as_cr_tibble(cube)
 
 test_that("tbl_crunch_cube object is generated", {
     expect_is(tbl, "tbl_crunch_cube")
