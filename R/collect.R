@@ -11,7 +11,7 @@
 #' @param ... Other arguments passed to `crunch::as.data.frame()`
 #' @return A `tbl_df` or `grouped_df`
 #' @export
-#' @importFrom tibble data_frame as_data_frame
+#' @importFrom tibble as_tibble
 #' @importFrom dplyr collect
 #' @name collect
 #'

@@ -12,7 +12,7 @@
 #' @param x For `ungroup()`, a Crunch Dataset
 #' @param ... references to variables to group by, passed to
 #' [dplyr::group_by_prepare()]
-#' @param add Logical: add the variables in `...` to any existing grouping
+#' @param .add Logical: add the variables in `...` to any existing grouping
 #' variables, or replace them (the default).
 #' @return `group_by()` returns a `GroupedCrunchDataset` object (a
 #' `CrunchDataset` with grouping annotations). `ungroup()` returns a
@@ -27,21 +27,8 @@
 #' }
 #' @export
 #' @importFrom dplyr group_by group_by_prepare
-group_by.CrunchDataset <- function (.data, ..., add=FALSE) {
-    groups <- group_by_prepare(.data, ..., add=add)
-    missing_cols <- !(groups$groups %in% aliases(allVariables(.data)))
-    if (any(missing_cols)) {
-        err <- " is"
-        if (sum(missing_cols) > 1) {
-            err <- " are"
-        }
-        stop(
-            paste0(groups$groups[missing_cols], collapse = ", "),
-            err,
-            " not present in the Dataset",
-            call.=FALSE
-        )
-    }
+group_by.CrunchDataset <- function (.data, ..., .add=FALSE) {
+    groups <- crunch_group_by_prepare(.data, ..., .add=.add)
     out <- GroupedCrunchDataset(groups$data)
     out@groupBy <- groups$groups
     return(out)
@@ -79,4 +66,86 @@ ungroup.CrunchDataset <- function (x, ...) CrunchDataset(x)
 
 #' @export
 #' @importFrom dplyr tbl_vars
+#' @importFrom crunch aliases allVariables
 tbl_vars.CrunchDataset <- function (x) names(x)
+
+# Adapted from dplyr::group_by_prepare, but:
+# 1) Doesn't allow mutates in group_by with a nice error
+# 2) Doesn't use tbl_vars so that it can get hidden variables
+#' @importFrom lifecycle deprecated deprecate_soft deprecate_warn
+#' @importFrom rlang enquos caller_env quo_is_missing have_name exprs_auto_name abort syms
+#' @importFrom dplyr union setdiff 
+crunch_group_by_prepare <- function(
+    .data, 
+    ..., 
+    .add = FALSE, 
+    .dots = deprecated(), 
+    add = deprecated()
+) {
+    if (!missing(add)) {
+        deprecate_warn("1.0.0", "dplyr::group_by(add = )", 
+                                  "dplyr::group_by(.add = )")
+        .add <- add
+    }
+
+    new_groups <- enquos(...)
+
+    new_groups <- new_groups[!vapply(new_groups, quo_is_missing, logical(1))]
+    is_symbol <- vapply(new_groups, quo_is_variable_reference, logical(1))
+    needs_mutate <- have_name(new_groups) | !is_symbol
+    
+    if (any(needs_mutate)) {
+        stop(
+            "Cannot create variables in a `group_by()` statement. You can, however, derive ",
+            "expressions on the fly in `summarize()`.",
+            call. = FALSE)
+    }
+    out <- .data
+
+    group_names <- names(exprs_auto_name(new_groups))
+    if (.add) {
+        group_names <- union(group_vars(.data), group_names)
+    }
+
+    unknown <- setdiff(group_names, aliases(allVariables(out)))
+    if (length(unknown) > 0) {
+        abort(c(
+            "Must group by variables found in `.data`",
+            paste0("Column `", unknown, "` is not found")
+        ))
+    }
+
+    list(
+        data = out,
+        groups = syms(group_names),
+        group_names = group_names
+    )
+}
+
+
+# Internal function from dplyr
+#' @importFrom rlang quo_is_symbol quo_is_call quo_get_expr node_cadr sym node_car node_cdr is_symbol is_string
+quo_is_variable_reference <- function(quo) {
+    if (quo_is_symbol(quo)) {
+        return(TRUE)
+    }
+
+    if (quo_is_call(quo, n = 2)) {
+        expr <- quo_get_expr(quo)
+        
+        if (node_cadr(expr) == sym(".data")) {
+            fun <- node_car(expr)
+            param <- node_cadr(node_cdr(expr))
+            
+            if (fun == sym("$") && (is_symbol(param) || is_string(param))) {
+                return(TRUE)
+            }
+            
+            if (fun == sym("[[") && is_string(param)) {
+                return(TRUE)
+            }
+        }
+    }
+
+    FALSE
+}

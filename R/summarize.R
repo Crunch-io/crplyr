@@ -8,7 +8,10 @@
 #'
 #' @param .data A `CrunchDataset`
 #' @param ... named aggregations to include in the resulting table.
-#' @return A `tbl_df` of results.
+#' @return A `tbl_crunch_cube` or `cr_tibble` of results. This subclass
+#' of `tibble` allows `ggplot2::autoplot` to work, but can get in the way
+#' in some tidyverse operations. You may wish to convert to a tibble using 
+#' `as_tibble()`.
 #' @name summarize
 #' @examples
 #' \dontrun{
@@ -21,10 +24,11 @@
 #' @importFrom dplyr bind_cols summarise select
 #' @importFrom purrr map_chr map_df
 #' @importFrom crunch crtabs
-#' @importFrom lazyeval lazy_dots
+#' @importFrom rlang enquos quo_text
 summarise.CrunchDataset <- function (.data, ...) {
-    dots <- lazy_dots(...)
-    unweighted <- dots %>% map_chr(~as.character(.$expr)[[1]]) == "unweighted_n"
+    dots <- enquos(...)
+    dots_text <- lapply(dots, quo_text)
+    unweighted <- dots_text == "unweighted_n()"
     unweighted_n_measures <- dots[unweighted]
     measures <- dots[!unweighted]
     fmla <- dots_to_formula(measures, groups(.data))
@@ -36,16 +40,30 @@ summarise.CrunchDataset <- function (.data, ...) {
         # We're using map_df because it's possible that the user asks for
         # several unweighted_n's in the same summarize call. map_df here
         # generalizes to 0, 1, or many.
+        #
+        # TODO: make a cr_tibble so we have consistent return types?
         out <- map_df(unweighted_n_measures, ~nrow(.data))
     } else {
         # The usual case: call crtabs.
-        out <- as_tibble(crtabs(fmla, data=.data))
+        out <- as_cr_tibble(crtabs(fmla, data=.data))
         # If unweighted_n() is requested, map it to the requested column names
         # from where it naturally appears in the tbl as "row_count". Then
         # remove "row_count"
-        unweighted_n <-  map_df(unweighted_n_measures, ~ out$row_count)
-        out$row_count <- NULL
-        out <- bind_cols(out, unweighted_n)
+        if (any(unweighted)) {
+            unweighted_n <- map_df(unweighted_n_measures, ~ out$row_count)
+            old_attr <- attributes(out)
+            out$row_count <- NULL
+            out <- bind_cols(as_tibble(out), unweighted_n)
+            out <- as_cr_tibble(
+                out, 
+                cube_metadata = old_attr$cube_metadata,
+                types = old_attr$types,
+                useNA = old_attr$useNA
+            )
+        } else {
+            out$row_count <- NULL    
+        }
+        
     }
 
     # Some cubes, like those produced from a summarize with no grouping,
@@ -118,4 +136,5 @@ groups_to_RHS <- function (grps) {
     }
 }
 
-dots_to_list <- function (dots) lapply(dots, function (ex) deparse(ex$expr))
+#' @importFrom rlang quo_text
+dots_to_list <- function (dots) lapply(dots, function (ex) quo_text(ex))

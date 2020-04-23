@@ -31,7 +31,10 @@ test_that("autplot matches mocked plots", {
     cube <- loadCube("cubes/catarray-x-mr.json")
     cube@useNA <- "always"
     expect_doppelganger("catarray-x-mr-dot", autoplot(cube, "dot"))
-    expect_doppelganger("catarray-x-mr-tile", autoplot(cube, "tile"))
+    # 2020-03-27 x position of text in R-dev is changed by .01, since vdiffr checks that
+    # everything is exactly the same, skip this in R version 4 for now. Later, we'll want
+    # to skip on R 3.x when 4 is released.
+    if (R.version$major != "4") expect_doppelganger("catarray-x-mr-tile", autoplot(cube, "tile"))
     expect_doppelganger("catarray-x-mr-bar", autoplot(cube, "bar"))
 
     tbl <- readRDS("tbl_crunch_mocks/4d_tbl_crunch.Rds")

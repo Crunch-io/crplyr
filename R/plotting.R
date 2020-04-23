@@ -75,9 +75,10 @@ generate_colors <- function(var) {
 #' @name autoplot
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
 #' @importFrom crunch description name
+#' @importFrom tibble tibble
 #' @export
 autoplot.DatetimeVariable <- function(x, ...) {
-    plot_df <- data_frame(!!sym(name(x)) := as.Date(as.vector(x)))
+    plot_df <- tibble(!!sym(name(x)) := as.Date(as.vector(x)))
 
     ggplot(plot_df, aes(x = !!sym(name(x)))) +
         geom_histogram(fill = card_colors[2]) +
@@ -90,12 +91,13 @@ autoplot.DatetimeVariable <- function(x, ...) {
 #' @importFrom ggplot2 aes autoplot geom_histogram ggplot labs
 #' @importFrom crunch description name
 #' @importFrom rlang !! sym :=
+#' @importFrom tibble tibble
 #' @export
 autoplot.NumericVariable <- function(x, ...) {
     # TODO revisit when cut is implemented in zz9
     # https://www.pivotaltracker.com/n/projects/931610/stories/155299834
     v <- as.vector(x)
-    plot_df <- data_frame(!!sym(name(x)) := v)
+    plot_df <- tibble(!!sym(name(x)) := v)
     binwidth <- round((max(plot_df) - min(v)) / 5, 0)
     ggplot(plot_df, aes(x = !!sym(name(x)))) +
         geom_histogram(binwidth = binwidth, fill = card_colors[1]) +
@@ -132,7 +134,7 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 #' @export
 autoplot.CrunchCube <- function(x,
     ...) {
-    plot_tbl <- as_tibble(x)
+    plot_tbl <- as_cr_tibble(x)
     autoplot(plot_tbl, ...)
 }
 
@@ -142,7 +144,7 @@ autoplot.CrunchCube <- function(x,
 autoplot.CrunchCubeCalculation <- function(x,
                                            plot_type = "dot",
                                            ...) {
-    plot_tbl <- as_tibble(x)
+    plot_tbl <- as_cr_tibble(x)
     out <- autoplot(plot_tbl, plot_type, ...)
     if (attr(x, "type") == "proportion") {
         if (plot_type == "dot") {
@@ -186,10 +188,9 @@ autoplot.tbl_crunch_cube <- function(x,
 
     # Remove missing values based on the useNA value for the cube.
     # TODO handle useNA = "ifany"
+    plot_tbl <- as_tibble(x)
     if (attr(x, "useNA") == "no" && "is_missing" %in% names(x)) {
-        plot_tbl <- x[!x$is_missing, ]
-    } else {
-        plot_tbl <- x
+        plot_tbl <- plot_tbl[!plot_tbl$is_missing, ]
     }
 
     # Select the dimension columns from the table, this is necessary because the

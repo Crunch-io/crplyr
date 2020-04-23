@@ -7,11 +7,11 @@ test_that("add_duplicate_suffix generates correct character vector", {
     )
 })
 
-test_that("as_tibble on prop.table", {
+test_that("as_cr_tibble on prop.table", {
     cube <- loadCube("cubes/cat-x-mr-x-mr.json")
     prop <- crunch::prop.table(cube, 1:2)
     expect_is(prop, "CrunchCubeCalculation")
-    prop_tbl <- as_tibble(prop)
+    prop_tbl <- as_cr_tibble(prop)
     expect_is(prop_tbl, "tbl_crunch_cube")
     expect_equal(
         names(prop_tbl), 
@@ -31,11 +31,26 @@ test_that("as_tibble on prop.table", {
     expect_equal(length(attr(prop_tbl, "cube_metadata")), 4)
 })
 
-test_that("as_tibble on margin.table", {
+test_that("as_tibble on prop.table", {
+    cube <- loadCube("cubes/cat-x-mr-x-mr.json")
+    prop <- crunch::prop.table(cube, 1:2)
+    expect_is(prop, "CrunchCubeCalculation")
+    prop_tbl <- as_tibble(prop)
+    expect_is(prop_tbl, "tbl_df")
+    expect_equal(
+        names(prop_tbl), 
+        c("animal", "opinion_mr_items", "feeling_mr_items", "proportion")
+    )
+    expect_equal(dim(prop_tbl), c(12, 4))
+    expect_equal(prop[1,1,1], prop_tbl$proportion[1])
+    expect_equal(prop[2,1,2], prop_tbl$proportion[8])
+})
+
+test_that("as_cr_tibble on margin.table", {
     cube <- loadCube("cubes/cat-x-mr-x-mr.json")
     marg <- crunch::margin.table(cube, 1:2)
     expect_is(marg, "CrunchCubeCalculation")
-    marg_tbl <- as_tibble(marg)
+    marg_tbl <- as_cr_tibble(marg)
     expect_is(marg_tbl, "tbl_crunch_cube")
     expect_equal(
         names(marg_tbl), 

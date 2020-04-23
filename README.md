@@ -1,6 +1,6 @@
 # crplyr: A 'dplyr' Interface for Crunch
 
-[![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr) [![Build status](https://ci.appveyor.com/api/projects/status/wjc1inaakamltdq1/branch/master?svg=true)](https://ci.appveyor.com/project/nealrichardson/crplyr/branch/master) [![cran](https://www.r-pkg.org/badges/version-last-release/crplyr)](https://cran.r-project.org/package=crplyr)
+[![Build Status](https://travis-ci.org/Crunch-io/crplyr.png?branch=master)](https://travis-ci.org/Crunch-io/crplyr)  [![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr) [![cran](https://www.r-pkg.org/badges/version-last-release/crplyr)](https://cran.r-project.org/package=crplyr)
 
 [dplyr](https://dplyr.tidyverse.org/) defines "a grammar of data manipulation" popular among R users. In order to facilitate analysis of datasets hosted by Crunch, this package implements 'dplyr' methods on top of the Crunch backend. The usual methods "select", "filter", "group_by", "summarize", and "collect" are implemented in such a way as to perform as much computation on the server and pull as little data locally as possible.
 

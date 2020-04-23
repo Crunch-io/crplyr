@@ -13,7 +13,10 @@
 \item{...}{named aggregations to include in the resulting table.}
 }
 \value{
-A \code{tbl_df} of results.
+A \code{tbl_crunch_cube} or \code{cr_tibble} of results. This subclass
+of \code{tibble} allows \code{ggplot2::autoplot} to work, but can get in the way
+in some tidyverse operations. You may wish to convert to a tibble using
+\code{as_tibble()}.
 }
 \description{
 This is an alternate interface to \code{crunch::crtabs()} that, in addition to

@@ -23,9 +23,17 @@ with_mock_crunch({
         expect_identical(both, ds[ds$gender == "Male", c("mymrset", "starttime", "gender")])
     })
 
+    test_that("Renaming in select warning", {
+        expect_warning(try_rename <- ds %>%
+            select(new_name = mymrset, starttime, gender),
+            "Renaming variables is not supported by crplyr"
+        )
+        expect_equal(names(try_rename), c("mymrset", "starttime", "gender"))
+    })
+    
     test_that("select_ warning", {
         expect_error(
-            select_(ds, .dots = "catfish"),
+            suppressWarnings(select_(ds, .dots = "catfish")),
             "The select_.* function is no longer supported. Please use select.* instead"
         )
     })

@@ -60,7 +60,7 @@ You can also define your own themes or use themes from other packages. This is h
 
 ## Extending ggplots
 
-`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example, you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot extensions](https://www.ggplot2-exts.org/) website.
+`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example, you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot website](https://ggplot2.tidyverse.org/) website.
 
 # Working with CrunchCubes
 
@@ -84,7 +84,7 @@ cube_tbl <- as_tibble(cube)
 cube_tbl
 ```
 
-The tibble contains the same information as the cube data structure, but it is easier to work with using tidy tools. The first few columns will always correspond to the dimensions of the cube. The `is_missing` column represents whether any of the constituent categories are missing, which lets you easily filter out missing elements from the table. The last columns contain the cube measures which will usually be `count` and `row_count`. The `row_count` column contains the unweighted counts, and the `count` column contains the weighted counts. If there is no weighting applied to the dataset, then `count` and `row_count` will be the same.  
+The tibble contains most of the same information as the cube data structure, but it is easier to work with using tidy tools. The first few columns will always correspond to the dimensions of the cube. The `is_missing` column represents whether any of the constituent categories are missing, which lets you easily filter out missing elements from the table. The last columns contain the cube measures which will usually be `count` and `row_count`. The `row_count` column contains the unweighted counts, and the `count` column contains the weighted counts. If there is no weighting applied to the dataset, then `count` and `row_count` will be the same.  
 
 The cube output is now in the correct format to feed into tidyverse tools. Here we filter the dataset to produce a readable chart.
 

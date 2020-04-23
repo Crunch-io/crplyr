@@ -5,16 +5,26 @@
 #' and the cube values are expressed as columns for each measure. This is useful
 #' both to better understand what each entry of a cube represents, and to work
 #' with the cube result using tidyverse tools.
+#' 
+#' The `cr_tibble` class is a subclass of `tibble` that has extra metadata
+#' to allow `ggplot::autoplot()` to work. If you find that this extra
+#' metadata is getting in the way, you can use `as_tibble()` to get 
+#' a true `tibble`.
 #'
 #' @param x a CrunchCube
 #' @param ... further arguments passed on to `tibble::as_tibble()`
 #'
 #' @export
+as_cr_tibble <- function(x, ...) {
+    UseMethod("as_cr_tibble")
+}
+
+#' @export
 #' @importFrom tibble as_tibble
 #' @importFrom dplyr bind_cols
 #' @importFrom purrr map2 map reduce
 #' @importFrom stringr str_extract
-as_tibble.CrunchCube <- function (x, ...) {
+as_cr_tibble.CrunchCube <- function (x, ...) {
     ## TODO: Consider using `dplyr::tbl_cube` class
     dnames <- dimnames(x@arrays$.unweighted_counts)
     measures <- names(x@arrays)
@@ -62,7 +72,7 @@ as_tibble.CrunchCube <- function (x, ...) {
         # case it's fine because the data is all logical, but it's good to make
         # that explicit.
         out$is_missing <- apply(as.matrix(lgl_df), 1, any)
-        out <- bind_cols(out, measure_vals)
+        out <- bind_cols(out, as.data.frame(measure_vals))
     } else {
         # scalar values, which means no group_by
         out <- bind_cols(measure_vals)
@@ -81,6 +91,12 @@ as_tibble.CrunchCube <- function (x, ...) {
     attr(out, "useNA") <- x@useNA
     class(out) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
     return(out)
+}
+
+#' @export
+#' @importFrom tibble as_tibble
+as_tibble.CrunchCube <- function (x, ...) {
+    as_tibble(as_cr_tibble(x, ...))
 }
 
 #' @importFrom purrr walk
@@ -146,7 +162,7 @@ cube_attribute <- function(x, attr = "all"){
 }
 
 
-as_tibble.CrunchCubeCalculation <- function(x){
+as_cr_tibble.CrunchCubeCalculation <- function(x){
     dnames <- dimnames(x)
     types <- crunch::getDimTypes(attr(x, "dims"))
     names(types) <- names(dnames)
@@ -175,4 +191,16 @@ as_tibble.CrunchCubeCalculation <- function(x){
     attr(out, "cube_metadata") <- meta
     class(out) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
     return(out)
+}
+
+as_tibble.CrunchCubeCalculation <- function(x) {
+    as_tibble(as_cr_tibble(x))
+}
+
+as_cr_tibble.tbl_df <- function(x, cube_metadata = NULL, types = NULL, useNA = NULL, ...) {
+    attr(x, "cube_metadata") <- cube_metadata
+    attr(x, "types") <- types
+    attr(x, "useNA") <- useNA
+    class(x) <- c("tbl_crunch_cube", "tbl_df", "tbl", "data.frame")
+    return(x)
 }

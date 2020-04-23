@@ -11,7 +11,7 @@
 \item{.data}{A \code{CrunchDataset}}
 
 \item{...}{names of variables in \code{.data} or other valid selection functions,
-passed to \code{dplyr::select_vars()}}
+passed to \code{tidyselect::vars_select()}}
 }
 \value{
 \code{.data} with only the selected variables.

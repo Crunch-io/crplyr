@@ -13,15 +13,15 @@ with_mock_crunch({
 
     test_that("group_by_ has been removed", {
         expect_error(
-            group_by_(ds, .dots = "catfish"),
+            suppressWarnings(group_by_(ds, .dots = "catfish")),
             "The group_by_.* function is no longer supported. Please use group_by.* instead"
         )
     })
 
     test_that("group_by errors if assigned columns not in dataset", {
-        expect_error(group_by(ds, catfish), "catfish is not present in the Dataset")
+        expect_error(group_by(ds, catfish), "`catfish`")
         expect_error(group_by(ds, catfish, dogfish),
-            "catfish, dogfish are not present in the Dataset")
+            "`catfish`.+`dogfish`")
     })
 
     test_that("group_by hidden variables", {
@@ -47,10 +47,10 @@ with_mock_crunch({
         expect_identical(ungroup(ds2), ds)
     })
 
-    test_that("'add' argument to group_by", {
+    test_that("'.add' argument to group_by", {
         expect_identical(groupVars(group_by(ds2, birthyr)),
             "birthyr")
-        expect_identical(groupVars(group_by(ds2, birthyr, add=TRUE)),
+        expect_identical(groupVars(group_by(ds2, birthyr, .add=TRUE)),
             c("gender", "birthyr"))
     })
 
@@ -76,5 +76,15 @@ with_mock_crunch({
     test_that("Grouping helpers work on CrunchDatasets", {
         expect_null(group_vars(ds))
         expect_identical(as.character(tbl_vars(ds)), names(ds))
+    })
+    test_that("obscure variable references to get to 100% test coverage", {
+        expect_identical(groupVars(group_by(ds2, .data$gender, .data[["birthyr"]])), c("gender", "birthyr"))
+    })
+    
+    test_that("add argument deprecated", {
+        expect_warning(
+            expect_identical(groupVars(group_by(ds2, birthyr, add=TRUE)),
+                             c("gender", "birthyr"))
+        )
     })
 })

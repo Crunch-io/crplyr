@@ -6,7 +6,7 @@
 \alias{ungroup.CrunchDataset}
 \title{Group-by for Crunch datasets}
 \usage{
-\method{group_by}{CrunchDataset}(.data, ..., add = FALSE)
+\method{group_by}{CrunchDataset}(.data, ..., .add = FALSE)
 
 \method{ungroup}{CrunchDataset}(x, ...)
 }
@@ -16,7 +16,7 @@
 \item{...}{references to variables to group by, passed to
 \code{\link[dplyr:group_by_prepare]{dplyr::group_by_prepare()}}}
 
-\item{add}{Logical: add the variables in \code{...} to any existing grouping
+\item{.add}{Logical: add the variables in \code{...} to any existing grouping
 variables, or replace them (the default).}
 
 \item{x}{For \code{ungroup()}, a Crunch Dataset}

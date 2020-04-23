@@ -1,3 +1,10 @@
+# crplyr development version
+* Converting CrunchCube results to the tibble like object "tbl_crunch_cube" is now done via `as_cr_tibble()` and `as_tibble()` always returns an actual tibble.
+* Updates for upcoming dplyr 1.0 release
+
+# crplyr 0.3.2
+* Fixes  to get back on CRAN
+
 # crplyr 0.3.1 
 * New maintainer
 
