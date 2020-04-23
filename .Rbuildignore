@@ -15,3 +15,4 @@
 ^pkgdown$
 ^pkgdown.sh$
 ^dev-misc$
+^CRAN-RELEASE$
