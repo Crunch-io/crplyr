@@ -1,0 +1,14 @@
+{
+    "self": "https://app.crunch.io/api/datasets/mtcars/folders/",
+    "element": "shoji:catalog",
+    "catalogs": {
+        "hidden": "https://app.crunch.io/api/datasets/mtcars/folders/hidden/"
+    },
+    "size": 7,
+    "body": {
+        "name": ""
+    },
+    "index": {
+    },
+    "graph": []
+}
