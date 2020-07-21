@@ -16,3 +16,4 @@
 ^pkgdown.sh$
 ^dev-misc$
 ^CRAN-RELEASE$
+^cran-comments\.md$

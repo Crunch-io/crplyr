@@ -1,4 +1,7 @@
 # crplyr 0.3.5
+* Another fix in vignette for upcoming version of crunch.
+
+# crplyr 0.3.5
 * Small update to testing infrastructure to accomodate upcoming crunch update.
 
 # crplyr 0.3.4
