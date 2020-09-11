@@ -36,7 +36,7 @@ as_crunch_auto_tbl <- function(x) {
 current_steps <- rlang::child_env(NULL)
 
 add_crunch_auto_step <- function(cmd) {
-  current_steps$steps <- c(current_steps$steps, cmd)
+  current_steps$steps <- c(current_steps$steps, list(cmd))
 }
 
 
@@ -53,7 +53,7 @@ mutate.crunch_auto_tbl <- function(.data, ...) {
 }
 
 make_query_text <- function(x) {
-  steps <- attr(x, "steps")
+  steps <- lapply(attr(x, "steps"), format_ca_auto)
   if (length(steps) == 0) return(NULL)  
   paste(steps, collapse = "\n\n")
 }
@@ -81,24 +81,86 @@ collect.crunch_auto_tbl <- function(x, ...) {
 }
 
 #' @export
-categorical_array <- function(..., labels, alias, title, description, notes) {
+categorical_array <- function(
+  ..., 
+  labels = NULL, 
+  title = NULL, 
+  description = NULL, 
+  notes = NULL
+) {
   sv_aliases <- list(...)
   if (is.data.frame(sv_aliases[[1]])) { # across gives a data.frame
     sv_aliases <- purrr::flatten(sv_aliases) 
   }
+  sv_aliases <- lapply(sv_aliases, function(x) noquote(attr(x, "alias")))
   
-  cmd <- paste0(
-    "CREATE CATEGORICAL ARRAY\n  ", 
-    paste0(lapply(sv_aliases, function(x) attr(x, "alias")), collapse = ", "),
-    "\n  LABELS ", paste0("\"", labels, "\"", collapse = ", "), "\n",
-    "AS ", alias,
-    if (!missing(title)) paste0("\nTITLE \"", title, "\""),
-    if (!missing(description)) paste0("\nDESCRIPTION \"", description, "\""),
-    if (!missing(notes)) paste0("\nNOTES \"", notes, "\""),
-    ";"
+  cmd <- crunch_auto_cmd(
+    ca_template(
+      "CREATE CATEGORICAL ARRAY\n", 
+      "  {crplyr:::ca_comma_separated(sv_aliases)}\n",
+      "  LABELS {crplyr:::ca_comma_separated(labels)}\n",
+      "AS {alias}",
+      "{crplyr:::ca_optional('TITLE', title)}",
+      "{crplyr:::ca_optional('DESCRIPTION', description)}",
+      "{crplyr:::ca_optional('NOTES', notes)}", 
+      ";"
+    ),
+    sv_aliases = sv_aliases,
+    labels = labels,
+    alias = "TKTKTKTK", # TODO: Needs to be replaced by LHS
+    title = title,
+    description = description,
+    notes = notes
   )
   
   add_crunch_auto_step(cmd)
+  return(NULL)
 }
 
+crunch_auto_cmd <- function(formatter, ...) {
+  out <- list(formatter = formatter, data = list(...))
+  class(out) <- c("crunch_auto_cmd", class(out))
+  out
+}
+
+format_ca_auto <- function(x, ...) {
+  x$formatter(x$data)
+}
+
+ca_comma_separated <- function(items, newline = FALSE, indent = 0) {
+  indent_mark <- paste(rep(" ", indent), collapse = "")
+  collapse_mark <- if (newline) paste0("\n", indent_mark) else ", "
   
+  items <- ca_quote_items(items)
+  
+  out <- glue::glue_collapse(
+    glue::glue("{items}"),
+    sep = collapse_mark
+  )
+  glue::glue("{indent_mark}{out}")
+}
+
+ca_optional <- function(label, item, indent = 0, newline = TRUE) {
+  if (is.null(item)) return("")
+  
+  indent_mark <- paste(rep(" ", indent), collapse = "")
+  newline_mark <- if (newline) paste0("\n", indent_mark) else " "
+  item <- ca_quote_items(item)
+  glue::glue(
+    "{newline_mark}{item}"
+  )
+}
+
+ca_quote_items <- function(items) {
+  purrr::map_chr(items, function(item) {
+    if (is.numeric(item) || inherits(item, "noquote")) {
+      paste0(item)
+    } else {
+      paste0("\"", item, "\"")
+    }
+  })
+}
+
+ca_template <- function(...) {
+  function(x) glue::glue_data(x, ...)
+}
