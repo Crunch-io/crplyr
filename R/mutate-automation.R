@@ -54,7 +54,7 @@ compute.AutoReadyCrunchDataset <- function(x, name = NULL, ...) {
   if (is.null(query)) return(x)
   
   out <- runCrunchAutomation(x, query)
-  CrunchDataset(out) # TODO: Does this remove autoready class?
+  CrunchDataset(out)
 }
 
 
@@ -66,11 +66,7 @@ categorical_array <- function(
   description = NULL, 
   notes = NULL
 ) {
-  sv_aliases <- list(...)
-  if (is.data.frame(sv_aliases[[1]])) { # across gives a data.frame
-    sv_aliases <- purrr::flatten(sv_aliases) 
-  }
-  sv_aliases <- lapply(sv_aliases, function(x) noquote(alias(x)))
+  sv_aliases <- ca_aliases(list(...))
   
   cmd <- crunch_auto_cmd(
     ca_template(
@@ -85,9 +81,54 @@ categorical_array <- function(
     ),
     sv_aliases = sv_aliases,
     labels = labels,
-    alias = "TKTKTKTK", # TODO: Needs to be replaced by LHS
     title = title,
     description = description,
+    notes = notes
+  )
+  
+  return(list(cmd))
+}
+
+#' @export
+convert_to_text <- function(
+  ..., 
+  new_aliases = NULL,
+  title = NULL,
+  description = NULL,
+  notes = NULL
+) {
+  old_aliases <- ca_aliases(list(...))
+
+  cmd <- crunch_auto_cmd(
+    function(x) {
+      if (is.null(x$new_aliases)) {
+        x$new_aliases <- if (length(x$old_aliases) == 1) list(noquote(x$alias)) else x$old_aliases
+      } else {
+        x$new_aliases <- lapply(x$new_aliases, noquote)
+      }
+      
+      if (identical(x$old_aliases, x$new_aliases)) {
+        template <- ca_template(
+          "CONVERT {crplyr:::ca_comma_separated(old_aliases)} TO TEXT;"
+        )
+      } else {
+        template <- ca_template(
+          "CREATE CONVERT\n", 
+          "  {crplyr:::ca_comma_separated(old_aliases)}\n",
+          "  TO TEXT\n",
+          "AS {crplyr:::ca_comma_separated(new_aliases)}",
+          "{crplyr:::ca_optional('TITLE', title)}",
+          "{crplyr:::ca_optional('DESCRIPTION', description)}",
+          "{crplyr:::ca_optional('NOTES', notes)}",
+          ";"
+        )
+      }
+      template(x)
+    },
+    old_aliases = old_aliases,
+    new_aliases = new_aliases,
+    titles = titles,
+    descriptions = descriptions,
     notes = notes
   )
   
@@ -104,6 +145,13 @@ format_ca_auto <- function(x, ...) {
   x$formatter(x$data)
 }
 
+ca_aliases <- function(vars) {
+  if (is.data.frame(vars[[1]])) { # across gives a data.frame
+    vars <- purrr::flatten(vars) 
+  }
+  lapply(vars, function(x) if (is.variable(x)) noquote(alias(x)) else x)
+}
+
 ca_comma_separated <- function(items, newline = FALSE, indent = 0) {
   indent_mark <- paste(rep(" ", indent), collapse = "")
   collapse_mark <- if (newline) paste0("\n", indent_mark) else ", "
@@ -117,14 +165,14 @@ ca_comma_separated <- function(items, newline = FALSE, indent = 0) {
   glue::glue("{indent_mark}{out}")
 }
 
-ca_optional <- function(label, item, indent = 0, newline = TRUE) {
-  if (is.null(item)) return("")
+ca_optional <- function(label, items, indent = 0, newline = TRUE) {
+  if (is.null(items)) return("")
   
   indent_mark <- paste(rep(" ", indent), collapse = "")
   newline_mark <- if (newline) paste0("\n", indent_mark) else " "
-  item <- ca_quote_items(item)
+  items <- glue::glue_collapse(ca_quote_items(items), sep = ", ")
   glue::glue(
-    "{newline_mark}{item}"
+    "{newline_mark}{label} {items}"
   )
 }
 
