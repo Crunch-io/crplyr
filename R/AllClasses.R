@@ -16,3 +16,19 @@
 GroupedCrunchDataset <- setClass("GroupedCrunchDataset",
     contains="CrunchDataset",
     slots=c(groupBy="list"))
+
+#' A Crunch Dataset With Crunch Automation Commands "At The Ready"
+#'
+#' This is a subclass of `crunch::CrunchDataset` that has a field for recording
+#' Crunch Automation commands that will get run when `collect` or `calculate`
+#' is called. 
+#'
+#' @export
+AutoReadyCrunchDataset <- setClass(
+  "AutoReadyCrunchDataset",
+  contains = "CrunchDataset",
+  slots = c(
+    steps = "list",
+    var_tibble = "data.frame"
+  )
+)

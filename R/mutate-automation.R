@@ -1,84 +1,62 @@
 #' @export
-as_crunch_auto_tbl <- function(x) {
-  # TODO: cleanup this code
-  shadow_var_tibble <- as_tibble(
-    setNames(lapply(aliases(allVariables(x)),
-                    function(alias) {
-                      crunch_var <- x[[alias]]
-                      out <- list()
-                      
-                      attributes(out) <- list(
-                        alias = alias,
-                        title = name(crunch_var),
-                        description = description(crunch_var),
-                        notes = notes(crunch_var),
-                        type = type(crunch_var)
-                      )
-                      out
-                    }
-    ), aliases(allVariables(x)))
-  )
-  
-  # TODO: could the `CrunchDataset` be the main object, or is
-  # that not possible with S4 objects?
-  out <- shadow_var_tibble
-  attributes(out) <- c(
-    attributes(out), 
-    list(
-      full_dataset = x,
-      steps = list()
-    )
-  )
-  class(out) <- c("crunch_auto_tbl", class(out))
+as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
+  out <- AutoReadyCrunchDataset(x)
+  out@steps <- list()
+  out@var_tibble <- crunch_var_df(x)
   out
 }
 
-current_steps <- rlang::child_env(NULL)
+# A data.frame with list columns containing crunch variables
+# `tibble` doesn't allow this data.frame because CrunchVars
+# are not true "vectors" so be careful of manipulating this
+crunch_var_df <- function(dataset) {
+  all_aliases <- aliases(allVariables(dataset))
+  var_list <- lapply(all_aliases, function(alias) dataset[[alias]])
+  names(var_list) <- all_aliases
+  structure(var_list, row.names = c(NA, -1L), class = "data.frame")
+}
 
-add_crunch_auto_step <- function(cmd) {
-  current_steps$steps <- c(current_steps$steps, list(cmd))
+calculate_steps <- function(var_df, ...) {
+  steps <- transmute(var_df, ...)
+  
+  lapply(names(steps), function(step_alias) {
+    out <- steps[[step_alias]][[1]]
+    out$data <- modifyList(out$data, list(alias = step_alias))
+    out
+  })
 }
 
 
 #' @export
-mutate.crunch_auto_tbl <- function(.data, ...) {
-  old_steps <- current_steps$steps
-  current_steps$steps <- attr(.data, "steps")
-  on.exit(current_steps$steps <- old_steps, add = TRUE)
+mutate.CrunchDataset <- function(.data, ...) {
+  if (!inherits(.data, "AutoReadyCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
   
-  ignore <- NextMethod()
   out <- .data
-  attr(out, "steps") <- current_steps$steps
+  out@steps <- c(out@steps, calculate_steps(out@var_tibble, ...))
   out
 }
 
 make_query_text <- function(x) {
-  steps <- lapply(attr(x, "steps"), format_ca_auto)
+  steps <- lapply(x@steps, format_ca_auto)
   if (length(steps) == 0) return(NULL)  
   paste(steps, collapse = "\n\n")
 }
 
 #' @export
-show_query.crunch_auto_tbl <- function(x, ...) {
+show_query.AutoReadyCrunchDataset <- function(x, ...) {
   cat("---Crunch Automation command---\n")
   cat(make_query_text(x))
 }
 
 #' @export
-compute.crunch_auto_tbl <- function(x, name = NULL, ...) {
-  out_ds <- collect(x)
-  # recalculate shadow tibble
-  as_crunch_auto_tbl(out_ds)
-}
-
-#' @export
-collect.crunch_auto_tbl <- function(x, ...) {
+compute.AutoReadyCrunchDataset <- function(x, name = NULL, ...) {
   query <- make_query_text(x)
   if (is.null(query)) return(x)
-  ds <- attr(x, "full_dataset")
   
-  runCrunchAutomation(ds, query)
+  out <- runCrunchAutomation(x, query)
+  CrunchDataset(out) # TODO: Does this remove autoready class?
 }
+
 
 #' @export
 categorical_array <- function(
@@ -92,7 +70,7 @@ categorical_array <- function(
   if (is.data.frame(sv_aliases[[1]])) { # across gives a data.frame
     sv_aliases <- purrr::flatten(sv_aliases) 
   }
-  sv_aliases <- lapply(sv_aliases, function(x) noquote(attr(x, "alias")))
+  sv_aliases <- lapply(sv_aliases, function(x) noquote(alias(x)))
   
   cmd <- crunch_auto_cmd(
     ca_template(
@@ -113,8 +91,7 @@ categorical_array <- function(
     notes = notes
   )
   
-  add_crunch_auto_step(cmd)
-  return(NULL)
+  return(list(cmd))
 }
 
 crunch_auto_cmd <- function(formatter, ...) {
