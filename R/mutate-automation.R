@@ -10,8 +10,6 @@ as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
 # `tibble` doesn't allow this data.frame because CrunchVars
 # are not true "vectors" so be careful of manipulating this
 #' @export
-crunch_var_df <- setClass("crunch_var_df", contains = "data.frame")
-
 #' @importFrom purrr map map_chr
 as_crunch_var_df <- function(vars) { #TODO: use traditional S4 "initialize"?
   if (is.dataset(vars)) {
@@ -29,9 +27,9 @@ as_crunch_var_df <- function(vars) { #TODO: use traditional S4 "initialize"?
     var_list <- setNames(vars, all_aliases)
   }
   
-  var_df <- structure(var_list, row.names = c(NA, -1L), class = c("data.frame"))
-  crunch_var_df(var_df)
+  structure(var_list, row.names = c(NA, -1L), class = c("crunch_var_df", "data.frame"))
 }
+
 
 #' @export
 setMethod("aliases", "crunch_var_df", function(x) {
@@ -58,9 +56,7 @@ setMethod("notes", "crunch_var_df", function(x) {
 
 
 calculate_steps <- function(var_df, ...) {
-  # It seems silly to remove class here, but dplyr doesn't like operating
-  # on the S4 class, possibly could fix by defining vcts attributes correctly
-  steps <- transmute(data.frame(var_df), ...)
+  steps <- transmute(var_df, ...)
   
   lapply(names(steps), function(step_alias) {
     out <- steps[[step_alias]][[1]]

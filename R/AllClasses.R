@@ -17,6 +17,9 @@ GroupedCrunchDataset <- setClass("GroupedCrunchDataset",
     contains="CrunchDataset",
     slots=c(groupBy="list"))
 
+
+setOldClass("crunch_var_df")
+
 #' A Crunch Dataset With Crunch Automation Commands "At The Ready"
 #'
 #' This is a subclass of `crunch::CrunchDataset` that has a field for recording
@@ -29,6 +32,6 @@ AutoReadyCrunchDataset <- setClass(
   contains = "CrunchDataset",
   slots = c(
     steps = "list",
-    var_tibble = "data.frame"
+    var_tibble = "crunch_var_df"
   )
 )
