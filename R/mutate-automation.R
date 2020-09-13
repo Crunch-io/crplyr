@@ -245,3 +245,13 @@ ca_quote_items <- function(items) {
 ca_template <- function(...) {
   function(x) glue::glue_data(x, ...)
 }
+
+#' @export
+ca_use_description <- function() {
+  list(noquote("USE DESCRIPTIONS"))
+}
+
+#' @export
+ca_copy <- function() {
+  list(noquote("COPY"))
+}
