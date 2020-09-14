@@ -31,7 +31,7 @@ in the crunch R package)}
 \item{notes}{Optional, the notes of the variable created}
 }
 \description{
-Converts the variables type either as a new variable, or in place
+When called from \code{\link{mutate}}, converts the variables type either as a new variable, or in place
 (in which case it is considered a "schema command" and must be run before any
 "non-schema commands").
 Based on the Crunch Automation commands

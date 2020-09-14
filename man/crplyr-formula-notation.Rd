@@ -16,7 +16,7 @@ ds <- ds \%>\%
        taste = categorical_array(
            taste_a, taste_b, 
            # Labels will be Title Case form of subvariable titles
-           labels = ~paste0(stringr::str_to_title(title(.))), 
+           labels = ~stringr::str_to_title(title(.)), 
            title = "Taste Rating"
        )
     )
