@@ -268,7 +268,7 @@ ca_template <- function(...) {
 
 #' @export
 ca <- list(
-  copy = list(noquote("COPY")),
+  copy = noquote("COPY"),
   dots = function(x, y) noquote(paste0(alias(x), "...", alias(y))),
   like = function(x) noquote(paste0("LIKE(\"", x, "\")")),
   regex = function(x) noquote(paste0("REGEX(\"", x, "\")")),
