@@ -8,7 +8,7 @@
 \method{show_query}{AutoReadyCrunchDataset}(x, ...)
 }
 \arguments{
-\item{x}{An \code{AutoReadyCrunchDataset} (a \code{CrunchDataset} modified with \code{\link[=mutate]{mutate()}} or similar)}
+\item{x}{An \code{AutomationCrunchDataset} (a \code{CrunchDataset} modified with \code{\link[=mutate]{mutate()}} or similar)}
 
 \item{...}{ignored}
 }

@@ -1,5 +1,5 @@
 as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
-  out <- AutoReadyCrunchDataset(x)
+  out <- AutomationCrunchDataset(x)
   out@steps <- list()
   out@var_tibble <- as_crunch_var_df(x)
   out
@@ -129,7 +129,7 @@ calculate_steps <- function(var_df, ...) {
 #' ds <- ds %>% compute()
 #' }
 mutate.CrunchDataset <- function(.data, ...) {
-  if (!inherits(.data, "AutoReadyCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
+  if (!inherits(.data, "AutomationCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
   
   out <- .data
   out@steps <- c(out@steps, calculate_steps(out@var_tibble, ...))
@@ -148,7 +148,7 @@ make_query_text <- function(x) {
 #' Show the text of the Crunch Automation script that you've prepared 
 #' using crplyr. To execute the query, see [`compute()`].
 #'
-#' @param x An `AutoReadyCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
+#' @param x An `AutomationCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
 #' @param ... ignored
 #'
 #' @return invisibly, the text of the Crunch Automation Script
@@ -179,7 +179,7 @@ show_query.AutoReadyCrunchDataset <- function(x, ...) {
 #' Run the commands that have been created by crplyr's [`mutate()`] and
 #' similar commands.  
 #'
-#' @param x An `AutoReadyCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
+#' @param x An `AutomationCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
 #' @param name ignored
 #' @param ... ignored
 #'
@@ -199,7 +199,7 @@ show_query.AutoReadyCrunchDataset <- function(x, ...) {
 #'     ) %>%
 #'     compute()
 #' }
-compute.AutoReadyCrunchDataset <- function(x, name = NULL, ...) {
+compute.AutomationCrunchDataset <- function(x, name = NULL, ...) {
   query <- make_query_text(x)
   if (is.null(query)) return(x)
   

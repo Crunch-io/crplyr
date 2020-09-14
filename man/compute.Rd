@@ -2,13 +2,13 @@
 % Please edit documentation in R/mutate-automation.R
 \name{compute}
 \alias{compute}
-\alias{compute.AutoReadyCrunchDataset}
+\alias{compute.AutomationCrunchDataset}
 \title{Run Crunch Automation Query}
 \usage{
-\method{compute}{AutoReadyCrunchDataset}(x, name = NULL, ...)
+\method{compute}{AutomationCrunchDataset}(x, name = NULL, ...)
 }
 \arguments{
-\item{x}{An \code{AutoReadyCrunchDataset} (a \code{CrunchDataset} modified with \code{\link[=mutate]{mutate()}} or similar)}
+\item{x}{An \code{AutomationCrunchDataset} (a \code{CrunchDataset} modified with \code{\link[=mutate]{mutate()}} or similar)}
 
 \item{name}{ignored}
 
