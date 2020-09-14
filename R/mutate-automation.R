@@ -1,4 +1,3 @@
-#' @export
 as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
   out <- AutoReadyCrunchDataset(x)
   out@steps <- list()
@@ -9,7 +8,6 @@ as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
 # A data.frame with list columns containing crunch variables
 # `tibble` doesn't allow this data.frame because CrunchVars
 # are not true "vectors" so be careful of manipulating this
-#' @export
 #' @importFrom purrr map map_chr
 as_crunch_var_df <- function(vars) { #TODO: use traditional S4 "initialize"?
   if (is.dataset(vars)) {
@@ -31,7 +29,22 @@ as_crunch_var_df <- function(vars) { #TODO: use traditional S4 "initialize"?
 }
 
 
+
+#' Crunch variable metadata for `crunch_var_df` objects
+#' 
+#' Get variable aliases, titles (also called "variable names" by the 
+#' crunch R package), descriptions and notes from the variables 
+#' collected into a data.frame when using [crplyr-formula-notation]().
+#'
+#' @param x A `crunch_var_df` object which contains `CrunchVariable`
+#' objects.
+#'
+#' @return A character vector
+#' @name crunch_var_df-meta
+NULL
+
 #' @export
+#' @rdname crunch_var_df-meta 
 setMethod("aliases", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   names(x)
@@ -54,18 +67,21 @@ internal_aliases <- function(x) {
 
 
 #' @export
+#' @rdname crunch_var_df-meta 
 setMethod("titles", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, name)
 })
 
 #' @export
+#' @rdname crunch_var_df-meta 
 setMethod("descriptions", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, description)
 })
 
 #' @export
+#' @rdname crunch_var_df-meta 
 setMethod("notes", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, notes)
@@ -83,7 +99,35 @@ calculate_steps <- function(var_df, ...) {
 }
 
 
+#' Modify Variables in a Crunch Automation Script
+#'
+#' Adds commands to a Crunch Automation script that modify the contents
+#' of variables. Unlike `dplyr::mutate` on a traditional R `data.frame`,
+#' the variables are not created until you run the command [`compute()`].
+#' 
+#' @param .data A crunch Dataset
+#' @param ... Arguments that create variables using the [`create-vars`] functions.
+#' @name mutate
+#' @family automation script commands
 #' @export
+#' @importFrom dplyr mutate
+#' @examples
+#' \dontrun{
+#' ds <- ds %>%
+#'     mutate(
+#'        taste = categorical_array(
+#'            taste_a, taste_b, 
+#'            labels = c("Brand A", "Brand B"), 
+#'            title = "Taste Rating"
+#'        )
+#'     )
+#'     
+#' # Show the query
+#' show_query(ds)
+#' 
+#' # Execute the query 
+#' ds <- ds %>% compute()
+#' }
 mutate.CrunchDataset <- function(.data, ...) {
   if (!inherits(.data, "AutoReadyCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
   
@@ -98,13 +142,63 @@ make_query_text <- function(x) {
   paste(steps, collapse = "\n\n")
 }
 
+
+#' Show Text of Crunch Automation Query
+#' 
+#' Show the text of the Crunch Automation script that you've prepared 
+#' using crplyr. To execute the query, see [`compute()`].
+#'
+#' @param x An `AutoReadyCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
+#' @param ... ignored
+#'
+#' @return invisibly, the text of the Crunch Automation Script
+#' @name show_query
 #' @export
+#' @family automation script commands
+#' @examples
+#' \dontrun{
+#' ds %>%
+#'     mutate(
+#'        taste = categorical_array(
+#'            taste_a, taste_b, 
+#'            labels = c("Brand A", "Brand B"), 
+#'            title = "Taste Rating"
+#'        )
+#'     ) %>%
+#'     show_query()
+#' }
 show_query.AutoReadyCrunchDataset <- function(x, ...) {
+  out <- make_query_text(x)
   cat("---Crunch Automation command---\n")
-  cat(make_query_text(x))
+  cat(out)
+  invisible(out)
 }
 
+#' Run Crunch Automation Query
+#' 
+#' Run the commands that have been created by crplyr's [`mutate()`] and
+#' similar commands.  
+#'
+#' @param x An `AutoReadyCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
+#' @param name ignored
+#' @param ... ignored
+#'
+#' @return invisibly, the CrunchDataset after running the command
 #' @export
+#' @name compute
+#' @family automation script commands
+#' @examples
+#' \dontrun{
+#' ds <- ds %>%
+#'     mutate(
+#'        taste = categorical_array(
+#'            taste_a, taste_b, 
+#'            labels = c("Brand A", "Brand B"), 
+#'            title = "Taste Rating"
+#'        )
+#'     ) %>%
+#'     compute()
+#' }
 compute.AutoReadyCrunchDataset <- function(x, name = NULL, ...) {
   query <- make_query_text(x)
   if (is.null(query)) return(x)
@@ -114,6 +208,35 @@ compute.AutoReadyCrunchDataset <- function(x, name = NULL, ...) {
 }
 
 
+#' Functions for Creating Variables Inside `mutate()`
+#' 
+#' When creating and modifying variables in a `CrunchDataset` with `mutate()`, 
+#' they must be created using the functions listed below.
+#'
+#' @name create-vars
+#' @family creating variables functions
+NULL
+
+
+#' Create a categorical array
+#'
+#' Create a categorical array from one or more existing variables.
+#' Based on the Crunch Automation command 
+#' [CREATE CATEGORICAL ARRAY](https://help.crunch.io/hc/en-us/articles/360042039392).
+#' 
+#' If `...` is specified using aliases or `dplyr::across()`, then
+#' the other arguments can take functions based on the variables
+#' selected using [`crplyr-formula-notation`]. 
+#'
+#' @param ... One or more crunch variables selected using their alias,
+#' [`dplyr::across()`], or the special selection functions in [`ca`].
+#' @param labels The labels for the subvariables (also called the subvariable 
+#' names in the crunch R package).
+#' @param title Optional, the title of the variables created (also called the variable name
+#' in the crunch R package)
+#' @param description Optional, the description of the variables created
+#' @param notes Optional, the notes of the variable created
+#' @family creating variables functions
 #' @export
 categorical_array <- function(
   ..., 
@@ -151,6 +274,29 @@ categorical_array <- function(
   return(list(cmd))
 }
 
+
+#' Convert a Variable's Type
+#' 
+#' When called from [`mutate`], converts the variables type either as a new variable, or in place 
+#' (in which case it is considered a "schema command" and must be run before any
+#' "non-schema commands").
+#' Based on the Crunch Automation commands 
+#' [CONVERT](https://help.crunch.io/hc/en-us/articles/360042247191-CONVERT-command) and 
+#' [CREATE CONVERT](https://help.crunch.io/hc/en-us/articles/360047136371-CREATE-CONVERT-command).
+#' 
+#' If `...` is specified using aliases or `dplyr::across()`, then
+#' the other arguments can take functions based on the variables
+#' selected using [`crplyr-formula-notation`]. 
+#'
+#' @inheritParams categorical_array
+#' @param new_aliases If only one variable is specified, this argument is ignored,
+#' the alias comes from the name of the argument in mutate (and if it's the same
+#' the variable will be modified in place, while if different it will create a new
+#' variable). If more than one variable is specified `NULL`, the default, will modify
+#' the variables in place, or a vector of aliases for the new variables (or a 
+#' [`crunch-formula-notation`] that creates one). 
+#'
+#' @family creating variables functions
 #' @export
 convert_to_text <- function(
   ..., 
@@ -219,6 +365,28 @@ format_ca_auto <- function(x, ...) {
   x$formatter(x$data)
 }
 
+
+#' Use Argument Values Baed on Input Variables
+#' 
+#' Many `crplyr` commands have arguments that allow the use of 
+#' formulas (using the compact lambda style functions using `~` or functions, 
+#' as in the `purrr` package), where the function will be given a `data.frame`
+#' containing the selected Crunch variables to operate on. 
+#' @name crplyr-formula-notation 
+#' @examples 
+#' \dontrun{
+#' ds <- ds %>%
+#'     mutate(
+#'        taste = categorical_array(
+#'            taste_a, taste_b, 
+#'            # Labels will be Title Case form of subvariable titles
+#'            labels = ~paste0(stringr::str_to_title(title(.))), 
+#'            title = "Taste Rating"
+#'        )
+#'     )
+#' }
+NULL
+
 ca_process_formula <- function(x, data) {
   if (rlang::is_function(x) || rlang::is_formula(x)) {
     f <- rlang::as_function(x)
@@ -266,6 +434,32 @@ ca_template <- function(...) {
 }
 
 
+#' Crunch Automation Syntax Helpers
+#' 
+#' Functions that help create special keywords for use in Crunch Automation commands.
+#' 
+#' The `ca` object contains the following objects and functions:
+#' - `copy`: Returns `COPY`, used to indicate that metadata should be copied from source
+#'       in some circumstances.
+#' - `dots(x, y)`: A function that takes two aliases (`x`, `y`) and returns `x...y` which
+#'       is shorthand in Crunch Automation for selecting the variables between x & y.
+#' - `like(x)`: A function that takes a single string and wraps it in `LIKE("")`, which in
+#'       Crunch Automation interprets it similar to "SQL's" LIKE statement, where a 
+#'       `%` matches any string and `_` matches a single character.
+#' - `regex(x)`/`regexp(x)`: Functions that take a single string in wrap in `REGEX("")`/
+#'       `REGEXP("")`, which Crunch Automation interprets.
+#' - `use_descriptions`: Returns `USE DESCRIPTIONS` which indicates the metadata should come
+#'        from the descriptions in some circumstances.
+#' - `use_titles`: Returns `USE TITLES` which indicates the metadata should come
+#'        from the titles in some circumstances.
+#' - `keyword(x)`: Returns the text unquoted, useful if you want to use a Crunch Automation
+#'        keyword not yet supported by `crplyr`.
+#' @name ca
+#' @examples 
+#' \dontrun{
+#' ds %>%
+#'     mutate(convert_to_text(ca$like("%other"), description = ca$copy))
+#' }
 #' @export
 ca <- list(
   copy = noquote("COPY"),
