@@ -33,8 +33,25 @@ as_crunch_var_df <- function(vars) { #TODO: use traditional S4 "initialize"?
 
 #' @export
 setMethod("aliases", "crunch_var_df", function(x) {
+  if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   names(x)
 })
+
+# Internally we allow non crunchvars, we want to preserve the
+# noquote status of non crunch vars, as well as backtick aliases
+# with spaces
+internal_aliases <- function(x) {
+  map(x, function(var) {
+    if (is.variable(var)) {
+      out <- alias(var)
+      if (grepl("[[:space:]]", out)) out <- paste0("`", out, "`")
+      noquote(out)
+    } else {
+      var
+    }
+  })
+}
+
 
 #' @export
 setMethod("titles", "crunch_var_df", function(x) {
@@ -106,7 +123,7 @@ categorical_array <- function(
   notes = NULL
 ) {
   .vars <- as_crunch_var_df(list(...))
-  sv_aliases <- map(aliases(.vars), noquote)
+  sv_aliases <- internal_aliases(.vars)
   
   labels <- ca_process_formula(labels, .vars)
   title <- ca_process_formula(title, .vars)
@@ -143,7 +160,8 @@ convert_to_text <- function(
   notes = NULL
 ) {
   .vars <- as_crunch_var_df(list(...))
-  old_aliases <- map(aliases(.vars), noquote)
+  vars_have_ca_expansion <- !all(map_lgl(.vars, is.variable))
+  old_aliases <- internal_aliases(.vars)
   
   new_aliases <- ca_process_formula(new_aliases, .vars)
   title <- ca_process_formula(title, .vars)
@@ -153,7 +171,11 @@ convert_to_text <- function(
   cmd <- crunch_auto_cmd(
     function(x) {
       if (is.null(x$new_aliases)) {
-        x$new_aliases <- if (length(x$old_aliases) == 1) list(noquote(x$alias)) else x$old_aliases
+        if (length(x$old_aliases) == 1 && !vars_have_ca_expansion) {
+          x$new_aliases <- list(noquote(x$alias)) 
+          } else {
+            x$new_aliases <- x$old_aliases
+          }
       } else {
         x$new_aliases <- map(x$new_aliases, noquote)
       }
@@ -180,7 +202,8 @@ convert_to_text <- function(
     new_aliases = new_aliases,
     title = title,
     description = description,
-    notes = notes
+    notes = notes,
+    vars_have_ca_expansion = vars_have_ca_expansion
   )
   
   return(list(cmd))
@@ -230,7 +253,7 @@ ca_optional <- function(label, items, indent = 0, newline = TRUE) {
 
 ca_quote_items <- function(items) {
   purrr::map_chr(items, function(item) {
-    if (is.numeric(item) || inherits(item, "noquote")) {
+    if (is.numeric(item) || inherits(items, "noquote") || inherits(item, "noquote")) {
       paste0(item)
     } else {
       paste0("\"", item, "\"")
@@ -242,12 +265,15 @@ ca_template <- function(...) {
   function(x) glue::glue_data(x, ...)
 }
 
-#' @export
-ca_use_description <- function() {
-  list(noquote("USE DESCRIPTIONS"))
-}
 
 #' @export
-ca_copy <- function() {
-  list(noquote("COPY"))
-}
+ca <- list(
+  copy = list(noquote("COPY")),
+  dots = function(x, y) noquote(paste0(alias(x), "...", alias(y))),
+  like = function(x) noquote(paste0("LIKE(\"", x, "\")")),
+  regex = function(x) noquote(paste0("REGEX(\"", x, "\")")),
+  regexp = function(x) noquote(paste0("REGEXP(\"", x, "\")")),
+  use_descriptions = noquote("USE DESCRIPTIONS"),
+  use_titles = noquote("USE TITLES"),
+  keyword = noquote
+)
