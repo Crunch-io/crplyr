@@ -184,13 +184,13 @@ convert_to_text <- function(
     },
     get_aliases = function(x) {
       if (!is.null(x$new_aliases)) {
-        x$new_aliases
+        as.character(x$new_aliases)
       } else if (x$vars_have_ca_expansion) {
         NULL # Can't guess variables have crunch expansion
       } else if (length(x$old_aliases) == 1) {
         x$alias 
       } else {
-        x$old_aliases
+        as.character(x$old_aliases)
       }
     },
     old_aliases = old_aliases,
