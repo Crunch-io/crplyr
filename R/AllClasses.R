@@ -19,6 +19,8 @@ GroupedCrunchDataset <- setClass("GroupedCrunchDataset",
 
 
 setOldClass("crunch_var_df")
+setOldClass("placeholder_var")
+setOldClass("crunch_auto_cmd")
 
 #' A Crunch Dataset With Crunch Automation Commands "At The Ready"
 #'
@@ -27,11 +29,11 @@ setOldClass("crunch_var_df")
 #' is called. 
 #'
 #' @export
-AutoReadyCrunchDataset <- setClass(
-  "AutoReadyCrunchDataset",
+AutomationCrunchDataset <- setClass(
+  "AutomationCrunchDataset",
   contains = "CrunchDataset",
   slots = c(
     steps = "list",
-    var_tibble = "crunch_var_df"
+    var_df = "crunch_var_df"
   )
 )

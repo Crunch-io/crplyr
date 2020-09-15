@@ -3,7 +3,7 @@
 \name{mutate}
 \alias{mutate}
 \alias{mutate.CrunchDataset}
-\title{Modify Variables in a Crunch Automation Script}
+\title{Create or Modify Variables in a Crunch Dataset}
 \usage{
 \method{mutate}{CrunchDataset}(.data, ...)
 }

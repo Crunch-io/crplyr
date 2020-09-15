@@ -1,4 +1,4 @@
-#' Modify Variables in a Crunch Automation Script
+#' Create or Modify Variables in a Crunch Dataset
 #'
 #' Adds commands to a Crunch Automation script that modify the contents
 #' of variables. Unlike `dplyr::mutate` on a traditional R `data.frame`,
@@ -29,9 +29,10 @@
 #' }
 mutate.CrunchDataset <- function(.data, ...) {
   if (!inherits(.data, "AutomationCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
-  
+
   out <- .data
-  out@steps <- c(out@steps, calculate_steps(out@var_tibble, ...))
+  new_steps <- calculate_steps(out@var_df, ...)
+  out@steps <- c(out@steps, new_steps)
   out
 }
 
@@ -51,7 +52,8 @@ NULL
 #' Create a categorical array
 #'
 #' Create a categorical array from one or more existing variables.
-#' Based on the Crunch Automation command 
+#' The new variable's alias is based on the name of the argument within
+#' `mutate()`. Based on the Crunch Automation command 
 #' [CREATE CATEGORICAL ARRAY](https://help.crunch.io/hc/en-us/articles/360042039392).
 #' 
 #' If `...` is specified using aliases or `dplyr::across()`, then
@@ -84,7 +86,7 @@ categorical_array <- function(
   notes <- ca_process_formula(notes, .vars)
   
   cmd <- crunch_auto_cmd(
-    ca_template(
+    format = ca_template(
       "CREATE CATEGORICAL ARRAY\n", 
       "  {crplyr:::ca_comma_separated(sv_aliases)}\n",
       "  LABELS {crplyr:::ca_comma_separated(labels)}\n",
@@ -94,6 +96,7 @@ categorical_array <- function(
       "{crplyr:::ca_optional('NOTES', notes)}", 
       ";"
     ),
+    get_aliases = function(x) x$alias,
     sv_aliases = sv_aliases,
     labels = labels,
     title = title,
@@ -101,7 +104,7 @@ categorical_array <- function(
     notes = notes
   )
   
-  return(list(cmd))
+  return(cmd)
 }
 
 
@@ -147,7 +150,7 @@ convert_to_text <- function(
   cmd <- crunch_auto_cmd(
     function(x) {
       if (is.null(x$new_aliases)) {
-        if (length(x$old_aliases) == 1 && !vars_have_ca_expansion) {
+        if (length(x$old_aliases) == 1 && !x$vars_have_ca_expansion) {
           x$new_aliases <- list(noquote(x$alias)) 
         } else {
           x$new_aliases <- x$old_aliases
@@ -174,6 +177,17 @@ convert_to_text <- function(
       }
       template(x)
     },
+    get_aliases = function(x) {
+      if (!is.null(x$new_aliases)) {
+        x$new_aliases
+      } else if (x$vars_have_ca_expansion) {
+        NULL # Can't guess variables have crunch expansion
+      } else if (length(x$old_aliases) == 1) {
+        x$alias 
+      } else {
+        x$old_aliases
+      }
+    },
     old_aliases = old_aliases,
     new_aliases = new_aliases,
     title = title,
@@ -182,5 +196,5 @@ convert_to_text <- function(
     vars_have_ca_expansion = vars_have_ca_expansion
   )
   
-  return(list(cmd))
+  return(cmd)
 }

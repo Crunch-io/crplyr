@@ -1,9 +1,13 @@
 calculate_steps <- function(var_df, ...) {
-  steps <- transmute(var_df, ...)
-  
-  lapply(names(steps), function(step_alias) {
-    out <- steps[[step_alias]][[1]]
-    out$data <- modifyList(out$data, list(alias = step_alias))
+  .dots <- enquos(...)
+  steps <- transmute(var_df, !!!.dots)
+  internalize_arg_names(steps, "alias")
+}
+
+internalize_arg_names <- function(x, name_as) {
+  lapply(names(x), function(x_name) {
+    out <- x[[x_name]]
+    out[[1]]$data <- modifyList(out[[1]]$data, setNames(list(x_name), name_as))
     out
   })
 }
@@ -39,7 +43,7 @@ make_query_text <- function(x) {
 #'     ) %>%
 #'     show_query()
 #' }
-show_query.AutoReadyCrunchDataset <- function(x, ...) {
+show_query.AutomationCrunchDataset <- function(x, ...) {
   out <- make_query_text(x)
   cat("---Crunch Automation command---\n")
   cat(out)
@@ -57,6 +61,7 @@ show_query.AutoReadyCrunchDataset <- function(x, ...) {
 #'
 #' @return invisibly, the CrunchDataset after running the command
 #' @export
+#' @importFrom dplyr compute
 #' @name compute
 #' @family automation script commands
 #' @examples
@@ -79,14 +84,14 @@ compute.AutomationCrunchDataset <- function(x, name = NULL, ...) {
   CrunchDataset(out)
 }
 
-crunch_auto_cmd <- function(formatter, ...) {
-  out <- list(formatter = formatter, data = list(...))
+crunch_auto_cmd <- function(formatter, get_aliases, ...) {
+  out <- list(list(formatter = formatter, get_aliases = get_aliases, data = list(...)))
   class(out) <- c("crunch_auto_cmd", class(out))
   out
 }
 
 format_ca_auto <- function(x, ...) {
-  x$formatter(x$data)
+  x[[1]]$formatter(x[[1]]$data)
 }
 
 #' Use Argument Values Baed on Input Variables

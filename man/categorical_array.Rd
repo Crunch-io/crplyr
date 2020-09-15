@@ -28,7 +28,8 @@ in the crunch R package)}
 }
 \description{
 Create a categorical array from one or more existing variables.
-Based on the Crunch Automation command
+The new variable's alias is based on the name of the argument within
+\code{mutate()}. Based on the Crunch Automation command
 \href{https://help.crunch.io/hc/en-us/articles/360042039392}{CREATE CATEGORICAL ARRAY}.
 }
 \details{

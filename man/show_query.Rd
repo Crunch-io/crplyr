@@ -2,10 +2,10 @@
 % Please edit documentation in R/automation-processing.R
 \name{show_query}
 \alias{show_query}
-\alias{show_query.AutoReadyCrunchDataset}
+\alias{show_query.AutomationCrunchDataset}
 \title{Show Text of Crunch Automation Query}
 \usage{
-\method{show_query}{AutoReadyCrunchDataset}(x, ...)
+\method{show_query}{AutomationCrunchDataset}(x, ...)
 }
 \arguments{
 \item{x}{An \code{AutomationCrunchDataset} (a \code{CrunchDataset} modified with \code{\link[=mutate]{mutate()}} or similar)}

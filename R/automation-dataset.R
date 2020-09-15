@@ -1,7 +1,7 @@
 as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
   out <- AutomationCrunchDataset(x)
   out@steps <- list()
-  out@var_tibble <- as_crunch_var_df(x)
+  out@var_df <- as_crunch_var_df(x)
   out
 }
 
@@ -47,6 +47,11 @@ setMethod("aliases", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   names(x)
 })
+
+setMethod("alias", "crunch_auto_cmd", function(object) {
+  object[[1]]$get_aliases(object[[1]]$data)
+})
+
 
 # Internally we allow non crunchvars, we want to preserve the
 # noquote status of non crunch vars, as well as backtick aliases
