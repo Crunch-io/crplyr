@@ -21,7 +21,7 @@ as_crunch_var_df <- function(vars) {
     if (is.data.frame(vars[[1]])) { 
       vars <- purrr::flatten(vars) 
     }
-    all_aliases <- map_chr(vars, function(var) if (is_var_or_placeholder(var)) alias(var) else as.character(var))
+    all_aliases <- map_chr(vars, function(var) if (is_var_or_similar(var)) alias(var) else as.character(var))
     var_list <- setNames(vars, all_aliases)
   }
   
@@ -44,7 +44,7 @@ NULL
 #' @export
 #' @rdname crunch_var_df-meta 
 setMethod("aliases", "crunch_var_df", function(x) {
-  if (!all(map_lgl(x, is_var_or_placeholder))) stop("All variables must be CrunchVariables")
+  if (!all(map_lgl(x, is_var_or_similar))) stop("All variables must be CrunchVariables")
   names(x)
 })
 
@@ -61,8 +61,8 @@ setMethod("alias", "var_placeholder", function(object) {
 # noquote status of non crunch vars, as well as backtick aliases
 # with spaces
 internal_aliases <- function(x) {
-  map(x, function(var) {
-    if (is_var_or_placeholder(var)) {
+  out <- map(x, function(var) {
+    if (is_var_or_similar(var)) {
       out <- alias(var)
       if (grepl("[[:space:]]", out)) out <- paste0("`", out, "`")
       noquote(out)
@@ -70,6 +70,7 @@ internal_aliases <- function(x) {
       var
     }
   })
+  unname(out)
 }
 
 

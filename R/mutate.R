@@ -78,7 +78,9 @@ categorical_array <- function(
   description = NULL, 
   notes = NULL
 ) {
-  .vars <- as_crunch_var_df(list(...))
+  .dots <- prepare_nested_cmds(list(...))
+  
+  .vars <- as_crunch_var_df(.dots)
   sv_aliases <- internal_aliases(.vars)
   
   labels <- ca_process_formula(labels, .vars)
@@ -105,7 +107,7 @@ categorical_array <- function(
     notes = notes
   )
   
-  return(cmd)
+  nest_cmds(cmd, .dots)
 }
 
 
@@ -139,8 +141,10 @@ convert_to_text <- function(
   description = NULL,
   notes = NULL
 ) {
-  .vars <- as_crunch_var_df(list(...))
-  vars_have_ca_expansion <- !all(map_lgl(.vars, is_var_or_placeholder))
+  .dots <- prepare_nested_cmds(list(...))
+  
+  .vars <- as_crunch_var_df(.dots)
+  vars_have_ca_expansion <- !all(map_lgl(.vars, is_var_or_similar))
   old_aliases <- internal_aliases(.vars)
   
   new_aliases <- ca_process_formula(new_aliases, .vars)
@@ -197,5 +201,5 @@ convert_to_text <- function(
     vars_have_ca_expansion = vars_have_ca_expansion
   )
   
-  return(cmd)
+  nest_cmds(cmd, .dots)
 }

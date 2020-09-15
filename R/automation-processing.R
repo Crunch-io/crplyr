@@ -65,8 +65,8 @@ var_placeholder_df <- function(aliases) {
     )
 }
 
-is_var_or_placeholder <- function(x) {
-  is.variable(x) || inherits(x, "var_placeholder")
+is_var_or_similar <- function(x) {
+  is.variable(x) || inherits(x, "var_placeholder") || inherits(x, "crunch_auto_cmd")
 }
 
 make_query_text <- function(x) {
@@ -145,6 +145,65 @@ crunch_auto_cmd <- function(formatter, get_aliases, ...) {
   out <- list(list(formatter = formatter, get_aliases = get_aliases, data = list(...)))
   class(out) <- c("crunch_auto_cmd", class(out))
   out
+}
+
+prepare_nested_cmds <- function(dots) {
+  mod_dots <- lapply(seq_along(dots), function(dot_num) {
+    dot <- dots[[dot_num]]
+    if (is.data.frame(dot)) {
+      as.list(dot)
+    } else {
+      setNames(list(dot), names(dots)[[dot_num]])
+    }
+  })
+  mod_dots <- purrr::flatten(mod_dots)
+  mod_dots_names <- names(mod_dots)
+  
+  mod_dots <- lapply(seq_along(mod_dots), function(dot_num) {
+    dot <- mod_dots[[dot_num]]
+    if (inherits(dot, "crunch_auto_cmd")) {
+      dot[[1]]$data <- modifyList(
+        dot[[1]]$data,
+        list(alias = mod_dots_names[dot_num])
+      )
+    }
+    dot
+  })
+  names(mod_dots) <- mod_dots_names
+  mod_dots
+}
+
+nest_cmds <- function(cmd, dot_args) {
+  intermediate_cmds <- purrr::keep(dot_args, ~inherits(., "crunch_auto_cmd"))
+  if (length(intermediate_cmds) == 0) return(cmd)
+  
+  new_data <- c(
+    cmd[[1]]$data,
+    list(
+      .main_formatter = cmd[[1]]$formatter,
+      .main_get_aliases = cmd[[1]]$get_aliases,
+      .nested_data = intermediate_cmds,
+      formatter = function(x) {
+        nested <- glue::glue_collapse(
+          lapply(x$.nested_data, format_ca_auto),
+          sep = "\n\n"
+        )
+        orig_data <- x[setdiff(names(x), c(".main_formatter", ".main_get_aliases", ".nested_data"))]
+        
+        glue::glue("{nested}\n\n{x$.main_formatter(orig_data)}")
+      },
+      get_aliases = function(x) {
+        nested <- lapply(x$.nested_data, function(nested_cmd) {
+          nested_cmd[[1]]$get_aliases(nested_cmd[[1]]$data)
+        })
+        orig_data <- x[setdiff(names(x), c(".main_formatter", ".main_get_aliases", ".nested_data"))]
+        main <- x$.main_get_aliases(orig_data)
+        
+        unname(c(unlist(nested), unlist(main)))
+      }
+    )
+  )
+  do.call(crunch_auto_cmd, new_data)
 }
 
 format_ca_auto <- function(x, ...) {
