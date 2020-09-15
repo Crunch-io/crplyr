@@ -1,7 +1,41 @@
-calculate_steps <- function(var_df, ...) {
+#' @importFrom purrr flatten
+run_steps <- function(var_df, ...) {
   .dots <- enquos(...)
-  steps <- transmute(var_df, !!!.dots)
-  internalize_arg_names(steps, "alias")
+  # Perform each dot separately because the result sometimes depends on the
+  # name of the argument (for alias), which isn't available, and if you later use
+  # that same name, `transmute` uses the result of the expression rather
+  # than the original column in the dataset (and so that result would be 
+  # incomplete, because it hasn't received its name yet)
+  all_steps <- lapply(seq_along(.dots), function(dot_num) {
+    dot <- .dots[dot_num]
+    dot_name <- names(.dots)[dot_num]
+    
+    dot_steps <- transmute(var_df, !!!dot)
+    
+    if (is.data.frame(dot_steps[[1]])) {
+      warning(glue::glue(
+        "Found `data.frame` column named '{names(dot_steps)[1]}', which usually happens ",
+        "when an argument with `across()` is named. This name will be ignored, if you wanted ",
+        "to change the names of the output columns use `across()` argument `.names=`."
+      ), call. = FALSE)
+      dot_steps <- dot_steps[[1]]
+    }
+
+    dot_steps <- lapply(seq_along(dot_steps), function(step_num) {
+      step <- dot_steps[[step_num]]
+      step[[1]]$data <- modifyList(
+        step[[1]]$data,
+        list(alias = names(dot_steps)[step_num])
+      )
+      step
+    })
+    
+    var_df <<- add_steps_to_var_df(var_df, dot_steps)
+    
+    dot_steps
+  })
+  
+  list(steps = flatten(all_steps), var_df = var_df)
 }
 
 internalize_arg_names <- function(x, name_as) {
@@ -12,12 +46,34 @@ internalize_arg_names <- function(x, name_as) {
   })
 }
 
+#' @importFrom purrr flatten_chr
+add_steps_to_var_df <- function(var_df, steps) {
+  aliases <- lapply(steps, function(step) step[[1]]$get_aliases(step[[1]]$data))
+  aliases <- flatten_chr(aliases)
+  var_df <- cbind(
+    var_df[!names(var_df) %in% aliases], 
+    var_placeholder_df(aliases)
+  )
+  structure(var_df, class = c("crunch_var_df", "data.frame"))
+}
+
+var_placeholder_df <- function(aliases) {
+  structure(
+    setNames(lapply(aliases, function(alias) structure(list(alias = alias), class = c("var_placeholder", "list"))), aliases), 
+    row.names = c(NA, -1L),
+    class = "data.frame"
+    )
+}
+
+is_var_or_placeholder <- function(x) {
+  is.variable(x) || inherits(x, "var_placeholder")
+}
+
 make_query_text <- function(x) {
   steps <- lapply(x@steps, format_ca_auto)
   if (length(steps) == 0) return(NULL)  
   paste(steps, collapse = "\n\n")
 }
-
 
 #' Show Text of Crunch Automation Query
 #' 
@@ -31,6 +87,7 @@ make_query_text <- function(x) {
 #' @name show_query
 #' @export
 #' @family automation script commands
+#' @importFrom dplyr show_query
 #' @examples
 #' \dontrun{
 #' ds %>%

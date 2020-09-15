@@ -31,8 +31,9 @@ mutate.CrunchDataset <- function(.data, ...) {
   if (!inherits(.data, "AutomationCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
 
   out <- .data
-  new_steps <- calculate_steps(out@var_df, ...)
-  out@steps <- c(out@steps, new_steps)
+  results <- run_steps(out@var_df, ...)
+  out@steps <- c(out@steps, results$steps)
+  out@var_df <- results$var_df
   out
 }
 
@@ -139,7 +140,7 @@ convert_to_text <- function(
   notes = NULL
 ) {
   .vars <- as_crunch_var_df(list(...))
-  vars_have_ca_expansion <- !all(map_lgl(.vars, is.variable))
+  vars_have_ca_expansion <- !all(map_lgl(.vars, is_var_or_placeholder))
   old_aliases <- internal_aliases(.vars)
   
   new_aliases <- ca_process_formula(new_aliases, .vars)
