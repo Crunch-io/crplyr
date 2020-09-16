@@ -38,17 +38,9 @@ run_steps <- function(var_df, ...) {
   list(steps = flatten(all_steps), var_df = var_df)
 }
 
-internalize_arg_names <- function(x, name_as) {
-  lapply(names(x), function(x_name) {
-    out <- x[[x_name]]
-    out[[1]]$data <- modifyList(out[[1]]$data, setNames(list(x_name), name_as))
-    out
-  })
-}
-
 #' @importFrom purrr flatten_chr
 add_steps_to_var_df <- function(var_df, steps) {
-  aliases <- lapply(steps, function(step) step[[1]]$get_aliases(step[[1]]$data))
+  aliases <- lapply(steps, aliases)
   aliases <- flatten_chr(aliases)
   var_df <- cbind(
     var_df[!names(var_df) %in% aliases], 
@@ -65,12 +57,22 @@ var_placeholder_df <- function(aliases) {
     )
 }
 
-is_var_or_similar <- function(x) {
-  is.variable(x) || inherits(x, "var_placeholder") || inherits(x, "crunch_auto_cmd")
+is_var_or_placeholder <- function(x) {
+  is.variable(x) || inherits(x, "var_placeholder")
 }
 
+is_auto_cmd <- function(x) {
+  inherits(x, "crunch_auto_cmd")
+}
+
+is_var_like <- function(x) {
+  is_var_or_placeholder(x) || is_auto_cmd(x)
+}
+
+
+
 make_query_text <- function(x) {
-  steps <- lapply(x@steps, format_ca_auto)
+  steps <- lapply(x@steps, format)
   if (length(steps) == 0) return(NULL)  
   paste(steps, collapse = "\n\n")
 }
@@ -141,8 +143,10 @@ compute.AutomationCrunchDataset <- function(x, name = NULL, ...) {
   CrunchDataset(out)
 }
 
-crunch_auto_cmd <- function(formatter, get_aliases, ...) {
-  out <- list(list(formatter = formatter, get_aliases = get_aliases, data = list(...)))
+crunch_auto_cmd <- function(formatter, get_aliases, ..., .data = NULL) {
+  all_data <- c(list(...), .data)
+  
+  out <- list(list(formatter = formatter, get_aliases = get_aliases, data = all_data))
   class(out) <- c("crunch_auto_cmd", class(out))
   out
 }
@@ -161,7 +165,7 @@ prepare_nested_cmds <- function(dots) {
   
   mod_dots <- lapply(seq_along(mod_dots), function(dot_num) {
     dot <- mod_dots[[dot_num]]
-    if (inherits(dot, "crunch_auto_cmd")) {
+    if (is_auto_cmd(dot)) {
       dot[[1]]$data <- modifyList(
         dot[[1]]$data,
         list(alias = mod_dots_names[dot_num])
@@ -174,41 +178,44 @@ prepare_nested_cmds <- function(dots) {
 }
 
 nest_cmds <- function(cmd, dot_args) {
-  intermediate_cmds <- purrr::keep(dot_args, ~inherits(., "crunch_auto_cmd"))
+  intermediate_cmds <- purrr::keep(dot_args, is_auto_cmd)
   if (length(intermediate_cmds) == 0) return(cmd)
   
-  new_data <- c(
-    cmd[[1]]$data,
-    list(
-      .main_formatter = cmd[[1]]$formatter,
-      .main_get_aliases = cmd[[1]]$get_aliases,
-      .nested_data = intermediate_cmds,
-      formatter = function(x) {
-        nested <- glue::glue_collapse(
-          lapply(x$.nested_data, format_ca_auto),
-          sep = "\n\n"
-        )
-        orig_data <- x[setdiff(names(x), c(".main_formatter", ".main_get_aliases", ".nested_data"))]
-        
-        glue::glue("{nested}\n\n{x$.main_formatter(orig_data)}")
-      },
-      get_aliases = function(x) {
-        nested <- lapply(x$.nested_data, function(nested_cmd) {
-          nested_cmd[[1]]$get_aliases(nested_cmd[[1]]$data)
-        })
-        orig_data <- x[setdiff(names(x), c(".main_formatter", ".main_get_aliases", ".nested_data"))]
-        main <- x$.main_get_aliases(orig_data)
-        
-        unname(c(unlist(nested), unlist(main)))
-      }
+  nested_formatter <- function(x) {
+    nested <- glue::glue_collapse(
+      lapply(x$.nested_data, function(step) format(step)),
+      sep = "\n\n"
     )
+    
+    glue::glue("{nested}\n\n{x$.main_formatter(x)}")
+  }
+  
+  nested_get_aliases <- function(x) {
+    nested <- lapply(x$.nested_data, function(nested_cmd) {
+      aliases(nested_cmd)
+    })
+    main <- x$.main_get_aliases(x)
+    
+    unname(c(unlist(nested), unlist(main)))
+  }
+  
+  crunch_auto_cmd(
+    .data = cmd[[1]]$data,
+    .main_formatter = cmd[[1]]$formatter,
+    .main_get_aliases = cmd[[1]]$get_aliases,
+    .nested_data = intermediate_cmds,
+    formatter = nested_formatter,
+    get_aliases = nested_get_aliases
   )
-  do.call(crunch_auto_cmd, new_data)
 }
 
-format_ca_auto <- function(x, ...) {
+setMethod("format", "crunch_auto_cmd", function(x, ...) {
   x[[1]]$formatter(x[[1]]$data)
-}
+})
+
+setMethod("aliases", "crunch_auto_cmd", function(x) {
+  x[[1]]$get_aliases(x[[1]]$data)
+})
 
 #' Use Argument Values Baed on Input Variables
 #' 

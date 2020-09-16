@@ -37,23 +37,46 @@ mutate.CrunchDataset <- function(.data, ...) {
   out
 }
 
+# Useful for testing mutate
 test_create_single_var_cmd <- function(..., arg = NULL) {
   .dots <- prepare_nested_cmds(list(...))
   
-  .vars <- as_crunch_var_df(.dots)
+  .vars <- crunch_var_df_from_dots(.dots)
   in_aliases <- internal_aliases(.vars)
   
   arg <- ca_process_formula(arg, .vars)
 
   cmd <- crunch_auto_cmd(
     formatter = ca_template(
-      "{crplyr:::ca_comma_separated(in_aliases)} ", 
-      "AS {alias}",
+      "{crplyr:::ca_comma_separated(in_aliases)} AS {alias}",
       "{crplyr:::ca_optional('ARG', arg, indent = 1, newline = FALSE)};",
     ),
     get_aliases = function(x) x$alias,
     in_aliases = in_aliases,
     arg = arg
+  )
+  
+  nest_cmds(cmd, .dots)
+}
+
+# Another test helper, making sure we allow steps to create multiple variables
+test_create_multi_var_cmd <- function(..., new_aliases) {
+  .dots <- prepare_nested_cmds(list(...))
+  
+  .vars <- crunch_var_df_from_dots(.dots)
+  in_aliases <- internal_aliases(.vars)
+  
+  new_aliases <- ca_process_formula(new_aliases, .vars)
+  new_aliases <- map(new_aliases, noquote)
+  
+  cmd <- crunch_auto_cmd(
+    formatter = ca_template(
+      "{crplyr:::ca_comma_separated(in_aliases)} ", 
+      "AS {crplyr:::ca_comma_separated(new_aliases)};"
+    ),
+    get_aliases = function(x) as.character(x$new_aliases),
+    in_aliases = in_aliases,
+    new_aliases = new_aliases
   )
   
   nest_cmds(cmd, .dots)
@@ -100,7 +123,7 @@ categorical_array <- function(
 ) {
   .dots <- prepare_nested_cmds(list(...))
   
-  .vars <- as_crunch_var_df(.dots)
+  .vars <- crunch_var_df_from_dots(.dots)
   sv_aliases <- internal_aliases(.vars)
   
   labels <- ca_process_formula(labels, .vars)
@@ -163,8 +186,8 @@ convert_to_text <- function(
 ) {
   .dots <- prepare_nested_cmds(list(...))
   
-  .vars <- as_crunch_var_df(.dots)
-  vars_have_ca_expansion <- !all(map_lgl(.vars, is_var_or_similar))
+  .vars <- crunch_var_df_from_dots(.dots)
+  vars_have_ca_expansion <- !all(map_lgl(.vars, is_var_like))
   old_aliases <- internal_aliases(.vars)
   
   new_aliases <- ca_process_formula(new_aliases, .vars)

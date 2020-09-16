@@ -176,4 +176,55 @@ with_mock_crunch({
             "birthyr AS zzz;\n\nzzz AS yyy;"
         )
     })
+    
+    test_that("multi var create command works", {
+        query <- mutate(
+            ds, 
+            test_create_multi_var_cmd(birthyr, gender, new_aliases = c("birthyr2", "gender2"))
+        )
+        
+        expect_equal(
+            make_query_text(query), 
+            "birthyr, gender AS birthyr2, gender2;"
+        )
+    })
+    
+    test_that("multi var create command works with formula", {
+        query <- mutate(
+            ds, 
+            test_create_multi_var_cmd(birthyr, gender, new_aliases = ~paste0(aliases(.), "2"))
+        )
+        
+        expect_equal(
+            make_query_text(query), 
+            "birthyr, gender AS birthyr2, gender2;"
+        )
+    })
+    
+    test_that("multi var created vars can be used later", {
+        query <- mutate(
+            ds, 
+            test_create_multi_var_cmd(birthyr, gender, new_aliases = c("birthyr2", "gender2"))
+        )
+        query <- mutate(query, zzz = test_create_single_var_cmd(birthyr2, gender2))
+        
+        expect_equal(
+            make_query_text(query), 
+            "birthyr, gender AS birthyr2, gender2;\n\nbirthyr2, gender2 AS zzz;"
+        )
+    })
+    
+    test_that("multi var create can be nested", {
+        query <- mutate(
+            ds, 
+            zzz = test_create_single_var_cmd(
+                test_create_multi_var_cmd(birthyr, gender, new_aliases = c("birthyr2", "gender2"))
+            )
+        )
+        
+        expect_equal(
+            make_query_text(query), 
+            "birthyr, gender AS birthyr2, gender2;\n\nbirthyr2, gender2 AS zzz;"
+        )
+    })
 })

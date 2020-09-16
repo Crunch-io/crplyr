@@ -1,31 +1,51 @@
 as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
   out <- AutomationCrunchDataset(x)
   out@steps <- list()
-  out@var_df <- as_crunch_var_df(x)
+  out@var_df <- crunch_var_df_from_dataset(x)
   out
 }
 
-# A data.frame with list columns containing crunch variables
-# `tibble` doesn't allow this data.frame because CrunchVars
+# A data.frame with list columns containing crunch variables,
+# automation steps, placeholder variables (after a step has been
+# run) or other objects when passed as crunch automation
+# keywords. NB: `tibble` doesn't allow this data.frame because CrunchVars
 # are not true "vectors" so be careful of manipulating this
-#' @importFrom purrr map map_chr
-as_crunch_var_df <- function(vars) {
-  if (is.dataset(vars)) {
+as_crunch_var_df <- function(list) {
+  structure(list, row.names = c(NA, -1L), class = c("crunch_var_df", "data.frame"))
+}
+
+# Create a crunch_var_df from a CrunchDataset
+crunch_var_df_from_dataset <- function(vars) {
     all_aliases <- aliases(allVariables(vars))
     var_list <- map(all_aliases, function(alias) vars[[alias]])
     names(var_list) <- all_aliases
-  } else {
-    # across gives a data.frame 
-    # TODO: this may already be what we want, or at least might be with correct subsetting
-    # defined on the crunch_var_df class, but need to check
-    if (is.data.frame(vars[[1]])) { 
-      vars <- purrr::flatten(vars) 
-    }
-    all_aliases <- map_chr(vars, function(var) if (is_var_or_similar(var)) alias(var) else as.character(var))
-    var_list <- setNames(vars, all_aliases)
-  }
+    
+    as_crunch_var_df(var_list)
+} 
+
+# Create a crunch_var_df from a list of arguments to 
+# a crplyr command
+crunch_var_df_from_dots <- function(vars) {
+  all_aliases <- map_chr(
+    vars, 
+    function(var) {
+      # automation commands can create multiple aliases, so no alias method
+      # for it.
+      if (is_auto_cmd(var)) { 
+        out <- aliases(var)
+        if (length(out) > 1) {
+          out <- paste0(out[1], "...", out[length(out)])
+        }
+        out
+      } else if (is_var_or_placeholder(var)) {
+        alias(var) 
+      } else {
+        as.character(var)
+      }
+    })
+  var_list <- setNames(vars, all_aliases)
   
-  structure(var_list, row.names = c(NA, -1L), class = c("crunch_var_df", "data.frame"))
+  as_crunch_var_df(var_list)
 }
 
 #' Crunch variable metadata for `crunch_var_df` objects
@@ -44,12 +64,17 @@ NULL
 #' @export
 #' @rdname crunch_var_df-meta 
 setMethod("aliases", "crunch_var_df", function(x) {
-  if (!all(map_lgl(x, is_var_or_similar))) stop("All variables must be CrunchVariables")
-  names(x)
-})
-
-setMethod("alias", "crunch_auto_cmd", function(object) {
-  object[[1]]$get_aliases(object[[1]]$data)
+  if (!all(map_lgl(x, is_var_like))) {
+    stop("All variables must be CrunchVariables")
+  }
+  out <- map(x, function(var) {
+    if (is_var_or_placeholder(var)) {
+      alias(var)
+    } else if (is_auto_cmd(x)) {
+      aliases(var)
+    }
+  })
+  out <- flatten_chr(out)
 })
 
 setMethod("alias", "var_placeholder", function(object) {
@@ -58,19 +83,24 @@ setMethod("alias", "var_placeholder", function(object) {
 
 
 # Internally we allow non crunchvars, we want to preserve the
-# noquote status of non crunch vars, as well as backtick aliases
-# with spaces
+# noquote status of non crunch vars, return all aliases from
+# automation commands and backtick aliases with spaces
 internal_aliases <- function(x) {
   out <- map(x, function(var) {
-    if (is_var_or_similar(var)) {
+    if (is_var_or_placeholder(var)) {
       out <- alias(var)
       if (grepl("[[:space:]]", out)) out <- paste0("`", out, "`")
-      noquote(out)
+      list(noquote(out))
+    } else if (is_auto_cmd(var)) {
+      out <- aliases(var)
+      out <- ifelse(grepl("[[:space:]]", out), paste0("`", out, "`"), out)
+      lapply(out, noquote)
     } else {
-      var
+      list(var)
     }
   })
-  unname(out)
+  out <- unname(flatten(out))
+  out
 }
 
 

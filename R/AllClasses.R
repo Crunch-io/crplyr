@@ -19,7 +19,7 @@ GroupedCrunchDataset <- setClass("GroupedCrunchDataset",
 
 
 setOldClass("crunch_var_df")
-setOldClass("placeholder_var")
+setOldClass("var_placeholder")
 setOldClass("crunch_auto_cmd")
 
 #' A Crunch Dataset With Crunch Automation Commands "At The Ready"
