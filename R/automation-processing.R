@@ -30,7 +30,7 @@ run_steps <- function(var_df, ...) {
       step
     })
     
-    var_df <<- add_steps_to_var_df(var_df, dot_steps)
+    var_df <<- add_placeholders_from_command(var_df, dot_steps)
     
     dot_steps
   })
@@ -39,22 +39,29 @@ run_steps <- function(var_df, ...) {
 }
 
 #' @importFrom purrr flatten_chr
-add_steps_to_var_df <- function(var_df, steps) {
+add_placeholders_from_command <- function(var_df, steps) {
   aliases <- lapply(steps, aliases)
   aliases <- flatten_chr(aliases)
+  
+  var_placeholder_df <- structure(
+    lapply(aliases, var_placeholder),
+    .Names = aliases,  
+    row.names = c(NA, -1L),
+    class = "data.frame"
+  )
+  
   var_df <- cbind(
     var_df[!names(var_df) %in% aliases], 
-    var_placeholder_df(aliases)
+    var_placeholder_df
   )
   structure(var_df, class = c("crunch_var_df", "data.frame"))
 }
 
-var_placeholder_df <- function(aliases) {
+var_placeholder <- function(alias) {
   structure(
-    setNames(lapply(aliases, function(alias) structure(list(alias = alias), class = c("var_placeholder", "list"))), aliases), 
-    row.names = c(NA, -1L),
-    class = "data.frame"
-    )
+    list(alias = alias), 
+    class = c("var_placeholder", "list")
+  )
 }
 
 is_var_or_placeholder <- function(x) {
@@ -67,80 +74,6 @@ is_auto_cmd <- function(x) {
 
 is_var_like <- function(x) {
   is_var_or_placeholder(x) || is_auto_cmd(x)
-}
-
-
-
-make_query_text <- function(x) {
-  steps <- lapply(x@steps, format)
-  if (length(steps) == 0) return(NULL)  
-  paste(steps, collapse = "\n\n")
-}
-
-#' Show Text of Crunch Automation Query
-#' 
-#' Show the text of the Crunch Automation script that you've prepared 
-#' using crplyr. To execute the query, see [`compute()`].
-#'
-#' @param x An `AutomationCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
-#' @param ... ignored
-#'
-#' @return invisibly, the text of the Crunch Automation Script
-#' @name show_query
-#' @export
-#' @family automation script commands
-#' @importFrom dplyr show_query
-#' @examples
-#' \dontrun{
-#' ds %>%
-#'     mutate(
-#'        taste = categorical_array(
-#'            taste_a, taste_b, 
-#'            labels = c("Brand A", "Brand B"), 
-#'            title = "Taste Rating"
-#'        )
-#'     ) %>%
-#'     show_query()
-#' }
-show_query.AutomationCrunchDataset <- function(x, ...) {
-  out <- make_query_text(x)
-  cat("---Crunch Automation command---\n")
-  cat(out)
-  invisible(out)
-}
-
-#' Run Crunch Automation Query
-#' 
-#' Run the commands that have been created by crplyr's [`mutate()`] and
-#' similar commands.  
-#'
-#' @param x An `AutomationCrunchDataset` (a `CrunchDataset` modified with [`mutate()`] or similar)
-#' @param name ignored
-#' @param ... ignored
-#'
-#' @return invisibly, the CrunchDataset after running the command
-#' @export
-#' @importFrom dplyr compute
-#' @name compute
-#' @family automation script commands
-#' @examples
-#' \dontrun{
-#' ds <- ds %>%
-#'     mutate(
-#'        taste = categorical_array(
-#'            taste_a, taste_b, 
-#'            labels = c("Brand A", "Brand B"), 
-#'            title = "Taste Rating"
-#'        )
-#'     ) %>%
-#'     compute()
-#' }
-compute.AutomationCrunchDataset <- function(x, name = NULL, ...) {
-  query <- make_query_text(x)
-  if (is.null(query)) return(x)
-  
-  out <- runCrunchAutomation(x, query)
-  CrunchDataset(out)
 }
 
 crunch_auto_cmd <- function(formatter, get_aliases, ..., .data = NULL) {
@@ -217,7 +150,7 @@ setMethod("aliases", "crunch_auto_cmd", function(x) {
   x[[1]]$get_aliases(x[[1]]$data)
 })
 
-#' Use Argument Values Baed on Input Variables
+#' Use Argument Values Based on Input Variables
 #' 
 #' Many `crplyr` commands have arguments that allow the use of 
 #' formulas (using the compact lambda style functions using `~` or functions, 

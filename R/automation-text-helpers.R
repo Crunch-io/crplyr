@@ -1,25 +1,51 @@
-ca_comma_separated <- function(items, newline = FALSE, indent = 0) {
-  indent_mark <- paste(rep(" ", indent), collapse = "")
-  collapse_mark <- if (newline) paste0("\n", indent_mark) else ", "
+ca_list_to_text <- function(
+  pre_text = "",
+  items, 
+  after_text = "",
+  sep = ", ", 
+  sep_newline = NULL, 
+  start_newline = TRUE,
+  line_wrap = 100,
+  indent = 0, 
+  item_indent = indent + 2
+) {
+  if (is.null(items)) return("")
   
   items <- ca_quote_items(items)
   
-  out <- glue::glue_collapse(
-    glue::glue("{items}"),
-    sep = collapse_mark
-  )
-  glue::glue("{indent_mark}{out}")
-}
-
-ca_optional <- function(label, items, indent = 0, newline = TRUE) {
-  if (is.null(items)) return("")
+  if (is.null(sep_newline)) {
+    num_chars <- nchar(items)
+    if (sum(num_chars) > line_wrap - indent) {
+      sep_newline <- TRUE
+    } else {
+      sep_newline <- FALSE
+    }
+  }
   
   indent_mark <- paste(rep(" ", indent), collapse = "")
-  newline_mark <- if (newline) paste0("\n", indent_mark) else " "
-  items <- glue::glue_collapse(ca_quote_items(items), sep = ", ")
-  glue::glue(
-    "{newline_mark}{label} {items}"
+  item_indent_mark <- paste(rep(" ", item_indent), collapse = "")
+  after_pre_text <- if (sep_newline) paste0('\n', item_indent_mark) else ' '
+  before_after_text <- if (sep_newline) paste0('\n', indent_mark) else ' '
+  collapse_mark <- if (sep_newline) paste0(sep, "\n", item_indent_mark) else sep
+  if (start_newline) begin <- "\n" else begin <- ""
+  
+  if (pre_text == "") {
+    formatted_pre_text <- indent_mark
+  } else {
+    formatted_pre_text <- glue::glue("{indent_mark}{pre_text}{after_pre_text}")  
+  }
+  
+  if (after_text == "") {
+    formatted_after_text <- ""
+  } else {
+    formatted_after_text <- glue::glue("{before_after_text}{after_text}")  
+  }
+  
+  item_text <- glue::glue_collapse(
+    items,
+    sep = collapse_mark
   )
+  glue::glue("{begin}{formatted_pre_text}{item_text}{formatted_after_text}")
 }
 
 ca_quote_items <- function(items) {

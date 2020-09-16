@@ -38,13 +38,13 @@ categorical_array <- function(
   
   cmd <- crunch_auto_cmd(
     formatter = ca_template(
-      "CREATE CATEGORICAL ARRAY\n", 
-      "  {crplyr:::ca_comma_separated(sv_aliases)}\n",
-      "  LABELS {crplyr:::ca_comma_separated(labels)}\n",
-      "AS {alias}",
-      "{crplyr:::ca_optional('TITLE', title)}",
-      "{crplyr:::ca_optional('DESCRIPTION', description)}",
-      "{crplyr:::ca_optional('NOTES', notes)}", 
+      "CREATE CATEGORICAL ARRAY", 
+      "{crplyr:::ca_list_to_text(items = sv_aliases, indent = 2)}",
+      "{crplyr:::ca_list_to_text('LABELS', items = labels, indent = 2)}",
+      "\nAS {alias}",
+      "{crplyr:::ca_list_to_text('TITLE', items = title)}",
+      "{crplyr:::ca_list_to_text('DESCRIPTION', items = description)}",
+      "{crplyr:::ca_list_to_text('NOTES', items = notes)}", 
       ";"
     ),
     get_aliases = function(x) x$alias,
@@ -114,17 +114,17 @@ convert_to_text <- function(
       
       if (identical(x$old_aliases, x$new_aliases)) {
         template <- ca_template(
-          "CONVERT {crplyr:::ca_comma_separated(old_aliases)} TO TEXT;"
+          "{crplyr:::ca_list_to_text('CONVERT', old_aliases, 'TO TEXT', start_newline = FALSE)};"
         )
       } else {
         template <- ca_template(
-          "CREATE CONVERT\n", 
-          "  {crplyr:::ca_comma_separated(old_aliases)}\n",
-          "  TO TEXT\n",
-          "AS {crplyr:::ca_comma_separated(new_aliases)}",
-          "{crplyr:::ca_optional('TITLE', title)}",
-          "{crplyr:::ca_optional('DESCRIPTION', description)}",
-          "{crplyr:::ca_optional('NOTES', notes)}",
+          "CREATE CONVERT", 
+          "{crplyr:::ca_list_to_text(items = old_aliases, indent = 2)}",
+          "\n  TO TEXT",
+          "{crplyr:::ca_list_to_text('AS', items = new_aliases)}",
+          "{crplyr:::ca_list_to_text('TITLE', items = title)}",
+          "{crplyr:::ca_list_to_text('DESCRIPTION', items = description)}",
+          "{crplyr:::ca_list_to_text('NOTES', items = notes)}",
           ";"
         )
       }

@@ -48,8 +48,8 @@ test_create_single_var_cmd <- function(..., arg = NULL) {
 
   cmd <- crunch_auto_cmd(
     formatter = ca_template(
-      "{crplyr:::ca_comma_separated(in_aliases)} AS {alias}",
-      "{crplyr:::ca_optional('ARG', arg, indent = 1, newline = FALSE)};",
+      "{crplyr:::ca_list_to_text(items = in_aliases, sep_newline = FALSE, start_newline = FALSE)} AS {alias}", #nolint
+      "{crplyr:::ca_list_to_text('ARG', items = arg, indent = 1, sep_newline = FALSE, start_newline = FALSE)};", #nolint
     ),
     get_aliases = function(x) x$alias,
     in_aliases = in_aliases,
@@ -71,8 +71,8 @@ test_create_multi_var_cmd <- function(..., new_aliases) {
   
   cmd <- crunch_auto_cmd(
     formatter = ca_template(
-      "{crplyr:::ca_comma_separated(in_aliases)} ", 
-      "AS {crplyr:::ca_comma_separated(new_aliases)};"
+      "{crplyr:::ca_list_to_text(items = in_aliases, sep_newline = FALSE, start_newline = FALSE)} ", #nolint
+      "{crplyr:::ca_list_to_text('AS', items = new_aliases, sep_newline = FALSE, start_newline = FALSE)};" #nolint
     ),
     get_aliases = function(x) as.character(x$new_aliases),
     in_aliases = in_aliases,
