@@ -37,7 +37,27 @@ mutate.CrunchDataset <- function(.data, ...) {
   out
 }
 
+test_create_single_var_cmd <- function(..., arg = NULL) {
+  .dots <- prepare_nested_cmds(list(...))
+  
+  .vars <- as_crunch_var_df(.dots)
+  in_aliases <- internal_aliases(.vars)
+  
+  arg <- ca_process_formula(arg, .vars)
 
+  cmd <- crunch_auto_cmd(
+    formatter = ca_template(
+      "{crplyr:::ca_comma_separated(in_aliases)} ", 
+      "AS {alias}",
+      "{crplyr:::ca_optional('ARG', arg, indent = 1, newline = FALSE)};",
+    ),
+    get_aliases = function(x) x$alias,
+    in_aliases = in_aliases,
+    arg = arg
+  )
+  
+  nest_cmds(cmd, .dots)
+}
 
 
 #' Functions for Creating Variables Inside `mutate()`
@@ -89,7 +109,7 @@ categorical_array <- function(
   notes <- ca_process_formula(notes, .vars)
   
   cmd <- crunch_auto_cmd(
-    format = ca_template(
+    formatter = ca_template(
       "CREATE CATEGORICAL ARRAY\n", 
       "  {crplyr:::ca_comma_separated(sv_aliases)}\n",
       "  LABELS {crplyr:::ca_comma_separated(labels)}\n",
@@ -153,7 +173,7 @@ convert_to_text <- function(
   notes <- ca_process_formula(notes, .vars)
   
   cmd <- crunch_auto_cmd(
-    function(x) {
+    formatter = function(x) {
       if (is.null(x$new_aliases)) {
         if (length(x$old_aliases) == 1 && !x$vars_have_ca_expansion) {
           x$new_aliases <- list(noquote(x$alias)) 
