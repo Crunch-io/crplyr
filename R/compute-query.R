@@ -65,7 +65,7 @@ compute.AutomationCrunchDataset <- function(x, name = NULL, ...) {
 }
 
 make_query_text <- function(x) {
-  steps <- lapply(x@steps, format)
-  if (length(steps) == 0) return(NULL)  
-  paste(steps, collapse = "\n\n")
+  commands <- lapply(x@commands, format)
+  if (length(commands) == 0) return(NULL)  
+  paste(commands, collapse = "\n\n")
 }

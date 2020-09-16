@@ -33,7 +33,7 @@ AutomationCrunchDataset <- setClass(
   "AutomationCrunchDataset",
   contains = "CrunchDataset",
   slots = c(
-    steps = "list",
+    commands = "list",
     var_df = "crunch_var_df"
   )
 )

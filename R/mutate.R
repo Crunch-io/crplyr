@@ -32,7 +32,7 @@ mutate.CrunchDataset <- function(.data, ...) {
 
   out <- .data
   results <- generate_commands(out@var_df, ...)
-  out@steps <- c(out@steps, results$steps)
+  out@commands <- c(out@commands, results$commands)
   out@var_df <- results$var_df
   out
 }
@@ -59,7 +59,7 @@ test_create_single_var_cmd <- function(..., arg = NULL) {
   nest_cmds(cmd, .dots)
 }
 
-# Another test helper, making sure we allow steps to create multiple variables
+# Another test helper, making sure we allow commands to create multiple variables
 test_create_multi_var_cmd <- function(..., new_aliases) {
   .dots <- prepare_nested_cmds(list(...))
   

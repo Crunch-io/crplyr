@@ -1,13 +1,13 @@
 as_crunch_auto_tbl <- function(x) { # TODO: move to a S4 initializer?
   out <- AutomationCrunchDataset(x)
-  out@steps <- list()
+  out@commands <- list()
   out@var_df <- crunch_var_df_from_dataset(x)
   out
 }
 
 # A data.frame with list columns containing crunch variables,
-# automation steps, placeholder variables (after a step has been
-# run) or other objects when passed as crunch automation
+# automation commands, placeholder variables (after a commands has been
+# generated) or other objects when passed as crunch automation
 # keywords. NB: `tibble` doesn't allow this data.frame because CrunchVars
 # are not true "vectors" so be careful of manipulating this
 as_crunch_var_df <- function(list) {
