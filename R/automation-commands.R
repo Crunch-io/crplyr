@@ -1,5 +1,5 @@
 #' @importFrom purrr flatten
-run_steps <- function(var_df, ...) {
+generate_commands <- function(var_df, ...) {
   .dots <- enquos(...)
   # Perform each dot separately because the result sometimes depends on the
   # name of the argument (for alias), which isn't available, and if you later use

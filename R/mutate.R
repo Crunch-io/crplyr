@@ -31,7 +31,7 @@ mutate.CrunchDataset <- function(.data, ...) {
   if (!inherits(.data, "AutomationCrunchDataset")) .data <- as_crunch_auto_tbl(.data)
 
   out <- .data
-  results <- run_steps(out@var_df, ...)
+  results <- generate_commands(out@var_df, ...)
   out@steps <- c(out@steps, results$steps)
   out@var_df <- results$var_df
   out
