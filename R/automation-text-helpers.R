@@ -61,8 +61,9 @@ ca_quote_items <- function(items) {
 }
 
 #' @importFrom glue glue_data
+#' @importFrom rlang ns_env
 ca_template <- function(...) {
-  function(x) glue_data(x, ...)
+  function(x) glue_data(x, ..., .envir = ns_env("crplyr"))
 }
 
 
