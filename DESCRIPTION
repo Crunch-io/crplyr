@@ -23,6 +23,7 @@ Depends:
     dplyr
 Imports:
     methods,
+    glue,
     ggplot2,
     lazyeval,
     lifecycle,

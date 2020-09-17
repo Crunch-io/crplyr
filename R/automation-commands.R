@@ -8,6 +8,8 @@ crunch_auto_cmd <- function(formatter, get_aliases, ..., .data = NULL) {
 
 # Helper for creating commands out of the dots of other commands
 # (and adds alias as the name of the object)
+#' @importFrom purrr flatten
+#' @importFrom utils modifyList
 prepare_nested_cmds <- function(dots) {
   mod_dots <- lapply(seq_along(dots), function(dot_num) {
     dot <- dots[[dot_num]]
@@ -17,7 +19,7 @@ prepare_nested_cmds <- function(dots) {
       setNames(list(dot), names(dots)[[dot_num]])
     }
   })
-  mod_dots <- purrr::flatten(mod_dots)
+  mod_dots <- flatten(mod_dots)
   mod_dots_names <- names(mod_dots)
   
   mod_dots <- lapply(seq_along(mod_dots), function(dot_num) {
@@ -34,17 +36,19 @@ prepare_nested_cmds <- function(dots) {
   mod_dots
 }
 
+#' @importFrom purrr keep
+#' @importFrom glue glue glue_collapse
 nest_cmds <- function(cmd, dot_args) {
-  intermediate_cmds <- purrr::keep(dot_args, is_auto_cmd)
+  intermediate_cmds <- keep(dot_args, is_auto_cmd)
   if (length(intermediate_cmds) == 0) return(cmd)
   
   nested_formatter <- function(x) {
-    nested <- glue::glue_collapse(
+    nested <- glue_collapse(
       lapply(x$.nested_data, function(cmd) format(cmd)),
       sep = "\n\n"
     )
     
-    glue::glue("{nested}\n\n{x$.main_formatter(x)}")
+    glue("{nested}\n\n{x$.main_formatter(x)}")
   }
   
   nested_get_aliases <- function(x) {
@@ -70,11 +74,16 @@ setMethod("format", "crunch_auto_cmd", function(x, ...) {
   x[[1]]$formatter(x[[1]]$data)
 })
 
+#' @export
+#' @rdname crunch_var_df-meta 
+#' @importFrom crunch aliases
 setMethod("aliases", "crunch_auto_cmd", function(x) {
   x[[1]]$get_aliases(x[[1]]$data)
 })
 
 #' @importFrom purrr flatten
+#' @importFrom glue glue
+#' @importFrom dplyr transmute
 generate_commands <- function(var_df, ...) {
   .dots <- enquos(...)
   # Perform each dot separately because the result sometimes depends on the
@@ -89,7 +98,7 @@ generate_commands <- function(var_df, ...) {
     dot_cmds <- transmute(var_df, !!!dot)
     
     if (is.data.frame(dot_cmds[[1]])) {
-      warning(glue::glue(
+      warning(glue(
         "Found `data.frame` column named '{names(dot_cmds)[1]}', which usually happens ",
         "when an argument with `across()` is named. This name will be ignored, if you wanted ",
         "to change the names of the output columns use `across()` argument `.names=`."
@@ -114,13 +123,13 @@ generate_commands <- function(var_df, ...) {
   list(commands = flatten(all_commands), var_df = var_df)
 }
 
-#' @importFrom purrr flatten_chr
+#' @importFrom purrr map flatten_chr
 add_placeholders_from_command <- function(var_df, cmds) {
-  aliases <- lapply(cmds, aliases)
+  aliases <- map(cmds, aliases) # may include more than one
   aliases <- flatten_chr(aliases)
   
   var_placeholder_df <- structure(
-    lapply(aliases, var_placeholder),
+    map(aliases, var_placeholder),
     .Names = aliases,  
     row.names = c(NA, -1L),
     class = "data.frame"
@@ -140,6 +149,7 @@ var_placeholder <- function(alias) {
   )
 }
 
+#' @importFrom crunch is.variable
 is_var_or_placeholder <- function(x) {
   is.variable(x) || inherits(x, "var_placeholder")
 }
@@ -173,9 +183,10 @@ is_var_like <- function(x) {
 #' }
 NULL
 
+#' @importFrom rlang is_function is_formula as_function
 ca_process_formula <- function(x, data) {
-  if (rlang::is_function(x) || rlang::is_formula(x)) {
-    f <- rlang::as_function(x)
+  if (is_function(x) || is_formula(x)) {
+    f <- as_function(x)
     x <- f(data)
   } 
   x

@@ -42,6 +42,7 @@ show_query.AutomationCrunchDataset <- function(x, ...) {
 #' @return invisibly, the CrunchDataset after running the command
 #' @export
 #' @importFrom dplyr compute
+#' @importFrom crunch runCrunchAutomation
 #' @name compute
 #' @family automation script commands
 #' @examples

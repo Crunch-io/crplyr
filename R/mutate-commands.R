@@ -78,7 +78,7 @@ categorical_array <- function(
 #' the variable will be modified in place, while if different it will create a new
 #' variable). If more than one variable is specified `NULL`, the default, will modify
 #' the variables in place, or a vector of aliases for the new variables (or a 
-#' [`crunch-formula-notation`] that creates one). 
+#' [`crplyr-formula-notation`] that creates one). 
 #'
 #' @family creating variables functions
 #' @export

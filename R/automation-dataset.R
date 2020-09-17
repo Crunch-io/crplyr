@@ -15,6 +15,7 @@ as_crunch_var_df <- function(list) {
 }
 
 # Create a crunch_var_df from a CrunchDataset
+#' @importFrom purrr map
 crunch_var_df_from_dataset <- function(vars) {
     all_aliases <- aliases(allVariables(vars))
     var_list <- map(all_aliases, function(alias) vars[[alias]])
@@ -25,6 +26,8 @@ crunch_var_df_from_dataset <- function(vars) {
 
 # Create a crunch_var_df from a list of arguments to 
 # a crplyr command
+#' @importFrom purrr map_chr
+#' @importFrom crunch alias aliases
 crunch_var_df_from_dots <- function(vars) {
   all_aliases <- map_chr(
     vars, 
@@ -63,6 +66,8 @@ NULL
 
 #' @export
 #' @rdname crunch_var_df-meta 
+#' @importFrom purrr map_lgl map flatten_chr
+#' @importFrom crunch aliases
 setMethod("aliases", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is_var_like))) {
     stop("All variables must be CrunchVariables")
@@ -77,6 +82,7 @@ setMethod("aliases", "crunch_var_df", function(x) {
   out <- flatten_chr(out)
 })
 
+#' @impotFrom crunch alias
 setMethod("alias", "var_placeholder", function(object) {
   object$alias
 })
@@ -85,6 +91,8 @@ setMethod("alias", "var_placeholder", function(object) {
 # Internally we allow non crunchvars, we want to preserve the
 # noquote status of non crunch vars, return all aliases from
 # automation commands and backtick aliases with spaces
+#' @importFrom purrr flatten
+#' @importFrom crunch alias aliases
 internal_aliases <- function(x) {
   out <- map(x, function(var) {
     if (is_var_or_placeholder(var)) {
@@ -106,6 +114,8 @@ internal_aliases <- function(x) {
 
 #' @export
 #' @rdname crunch_var_df-meta 
+#' @importFrom purrr map_lgl map_chr
+#' @importFrom crunch is.variable name titles
 setMethod("titles", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, name)
@@ -113,6 +123,8 @@ setMethod("titles", "crunch_var_df", function(x) {
 
 #' @export
 #' @rdname crunch_var_df-meta 
+#' @importFrom purrr map_lgl map_chr
+#' @importFrom crunch is.variable descriptions
 setMethod("descriptions", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, description)
@@ -120,6 +132,8 @@ setMethod("descriptions", "crunch_var_df", function(x) {
 
 #' @export
 #' @rdname crunch_var_df-meta 
+#' @importFrom purrr map_lgl map_chr
+#' @importFrom crunch is.variable notes
 setMethod("notes", "crunch_var_df", function(x) {
   if (!all(map_lgl(x, is.variable))) stop("All variables must be CrunchVariables")
   map_chr(x, notes)

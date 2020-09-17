@@ -1,3 +1,4 @@
+#' @importFrom glue glue glue_collapse
 ca_list_to_text <- function(
   pre_text = "",
   items, 
@@ -32,24 +33,25 @@ ca_list_to_text <- function(
   if (pre_text == "") {
     formatted_pre_text <- indent_mark
   } else {
-    formatted_pre_text <- glue::glue("{indent_mark}{pre_text}{after_pre_text}")  
+    formatted_pre_text <- glue("{indent_mark}{pre_text}{after_pre_text}")  
   }
   
   if (after_text == "") {
     formatted_after_text <- ""
   } else {
-    formatted_after_text <- glue::glue("{before_after_text}{after_text}")  
+    formatted_after_text <- glue("{before_after_text}{after_text}")  
   }
   
-  item_text <- glue::glue_collapse(
+  item_text <- glue_collapse(
     items,
     sep = collapse_mark
   )
-  glue::glue("{begin}{formatted_pre_text}{item_text}{formatted_after_text}")
+  glue("{begin}{formatted_pre_text}{item_text}{formatted_after_text}")
 }
 
+#' @importFrom purrr map_chr
 ca_quote_items <- function(items) {
-  purrr::map_chr(items, function(item) {
+  map_chr(items, function(item) {
     if (is.numeric(item) || inherits(items, "noquote") || inherits(item, "noquote")) {
       paste0(item)
     } else {
@@ -58,8 +60,9 @@ ca_quote_items <- function(items) {
   })
 }
 
+#' @importFrom glue glue_data
 ca_template <- function(...) {
-  function(x) glue::glue_data(x, ...)
+  function(x) glue_data(x, ...)
 }
 
 
