@@ -2,10 +2,40 @@
 % Please edit documentation in R/mutate-commands.R
 \name{convert_to_text}
 \alias{convert_to_text}
+\alias{convert_to_numeric}
+\alias{convert_to_datetime}
+\alias{convert_to_categorical}
 \title{Convert a Variable's Type}
 \usage{
 convert_to_text(
   ...,
+  new_aliases = NULL,
+  title = NULL,
+  description = NULL,
+  notes = NULL
+)
+
+convert_to_numeric(
+  ...,
+  new_aliases = NULL,
+  title = NULL,
+  description = NULL,
+  notes = NULL
+)
+
+convert_to_datetime(
+  ...,
+  format = NULL,
+  resolution = NULL,
+  new_aliases = NULL,
+  title = NULL,
+  description = NULL,
+  notes = NULL
+)
+
+convert_to_categorical(
+  ...,
+  categories = NULL,
   new_aliases = NULL,
   title = NULL,
   description = NULL,
@@ -35,8 +65,8 @@ When called from \code{\link{mutate}}, converts the variables type either as a n
 (in which case it is considered a "schema command" and must be run before any
 "non-schema commands").
 Based on the Crunch Automation commands
-\href{https://help.crunch.io/hc/en-us/articles/360042247191-CONVERT-command}{CONVERT} and
-\href{https://help.crunch.io/hc/en-us/articles/360047136371-CREATE-CONVERT-command}{CREATE CONVERT}.
+\href{https://help.crunch.io/hc/en-us/articles/360042247191}{CONVERT} and
+\href{https://help.crunch.io/hc/en-us/articles/360047136371}{CREATE CONVERT}.
 }
 \details{
 If \code{...} is specified using aliases or \code{dplyr::across()}, then
@@ -46,6 +76,8 @@ selected using \code{\link{crplyr-formula-notation}}.
 \seealso{
 Other creating variables functions: 
 \code{\link{categorical_array}()},
-\code{\link{create-vars}}
+\code{\link{create-vars}},
+\code{\link{multiple_dichotomy}()},
+\code{\link{multiple_selection}()}
 }
 \concept{creating variables functions}

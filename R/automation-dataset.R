@@ -82,7 +82,7 @@ setMethod("aliases", "crunch_var_df", function(x) {
   out <- flatten_chr(out)
 })
 
-#' @impotFrom crunch alias
+#' @importFrom crunch alias
 setMethod("alias", "var_placeholder", function(object) {
   object$alias
 })

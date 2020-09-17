@@ -162,6 +162,29 @@ is_var_like <- function(x) {
   is_var_or_placeholder(x) || is_auto_cmd(x)
 }
 
+#' @importFrom glue glue glue_collapse
+#' @importFrom purrr map_lgl
+check_var_dots <- function(dots, command) {
+  if (length(dots) == 0) stop(glue("No variables passed to function `{command}`"))
+  
+  types_ok <- map_lgl(dots, ~is.character(.) || is.numeric(.) || is_var_like(.))
+  if (!all(types_ok)) {
+    bad_pos <- which(!types_ok)
+    bad_names <- names(dots[bad_pos])
+    if (is.null(bad_names)) {
+      bad_descriptor <- bad_pos
+    } else {
+      bad_descriptor <- ifelse(bad_names != "", bad_names, bad_pos)
+    }
+    
+    stop(glue(
+      "Expected all arguments to ... of `{command}` to be Crunch variables, ca keywords",
+      " (from `ca$` functions), strings, or numbers. Arguments ",
+      "{glue_collapse(bad_descriptor, sep = ", ")} were not."
+    ))
+  }
+}
+
 #' Use Argument Values Based on Input Variables
 #' 
 #' Many `crplyr` commands have arguments that allow the use of 
@@ -190,4 +213,13 @@ ca_process_formula <- function(x, data) {
     x <- f(data)
   } 
   x
+}
+
+check_for_int_in_character <- function(x) {
+  if (is.character(x) && any(grepl("^-?[:digit:]+$", x))) {
+    warning(paste0(
+      "Character vector contains things that look like numbers. ",
+      "Did you use `c()` instead of `list()`?"
+    ))
+  }
 }

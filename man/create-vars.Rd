@@ -10,6 +10,8 @@ they must be created using the functions listed below.
 \seealso{
 Other creating variables functions: 
 \code{\link{categorical_array}()},
-\code{\link{convert_to_text}()}
+\code{\link{convert_to_text}()},
+\code{\link{multiple_dichotomy}()},
+\code{\link{multiple_selection}()}
 }
 \concept{creating variables functions}

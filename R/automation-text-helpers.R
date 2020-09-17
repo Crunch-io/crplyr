@@ -60,6 +60,10 @@ ca_quote_items <- function(items) {
   })
 }
 
+ca_text_if <- function(logical, text) {
+  if (logical) text else ""
+}
+
 #' @importFrom glue glue_data
 #' @importFrom rlang ns_env
 ca_template <- function(...) {
@@ -72,6 +76,9 @@ ca_template <- function(...) {
 #' Functions that help create special keywords for use in Crunch Automation commands.
 #' 
 #' The `ca` object contains the following objects and functions:
+#' - `category(label, code = NA, missing = FALSE)`: A function for creating a category label
+#'    which has a string label, a code, and a logical indicating whether the category is
+#'    a missing category.
 #' - `copy`: Returns `COPY`, used to indicate that metadata should be copied from source
 #'       in some circumstances.
 #' - `dots(x, y)`: A function that takes two aliases (`x`, `y`) and returns `x...y` which
@@ -95,6 +102,9 @@ ca_template <- function(...) {
 #' }
 #' @export
 ca <- list(
+  category = function(label, code = NA, missing = FALSE) {
+    tibble(label = label, code = code, missing = missing)
+  },
   copy = noquote("COPY"),
   dots = function(x, y) noquote(paste0(alias(x), "...", alias(y))),
   like = function(x) noquote(paste0("LIKE(\"", x, "\")")),
@@ -104,3 +114,9 @@ ca <- list(
   use_titles = noquote("USE TITLES"),
   keyword = noquote
 )
+
+is_ca_label_df <- function(x) {
+  is.data.frame(x) && 
+    nrow(x) == 1 && 
+    setequal(names(x), c("label", "code", "missing"))
+}
