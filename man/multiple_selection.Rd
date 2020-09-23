@@ -53,6 +53,9 @@ selected using \code{\link{crplyr-formula-notation}}.
 \seealso{
 Other creating variables functions: 
 \code{\link{categorical_array}()},
+\code{\link{categorical_case_when}()},
+\code{\link{categorical_cut}()},
+\code{\link{categorical_interaction}()},
 \code{\link{convert_to_text}()},
 \code{\link{create-vars}},
 \code{\link{multiple_dichotomy}()}

@@ -10,6 +10,9 @@ they must be created using the functions listed below.
 \seealso{
 Other creating variables functions: 
 \code{\link{categorical_array}()},
+\code{\link{categorical_case_when}()},
+\code{\link{categorical_cut}()},
+\code{\link{categorical_interaction}()},
 \code{\link{convert_to_text}()},
 \code{\link{multiple_dichotomy}()},
 \code{\link{multiple_selection}()}

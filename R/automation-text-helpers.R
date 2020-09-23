@@ -10,7 +10,7 @@ ca_list_to_text <- function(
   indent = 0, 
   item_indent = indent + 2
 ) {
-  if (is.null(items)) return("")
+  if (is.null(items) || length(items) == 0) return("")
   
   items <- ca_quote_items(items)
   
@@ -70,15 +70,15 @@ ca_template <- function(...) {
   function(x) glue_data(x, ..., .envir = ns_env("crplyr"))
 }
 
-
 #' Crunch Automation Syntax Helpers
 #' 
 #' Functions that help create special keywords for use in Crunch Automation commands.
 #' 
 #' The `ca` object contains the following objects and functions:
-#' - `category(label, code = NA, missing = FALSE)`: A function for creating a category label
-#'    which has a string label, a code, and a logical indicating whether the category is
-#'    a missing category.
+#' - `category(label = NA, code = NA, missing = FALSE, ...)`: A function for creating a 
+#'    category label which has a string label, an integer code, and a logical indicating 
+#'    whether the category is a missing category. Used within other functions that may use
+#'    other arguments in `...`.
 #' - `copy`: Returns `COPY`, used to indicate that metadata should be copied from source
 #'       in some circumstances.
 #' - `dots(x, y)`: A function that takes two aliases (`x`, `y`) and returns `x...y` which
@@ -102,12 +102,14 @@ ca_template <- function(...) {
 #' }
 #' @export
 ca <- list(
-  category = function(label, code = NA, missing = FALSE) {
-    tibble(label = label, code = code, missing = missing)
+  category = function(label = NA, code = NA, missing = NA, ...) {
+    tibble(label = label, code = code, missing = missing, ...)
   },
   copy = noquote("COPY"),
   dots = function(x, y) noquote(paste0(alias(x), "...", alias(y))),
   like = function(x) noquote(paste0("LIKE(\"", x, "\")")),
+  max = function() noquote("MAX"),
+  min = function() noquote("MIN"),
   regex = function(x) noquote(paste0("REGEX(\"", x, "\")")),
   regexp = function(x) noquote(paste0("REGEXP(\"", x, "\")")),
   use_descriptions = noquote("USE DESCRIPTIONS"),
@@ -115,8 +117,52 @@ ca <- list(
   keyword = noquote
 )
 
-is_ca_label_df <- function(x) {
-  is.data.frame(x) && 
-    nrow(x) == 1 && 
-    setequal(names(x), c("label", "code", "missing"))
+ca_cat_df_to_text <- function(df, use_from = FALSE, after_from = " ") {
+  if (nrow(df) == 0) return(NULL)
+  if (!"code" %in% names(df)) df$code <- NA 
+  if (!"missing" %in% names(df)) df$missing <- NA 
+  if (!"from" %in% names(df)) df$from <- NA
+  pmap(df, ca_cat_to_text, use_from = use_from, after_from = after_from) 
+}
+
+ca_cat_to_text <- function(label, code, missing, ..., use_from = FALSE, after_from = " ") {
+  dots <- list(...)
+  if (use_from) {
+    from_txt <- paste0(ca_quote_items(dots$from), after_from)
+  } else {
+    from_txt <- ""
+  }
+  
+  if (is.na(label)) return(from_txt)
+  code_text <- if (!is.na(code)) paste0(" CODE ", code) else ""
+  missing_text <- if (isTRUE(missing)) " MISSING" else ""
+  noquote(paste0(from_txt, ca_quote_items(label), code_text, missing_text))
+}
+
+#' @importFrom purrr pmap
+#' @importFrom glue glue
+cat_cases_df_to_text <- function(df) {
+  if (!"code" %in% names(df)) df$code <- NA
+  if (!"missing" %in% names(df)) df$missing <- NA
+  if (!"variable" %in% names(df)) df$variable <- NA
+  
+  pmap(df, function(expr, label, code, missing, variable, ...) {
+    if (expr == "TRUE") {
+      expr <- "ELSE "
+    } else {
+      expr <- glue("WHEN {expr} THEN ")
+    }
+    
+    if (!is.na(label) & !is.na(variable)) {
+      stop("Cannot define both a category label and a variable to assign to.")
+    } else if (is.na(label) && is.na(variable)) {
+      rhs <- "INTO NULL"
+    } else if (!is.na(label)) {
+      ca_cat_to_text(label, code, missing)
+    } else {
+      rhs <- paste0("VARIABLE ", alias(rhs))
+    }
+    
+    noquote(paste0(expr, rhs))
+  })
 }

@@ -223,3 +223,49 @@ check_for_int_in_character <- function(x) {
     ))
   }
 }
+
+
+#' @importFrom rlang is_formula f_lhs f_rhs f_env eval_bare 
+#' @importFrom dplyr tibble
+ca_cat_formulas_to_df <- function(formula) {
+  if (!is_formula(formula)) {
+    stop("Expected a formula describing the category.")
+  }
+  
+  lhs <- eval_bare(f_lhs(formula), f_env(formula))
+  lhs <- if (!is.list(lhs) || length(lhs) != 1) list(lhs) else lhs
+  lhs <- tibble(from = lhs)
+  
+  rhs <- eval_bare(f_rhs(formula), f_env(formula))
+  
+  bind_cols(lhs, rhs)
+}
+
+# Modified formula to df function that handles the expressions
+# in lhs of case when & non-categories in RHS unique to
+# case when
+#' @importFrom rlang is_formula f_lhs f_rhs f_env eval_bare 
+#' @importFrom dplyr tibble
+ca_cat_case_formulas_to_df <- function(formula){
+  if (!is_formula(formula)) {
+    stop("Expected a formula describing the case.")
+  }
+  
+  # TODO: To save time on initial implementation this just captures
+  # the text as the user wrote them in the function, but it should
+  # use true formulas (which would require handling var placeholders
+  # & parentheses)
+  lhs <-  deparse1(f_lhs(formula))
+  lhs <- tibble(expr = lhs)
+  
+  rhs <- eval_bare(f_rhs(formula), f_env(formula))
+  
+  if (is_var_like(rhs)) rhs <- tibble(label = NA, variable = alias(rhs))
+  if (is.null(rhs)) rhs <- tibble(label = NA)
+  
+  bind_cols(lhs, rhs)
+}
+
+is_ca_label_df <- function(x) {
+  is.data.frame(x) && nrow(x) == 1 && "label" %in% names(x)
+}

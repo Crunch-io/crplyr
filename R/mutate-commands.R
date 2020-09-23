@@ -124,7 +124,7 @@ multiple_dichotomy <- function(
       "\nAS {alias}",
       "{ca_list_to_text('TITLE', title)}",
       "{ca_list_to_text('DESCRIPTION', description)}",
-      "{ca_list_to_text('NOTES',  notes)}", 
+      "{ca_list_to_text('NOTES', notes)}", 
       ";"
     ),
     get_aliases = function(x) x$alias,
@@ -198,7 +198,7 @@ multiple_selection <- function(
       "\nAS {alias}",
       "{ca_list_to_text('TITLE', title)}",
       "{ca_list_to_text('DESCRIPTION', description)}",
-      "{ca_list_to_text('NOTES',  notes)}", 
+      "{ca_list_to_text('NOTES', notes)}", 
       ";"
     ),
     get_aliases = function(x) x$alias,
@@ -213,6 +213,234 @@ multiple_selection <- function(
   
   nest_cmds(cmd, .dots)
 }
+
+# Create Categorical Variables ----
+#' Create a Categorical Variable by Assign Expressions to Categories & Variables
+#'
+#' Create a Categorical Variable by assigning expressions variables to either 
+#' categories directly or to the values of existing categorical variables.
+#' The new variable's alias is based on the name of the argument within
+#' `mutate()`. Based on the Crunch Automation command 
+#' [CREATE CATEGORICAL CASE](https://help.crunch.io/hc/en-us/articles/360042039192) &  
+#' [CREATE CATEGORICAL CASE THEN VARIABLE](https://help.crunch.io/hc/en-us/articles/360042457871).
+#'
+#' @inheritParams categorical_array
+#' @param ..., cases Expressions where the right hand side is a Crunch logical 
+#' expression (or `TRUE` to indicate that it should be met if all other
+#' expressions were not met) and the right hand side is a category or 
+#' existing categorical variable. 
+#' 
+#' @family creating variables functions
+#' @importFrom purrr keep discard pmap map_dfr map_lgl
+#' @importFrom rlang is_formula
+#' @export
+categorical_case_when <- function(
+  ..., 
+  cases = NULL,
+  title = NULL, 
+  description = NULL, 
+  notes = NULL
+) {
+  .dots <- list(...)
+  formula_cases <- c(keep(.dots, is_formula), keep(cases, is_formula))
+  non_formula_cases <- c(discard(.dots, is_formula), discard(.dots, is_formula))
+  
+  if (any(!map_lgl(non_formula_cases, is.data.frame))) {
+    stop("All cases must be formulas or data.frames.")
+  }
+  
+  formula_dfs <- map_dfr(formula_cases, ca_cat_case_formulas_to_df)
+  cases_df <- bind_rows(non_formula_cases, formula_dfs)
+  expr_list <- cat_cases_df_to_text(cases_df)
+  
+  cmd <- crunch_auto_cmd(
+    formatter = ca_template(
+      "CREATE CATEGORICAL", 
+      "{ca_list_to_text('CASE', expr_list, indent = 2, sep_newline = TRUE)}",
+      "\nAS {alias}",
+      "{ca_list_to_text('TITLE', title)}",
+      "{ca_list_to_text('DESCRIPTION', description)}",
+      "{ca_list_to_text('NOTES', notes)}", 
+      ";"
+    ),
+    get_aliases = function(x) x$alias,
+    expr_list = expr_list,
+    title = title,
+    description = description,
+    notes = notes
+  )
+}
+
+#' Create a Categorical Variable by Cutting a Numeric Variable into Categories
+#'
+#' Create a Categorical Variable by cutting the numeric values into categories
+#' where values are between the breakpoints provided by `breaks`. The new variable's 
+#' alias is based on the aliases in `new_aliases` by default, but if it is
+#' `NULL` and there is only a single variable, then it is based on
+#' the name of the argument within `mutate()`.
+#'  Based on the Crunch Automation command 
+#' [CREATE CATEGORICAL CUT](https://help.crunch.io/hc/en-us/articles/360042458431)
+#' 
+#' If `...` is specified using aliases or `dplyr::across()`, then
+#' the other arguments can take functions based on the variables
+#' selected using [`crplyr-formula-notation`]. 
+#'
+#' @inheritParams categorical_array
+#' @param new_aliases If only one variable is specified, this argument is ignored,
+#' the alias comes from the name of the argument in mutate (and if it's the same
+#' the variable will be modified in place, while if different it will create a new
+#' variable). If more than one variable is specified `NULL`, the default, will modify
+#' the variables in place, or a vector of aliases for the new variables (or a 
+#' [`crplyr-formula-notation`] that creates one). 
+#' @param breaks TKTKTK
+#' @param closed TKTKTK
+#' @param labels TKTKTK
+#' @param missing TKTKTK
+#' 
+#' @family creating variables functions
+#' @importFrom purrr map modify_if
+#' @export
+categorical_cut <- function(
+  ..., 
+  breaks = NULL,
+  closed = NULL,
+  labels = NULL,
+  missing = NULL,
+  new_aliases = NULL,
+  title = NULL, 
+  description = NULL, 
+  notes = NULL
+) {
+  .dots <- list(...)
+  check_var_dots(.dots, "categorical_cut()")
+  .dots <- prepare_nested_cmds(.dots)
+  
+  .vars <- crunch_var_df_from_dots(.dots)
+  old_aliases <- internal_aliases(.vars)
+  
+  new_aliases <- ca_process_formula(new_aliases, .vars)
+  title <- ca_process_formula(title, .vars)
+  description <- ca_process_formula(description, .vars)
+  notes <- ca_process_formula(notes, .vars)
+  
+  # labels get breaks rather than variable names
+  labels <- ca_process_formula(labels, breaks)
+  labels <- modify_if(labels, is.character, ca$category)
+  labels <- map(labels, ca_cat_df_to_text)
+  
+  missing <- modify_if(missing, is.numeric, ~tibble(from = ., label = NA))
+  missing <- modify_if(missing, is_formula, ca_cat_formulas_to_df)
+  if (!all(map_lgl(missing, is.data.frame))) {
+    stop("Expected the missing categories to be formulas, data.frames or numeric values.")
+  }
+  missing <- pmap(bind_rows(missing), ca_cat_to_text, use_from = TRUE)
+  
+  if (is.null(closed)) {
+    break_closed_text <- ""
+  } else {
+    break_closed_text <- paste0("CLOSED ", closed)
+  }
+  
+  cmd <- crunch_auto_cmd(
+    formatter = function(x) {
+      if (is.null(x$new_aliases)) {
+        x$new_aliases <- list(noquote(x$alias)) 
+      } else {
+        x$new_aliases <- map(x$new_aliases, noquote)
+      }
+      
+      template <- ca_template(
+        "CREATE CATEGORICAL CUT", 
+        "{ca_list_to_text(items = old_aliases, indent = 2)}",
+        "{ca_list_to_text('BREAKS', breaks, break_closed_text, indent = 2)}",
+        "{ca_list_to_text('LABELS', labels, indent = 2)}",
+        "{ca_list_to_text('SET MISSING', missing, indent = 2)}",
+        "{ca_list_to_text('AS', new_aliases)}",
+        "{ca_list_to_text('TITLE', title)}",
+        "{ca_list_to_text('DESCRIPTION', description)}",
+        "{ca_list_to_text('NOTES', notes)}", 
+        ";"
+      )
+      template(x)
+    },
+    get_aliases = function(x) if (is.null(x$new_aliases)) x$alias else x$new_aliases,
+    old_aliases = old_aliases,
+    breaks = breaks,
+    break_closed_text = break_closed_text,
+    labels = labels,
+    missing = missing,
+    new_aliases = new_aliases,
+    title = title,
+    description = description,
+    notes = notes
+  )
+  
+  nest_cmds(cmd, .dots)
+}
+
+#' Create a Categorical Interaction by Interacting Categories of 2 or More Variables
+#'
+#' Create a Categorical Variable by interacting multiple existing categorical variables
+#' and each combination of categories becomes a category in the final variable. The new variable's 
+#' alias is the name of the argument within `mutate()`.
+#'  Based on the Crunch Automation command 
+#' [CREATE CATEGORICAL INTERACTION](https://help.crunch.io/hc/en-us/articles/360043695471)
+#' 
+#' If `...` is specified using aliases or `dplyr::across()`, then
+#' the other arguments can take functions based on the variables
+#' selected using [`crplyr-formula-notation`]. 
+#'
+#' @inheritParams categorical_cut
+#' @param labels TKTKTK (slightly different than cut, so needs doc) 
+#' @family creating variables functions
+#' @importFrom purrr map
+#' @export
+categorical_interaction <- function(
+  ..., 
+  labels = NULL,
+  title = NULL, 
+  description = NULL, 
+  notes = NULL
+) {
+  .dots <- list(...)
+  check_var_dots(.dots, "categorical_interaction()")
+  .dots <- prepare_nested_cmds(.dots)
+  
+  .vars <- crunch_var_df_from_dots(.dots)
+  old_aliases <- internal_aliases(.vars)
+  
+  title <- ca_process_formula(title, .vars)
+  description <- ca_process_formula(description, .vars)
+  notes <- ca_process_formula(notes, .vars)
+  
+  if (!is.data.frame(labels)) labels <- map_dfr(labels, ca_cat_formulas_to_df)
+  labels$from <- map(
+    labels$from, 
+    ~noquote(glue("({ca_list_to_text(items = ., start_newline = FALSE)})"))
+  )
+  labels <- ca_cat_df_to_text(labels, use_from = TRUE)
+  
+  cmd <- crunch_auto_cmd(
+    formatter = ca_template(
+      "CREATE CATEGORICAL INTERACTION", 
+      "{ca_list_to_text(items = old_aliases, indent = 2)}",
+      "{ca_list_to_text('WITH', labels, indent = 2, sep_newline = TRUE)}",
+      "{ca_list_to_text('AS', alias)}",
+      "{ca_list_to_text('TITLE', title)}",
+      "{ca_list_to_text('DESCRIPTION', description)}",
+      "{ca_list_to_text('NOTES', notes)}"
+      ), 
+    get_aliases = function(x) x$alias,
+    old_aliases = old_aliases,
+    labels = labels,
+    title = title,
+    description = description,
+    notes = notes
+  )
+  
+  nest_cmds(cmd, .dots)
+}
+
 
 # Convert ----
 #' Convert a Variable's Type
@@ -229,12 +457,7 @@ multiple_selection <- function(
 #' selected using [`crplyr-formula-notation`]. 
 #'
 #' @inheritParams categorical_array
-#' @param new_aliases If only one variable is specified, this argument is ignored,
-#' the alias comes from the name of the argument in mutate (and if it's the same
-#' the variable will be modified in place, while if different it will create a new
-#' variable). If more than one variable is specified `NULL`, the default, will modify
-#' the variables in place, or a vector of aliases for the new variables (or a 
-#' [`crplyr-formula-notation`] that creates one). 
+#' @inheritParams categorical_cut
 #'
 #' @family creating variables functions
 #' @export
@@ -301,7 +524,7 @@ convert_to_datetime <- function(
 
 #' @export
 #' @rdname convert_to_text
-#' @importFrom purrr keep discard map_lgl
+#' @importFrom purrr keep discard map_lgl map_dfr
 #' @importFrom rlang is_formula
 convert_to_categorical <- function(
   ..., 
@@ -314,18 +537,17 @@ convert_to_categorical <- function(
   .dots <- list(...)
   
   formula_dots <- keep(.dots, is_formula)
-  dots_category_df <- cat_convert_formulas_to_df(formula_dots)
+  dots_category_df <- map_dfr(formula_dots, ca_cat_formulas_to_df)
   if (is.list(categories) && all(map_lgl(categories, is_formula))) {
-    categories <- cat_convert_formulas_to_df(formula_dots)
+    categories <- map_dfr(categories, ca_cat_formulas_to_df)
   }
-  if (!(is.null(categories) | is.data.frame(categories))) {
+  if (length(categories) > 0 && !is.data.frame(categories)) {
     stop("Expected categories to be a list of formulas or a data.frame")
   }
   
-  categories <- c(
-    cat_convert_values_df_to_text(dots_category_df),
-    cat_convert_values_df_to_text(categories)
-  )
+  categories <- bind_rows(categories, dots_category_df)
+  categories <- ca_cat_df_to_text(categories, use_from = TRUE, after_from = " TO ")
+  categories <- map(categories, ~noquote(paste0("VALUE ", .)))
   
   .dots <- discard(.dots, is_formula)
     
@@ -424,54 +646,6 @@ convert_base <- function(
   )
   
   nest_cmds(cmd, .dots)
-}
-
-#' @importFrom rlang f_lhs f_rhs f_env eval_bare
-#' @importFrom purrr map_dfr
-cat_convert_formulas_to_df <- function(formulas) {
-  map_dfr(formulas, function(fm) {
-    from <- eval_bare(f_lhs(fm), f_env(fm))
-    label_info <- eval_bare(f_rhs(fm), f_env(fm))
-    
-    if (!(is.character(from) | is.numeric(from) | length(from) != 1)) {
-      stop ("Expected a single string or number in right hand side of formula.")
-    }
-    
-    if (is.character(label_info)) label_info <- ca$category(label_info)
-    if (!is_ca_label_df(label_info)) {
-      stop(
-        "Expected a label object (like one created by `ca$category()`) in left hand side of formula."
-      )
-    }
-    
-    label_info$from <- list(from)
-    label_info
-  })
-}
-
-#' @importFrom purrr pmap_chr
-#' @importFrom glue glue
-cat_convert_values_df_to_text <- function(df) {
-  if (is.null(df) || nrow(df) == 0) return(NULL)
-  if (
-    !is.data.frame(df) || 
-    !all(c("from", "label") %in% names(df)) || 
-    length(setdiff(names(df), c("from", "label", "code", "missing"))) > 0
-  ) {
-    stop("Expected a data.frame with columns 'from' and 'label' (and optionally 'code' and 'missing')")
-  }
-  
-  if (!"code" %in% names(df)) df$code <- NA
-  if (!"missing" %in% names(df)) df$missing <- FALSE
-  
-  pmap(df, function(from, label, code, missing) {
-    from <- ca_quote_items(from)
-    label <- ca_quote_items(label)
-    if (!is.na(code)) code <- glue(" CODE {code}") else code <- ""
-    if (!is.na(missing) & missing) missing <- " MISSING" else missing <- ""
-    
-    noquote(glue("VALUE {from} TO {label}{code}{missing}"))
-  })
 }
 
 # Alter Variables ----

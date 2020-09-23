@@ -5,7 +5,7 @@
 \alias{ca}
 \title{Crunch Automation Syntax Helpers}
 \format{
-An object of class \code{list} of length 9.
+An object of class \code{list} of length 11.
 }
 \usage{
 ca
@@ -16,9 +16,10 @@ Functions that help create special keywords for use in Crunch Automation command
 \details{
 The \code{ca} object contains the following objects and functions:
 \itemize{
-\item \code{category(label, code = NA, missing = FALSE)}: A function for creating a category label
-which has a string label, a code, and a logical indicating whether the category is
-a missing category.
+\item \code{category(label = NA, code = NA, missing = FALSE, ...)}: A function for creating a
+category label which has a string label, an integer code, and a logical indicating
+whether the category is a missing category. Used within other functions that may use
+other arguments in \code{...}.
 \item \code{copy}: Returns \code{COPY}, used to indicate that metadata should be copied from source
 in some circumstances.
 \item \code{dots(x, y)}: A function that takes two aliases (\code{x}, \code{y}) and returns \code{x...y} which
