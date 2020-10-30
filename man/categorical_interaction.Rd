@@ -2,8 +2,16 @@
 % Please edit documentation in R/mutate-commands.R
 \name{categorical_interaction}
 \alias{categorical_interaction}
-\title{Create a Categorical Interaction by Interacting Categories of 2 or More Variables}
+\title{Create a Categorical Variable by Interacting Categories of Two or More Variables}
 \usage{
+categorical_interaction(
+  ...,
+  labels = NULL,
+  title = NULL,
+  description = NULL,
+  notes = NULL
+)
+
 categorical_interaction(
   ...,
   labels = NULL,
@@ -31,14 +39,35 @@ and each combination of categories becomes a category in the final variable. The
 alias is the name of the argument within \code{mutate()}.
 Based on the Crunch Automation command
 \href{https://help.crunch.io/hc/en-us/articles/360043695471}{CREATE CATEGORICAL INTERACTION}
+
+Create a Categorical Variable by interacting multiple existing categorical variables
+and each combination of categories becomes a category in the final variable. The new variable's
+alias is the name of the argument within \code{mutate()}.
+Based on the Crunch Automation command
+\href{https://help.crunch.io/hc/en-us/articles/360043695471}{CREATE CATEGORICAL RECODE}
 }
 \details{
+If \code{...} is specified using aliases or \code{dplyr::across()}, then
+the other arguments can take functions based on the variables
+selected using \code{\link{crplyr-formula-notation}}.
+
 If \code{...} is specified using aliases or \code{dplyr::across()}, then
 the other arguments can take functions based on the variables
 selected using \code{\link{crplyr-formula-notation}}.
 }
 \seealso{
 Other creating variables functions: 
+\code{\link{add_to_array}()},
+\code{\link{categorical_array}()},
+\code{\link{categorical_case_when}()},
+\code{\link{categorical_cut}()},
+\code{\link{convert_to_text}()},
+\code{\link{create-vars}},
+\code{\link{multiple_dichotomy}()},
+\code{\link{multiple_selection}()}
+
+Other creating variables functions: 
+\code{\link{add_to_array}()},
 \code{\link{categorical_array}()},
 \code{\link{categorical_case_when}()},
 \code{\link{categorical_cut}()},

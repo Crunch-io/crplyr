@@ -75,6 +75,7 @@ selected using \code{\link{crplyr-formula-notation}}.
 }
 \seealso{
 Other creating variables functions: 
+\code{\link{add_to_array}()},
 \code{\link{categorical_array}()},
 \code{\link{categorical_case_when}()},
 \code{\link{categorical_cut}()},

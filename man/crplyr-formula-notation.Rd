@@ -14,9 +14,9 @@ containing the selected Crunch variables to operate on.
 ds <- ds \%>\%
     mutate(
        taste = categorical_array(
-           taste_a, taste_b, 
+           taste_a, taste_b,
            # Labels will be Title Case form of subvariable titles
-           labels = ~stringr::str_to_title(title(.)), 
+           labels = ~stringr::str_to_title(title(.)),
            title = "Taste Rating"
        )
     )

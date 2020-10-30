@@ -35,6 +35,7 @@ The new variable's alias is based on the name of the argument within
 }
 \seealso{
 Other creating variables functions: 
+\code{\link{add_to_array}()},
 \code{\link{categorical_array}()},
 \code{\link{categorical_cut}()},
 \code{\link{categorical_interaction}()},
