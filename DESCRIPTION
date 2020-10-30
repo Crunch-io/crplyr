@@ -26,6 +26,7 @@ Imports:
     ggplot2,
     lazyeval,
     lifecycle,
+    openxlsx,
     purrr,
     tibble,
     rlang,
@@ -42,7 +43,7 @@ Suggests:
     knitr,
     testthat,
     rmarkdown
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Language: en-US
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
