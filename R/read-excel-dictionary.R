@@ -16,7 +16,7 @@ read_excel_editor <- function(path) {
     raw <- validate_cols(raw)
 
     out <- tidy_format(raw)
-    validate_as_whole(out)
+    out <- validate_as_whole(out)
     out
 }
 
@@ -33,13 +33,15 @@ tidy_format <- function(raw) {
         cat_row = !is.na(.data$orig_code),
         var_id = cumsum(.data$var_row),
         alias_fill = .data$alias,
-        child_alias_fill = ifelse(var_row, "<NOT.A.SV>", child_alias)
+        child_alias_fill = ifelse(var_row, "<NOT.A.SV>", child_alias),
+        orig_alias_fill = ifelse(var_row, "<NOT.A.SV>", orig_alias),
+        orig_child_alias_fill = ifelse(var_row, "<NOT.A.SV>", orig_child_alias)
     )
 
-    combined <- tidyr::fill(combined, .data$child_alias_fill)
+    combined <- tidyr::fill(combined, .data$child_alias_fill, .data$orig_alias_fill, .data$orig_child_alias_fill)
     combined <- dplyr::mutate(
         combined,
-        child_alias_fill = ifelse(child_alias_fill == "<NOT.A.SV>", NA, child_alias_fill)
+        dplyr::across(dplyr::ends_with("fill"), ~ifelse(. == "<NOT.A.SV>", NA, .))
     )
 
     var_info <- dplyr::filter(combined, .data$var_row)
@@ -58,9 +60,12 @@ tidy_format <- function(raw) {
     cat_info <- dplyr::filter(combined, .data$cat_row)
     cat_info <- dplyr::select(
         cat_info,
-        dplyr::one_of(c("var_id", "child_alias_fill", "orig_code", "code", "name", "missing", "selected", "value", "date"))
+        dplyr::one_of(c(
+            "var_id", "orig_alias_fill", "orig_child_alias_fill", "child_alias_fill", "orig_code", "code",
+            "name", "missing", "selected", "value", "date"
+        ))
     )
-    cat_info <- dplyr::rename(cat_info, child_alias = "child_alias_fill")
+    cat_info <- dplyr::rename_with(cat_info, ~gsub("_fill$", "", .))
     cat_info <- dplyr::nest_by(cat_info, .data$var_id, .key = "categories")
 
 
@@ -278,8 +283,8 @@ validate_cats_on_right_vars <- function(tidy_df) {
         num_cats = purrr::map_dbl(.data$categories, ~ifelse(is.null(.), 0, nrow(.)))
     )
 
-    noncat_with_cats <- dplyr::filter(checks,  !.data$type %in% cat_types& .data$num_cats > 0)
-    cat_with_no_cats <- dplyr::filter(checks,  .data$type %in% cat_types& .data$num_cats == 0)
+    noncat_with_cats <- dplyr::filter(checks,  !.data$type %in% cat_types & .data$num_cats > 0)
+    cat_with_no_cats <- dplyr::filter(checks,  .data$type %in% cat_types & .data$num_cats == 0)
     if (nrow(noncat_with_cats) > 0) {
         message <- paste0(
             "Non categorical variables cannot have categories defined: ",
@@ -308,26 +313,32 @@ validate_cats_on_right_subvars <- function(tidy_df) {
     )
     checks$num_svs_with_cats <- purrr::map_dbl(
         checks$categories,
-        ~length(unique(.$child_alias)[!is.na(.$child_alias)])
+        ~length(unique(.$child_alias[!is.na(.$child_alias)]))
     )
     checks$num_svs <- purrr::map_dbl(
         checks$subvars,
         ~length(unique(.$child_alias)[!is.na(.$child_alias)])
     )
 
-    checks <- dplyr::filter(
+    failed_checks <- dplyr::filter(
         checks,
         .data$num_svs_with_cats > 1 & .data$num_svs_with_cats != .data$num_svs
     )
 
-    if (nrow(checks) > 0) {
+    if (nrow(failed_checks) > 0) {
         message <- paste0(
             "Subvariables must be defined for either a single subvariable (and will apply for ",
             "all of them) or all subvariables, but these variables have categories defined only ",
-            "for some: ", paste0("'", checks$alias, "'", collapse = ", ")
+            "for some: ", paste0("'", failed_checks$alias, "'", collapse = ", ")
         )
         attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
     }
+
+    cats_apply_for_all <- dplyr::filter(checks, .data$num_svs_with_cats == 1)
+    for (alias in cats_apply_for_all$alias) {
+        tidy_df$categories[[which(tidy_df$alias == alias)]]$child_alias <- NA
+    }
+
     tidy_df
 }
 

@@ -12,7 +12,7 @@
 create_excel_dictionary <- function(ds, out_file = NULL, overwrite = FALSE) {
     dictionary_data <- build_excel_dictionary_data(ds)
     if (is.null(out_file)) return(dictionary_data)
-    save_excel_dictionary(dictionary_data, out_file)
+    save_excel_dictionary(dictionary_data, out_file, overwrite)
 }
 
 build_excel_dictionary_data <- function(ds) {
@@ -41,30 +41,7 @@ build_excel_dictionary_data <- function(ds) {
                 type %in% c("categorical", "categorical_array", "multiple_response")
             )
             vars_with_cats <- vars_with_cats[["alias"]]
-
-            categories <- purrr::map_dfr(
-                vars_with_cats,
-                function(alias) {
-                    cats <- categories(ds[[alias]])
-                    out <- dplyr::tibble(
-                        alias = alias,
-                        child_alias = NA,
-                        orig_code = ids(cats),
-                        code = ids(cats),
-                        name = names(cats),
-                        missing = is.na(cats),
-                        selected = is.selected(cats),
-                        value = values(cats),
-                        date = dates(cats)
-                    )
-                }
-            )
-            # users of excel won't be able to tell the difference between "" and NA so conver to NA
-            categories <- dplyr::mutate(
-                categories,
-                dplyr::across(dplyr::one_of(c("date")), ~ifelse(. == "", NA_character_, .))
-            )
-            categories <- dplyr::nest_by(categories, .data$alias, .key = "categories")
+            categories <- build_categories(ds, vars_with_cats)
 
             # Subvariables ----
             vars_with_subvars <- dplyr::filter(
@@ -72,29 +49,7 @@ build_excel_dictionary_data <- function(ds) {
                 type %in% c("categorical_array", "multiple_response")
             )
             vars_with_subvars <- vars_with_subvars[["alias"]]
-
-            subvars <- purrr::map_dfr(
-                vars_with_subvars,
-                function(alias) {
-                    subvars <- crunch::subvariables(ds[[alias]])
-                    dplyr::tibble(
-                        type = crunch::types(subvars),
-                        alias = alias,
-                        orig_alias = alias,
-                        orig_child_alias = crunch::aliases(subvars),
-                        child_alias = crunch::aliases(subvars),
-                        title = names(subvars),
-                        description = crunch::descriptions(subvars),
-                        notes = crunch::notes(subvars)
-                    )
-                }
-            )
-            # users of excel won't be able to tell the difference between "" and NA so conver to NA
-            subvars <- dplyr::mutate(
-                subvars,
-                dplyr::across(dplyr::one_of(c("description", "notes")), ~ifelse(. == "", NA, .))
-            )
-            subvars <- dplyr::nest_by(subvars, .data$alias, .key = "subvars")
+            subvars <- build_subvars(ds, vars_with_subvars)
 
             # Directory Structure ----
             folder_info <- dplyr::bind_rows(
@@ -111,37 +66,78 @@ build_excel_dictionary_data <- function(ds) {
                 "description", "notes", "subvars", "categories"
             )
 
-            combined <- dplyr::full_join(folder_info, catalog_info, by = "alias")
-            combined <- dplyr::full_join(combined, subvars, by = "alias")
-            combined <- dplyr::full_join(combined, categories, by = "alias")
+            combined <- dplyr::full_join(folder_info, catalog_info, by = "orig_alias")
+            combined <- dplyr::full_join(combined, subvars, by = "orig_alias")
+            combined <- dplyr::full_join(combined, categories, by = "orig_alias")
             combined <- dplyr::arrange(combined, .data$var_order)
             combined <- dplyr::select(combined, dplyr::one_of(out_columns))
             combined
-            # categories <- dplyr::left_join(categories, folder_info[c("alias", "var_order")], by = "alias")
-            # subvars <- dplyr::left_join(subvars, folder_info[c("alias", "var_order")], by = "alias")
-            # combined <- dplyr::full_join(folder_info, catalog_info, by = "alias")
-            # combined <- dplyr::mutate(combined, subvar_order = -Inf)
-            # combined <- dplyr::bind_rows(combined, subvars)
-            # combined <- dplyr::mutate(combined, category_order = -Inf)
-            # combined <- dplyr::bind_rows(combined, categories)
-            # combined <- dplyr::mutate(
-            #     combined,
-            #     orig_alias = alias,
-            #     orig_child_alias = child_alias,
-            #     alias = ifelse(is.na(child_alias) & is.na(code), alias, NA),
-            #     orig_code = code
-            # )
-            # combined <- dplyr::arrange(combined, var_order, category_order, subvar_order)
-            # combined <- dplyr::select(combined, dplyr::one_of(out_columns))
-            #
-            # combined
         })
+}
+
+build_categories <- function(ds, vars_with_cats) {
+    if (length(vars_with_cats) == 0) {
+        return(dplyr::tibble(alias = character(0), categories = list()))
+    }
+
+    categories <- purrr::map_dfr(
+        vars_with_cats,
+        function(alias) {
+            cats <- categories(ds[[alias]])
+            out <- dplyr::tibble(
+                orig_alias = alias,
+                orig_code = ids(cats),
+                code = ids(cats),
+                name = names(cats),
+                missing = is.na(cats),
+                selected = is.selected(cats),
+                value = values(cats),
+                date = dates(cats)
+            )
+        }
+    )
+    # users of excel won't be able to tell the difference between "" and NA so conver to NA
+    categories <- dplyr::mutate(
+        categories,
+        dplyr::across(dplyr::one_of(c("date")), ~ifelse(. == "", NA_character_, .))
+    )
+    categories <- dplyr::nest_by(categories, .data$orig_alias, .key = "categories")
+    categories
+}
+
+build_subvars <- function(ds, vars_with_subvars) {
+    if (length(vars_with_subvars) == 0) {
+        return(dplyr::tibble(alias = character(0), subvars = list()))
+    }
+
+    subvars <- purrr::map_dfr(
+        vars_with_subvars,
+        function(alias) {
+            subvars <- crunch::subvariables(ds[[alias]])
+            dplyr::tibble(
+                type = crunch::types(subvars),
+                orig_alias = alias,
+                orig_child_alias = crunch::aliases(subvars),
+                child_alias = crunch::aliases(subvars),
+                title = names(subvars),
+                description = crunch::descriptions(subvars),
+                notes = crunch::notes(subvars)
+            )
+        }
+    )
+    # users of excel won't be able to tell the difference between "" and NA so conver to NA
+    subvars <- dplyr::mutate(
+        subvars,
+        dplyr::across(dplyr::one_of(c("description", "notes")), ~ifelse(. == "", NA, .))
+    )
+    subvars <- dplyr::nest_by(subvars, .data$orig_alias, .key = "subvars")
+    subvars
 }
 
 dir_tree <- function(folder, path = "|") {
     tree <- dir_tree_named(folder, path)
     dplyr::tibble(
-        alias = unname(tree),
+        orig_alias = unname(tree),
         folder = names(tree)
     )
 }
@@ -163,22 +159,22 @@ dir_tree_named <- function(folder, path = "|") {
 save_excel_dictionary <- function(data, out_file, overwrite = FALSE) {
     var_info <- dplyr::mutate(data, var_order = dplyr::row_number())
 
-    subvars <- dplyr::filter(var_info, purrr::map_lgl(.data$subvars, ~nrow(.) > 0))
-    subvars <- dplyr::select(subvar, dplyr::one_of(c("var_order", "alias", "subvars")))
-    subvars <- tidyr::unnest(subvars)
+    subvars <- dplyr::filter(var_info, purrr::map_lgl(.data$subvars, ~!is.null(.) && nrow(.) > 0))
+    subvars <- dplyr::select(subvars, dplyr::one_of(c("var_order", "orig_alias", "subvars")))
+    subvars <- tidyr::unnest(subvars, .data$subvars)
     subvars <- dplyr::mutate(subvars, sv_order = dplyr::row_number(), cat_order = -Inf)
 
-    categories <- dplyr::filter(categories, purrr::map_lgl(.data$categories, ~nrow(.) > 0))
-    categories <- dplyr::select(categories, dplyr::one_of(c("var_order", "alias", "categories")))
-    categories <- tidyr::unnest(categories)
-    categories <- dplyr::mutate(categories, sv_order = -Inf, cat_order = dplyr::row_number())
+    categories <- dplyr::filter(var_info, purrr::map_lgl(.data$categories, ~!is.null(.) && nrow(.) > 0))
+    categories <- dplyr::select(categories, dplyr::one_of(c("var_order", "orig_alias", "categories")))
+    categories <- tidyr::unnest(categories, .data$categories)
+    categories <- dplyr::mutate(categories, sv_order = Inf, cat_order = dplyr::row_number())
 
     var_info <- dplyr::select(var_info, -dplyr::one_of(c("subvars", "categories")))
-    var_info <- dplyr::mutate(data, sv_order = -Inf, cat_order = -Inf)
+    var_info <- dplyr::mutate(var_info, sv_order = -Inf, cat_order = -Inf)
 
     out <- dplyr::bind_rows(var_info, subvars, categories)
     out <- dplyr::arrange(out, .data$var_order, .data$sv_order, .data$cat_order)
-    out <- dplyr::select(out, -dplyr::one_of(c(
+    out <- dplyr::select(out, dplyr::one_of(c(
         "type", "folder", "orig_alias", "orig_child_alias", "alias", "child_alias", "title",
         "description", "notes", "orig_code", "code", "name", "missing", "selected", "value",
         "date"
