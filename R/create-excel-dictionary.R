@@ -46,7 +46,7 @@ build_excel_dictionary_data <- function(ds) {
             # Subvariables ----
             vars_with_subvars <- dplyr::filter(
                 catalog_info,
-                type %in% c("categorical_array", "multiple_response")
+                type %in% c("categorical_array", "multiple_response", "numeric_array")
             )
             vars_with_subvars <- vars_with_subvars[["alias"]]
             subvars <- build_subvars(ds, vars_with_subvars)
@@ -86,6 +86,7 @@ build_categories <- function(ds, vars_with_cats) {
             cats <- categories(ds[[alias]])
             out <- dplyr::tibble(
                 orig_alias = alias,
+                child_alias = NA_character_,
                 orig_code = ids(cats),
                 code = ids(cats),
                 name = names(cats),

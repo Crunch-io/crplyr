@@ -61,7 +61,7 @@ tidy_format <- function(raw) {
     cat_info <- dplyr::select(
         cat_info,
         dplyr::one_of(c(
-            "var_id", "orig_alias_fill", "orig_child_alias_fill", "child_alias_fill", "orig_code", "code",
+            "var_id", "child_alias_fill", "orig_code", "code",
             "name", "missing", "selected", "value", "date"
         ))
     )
@@ -209,7 +209,7 @@ validate_num <- function(column) {
         ), call. = FALSE)
     }
 
-    out <- purrr::map(column, ~try(as.numeric(.)))
+    out <- purrr::map(column, ~try(as.numeric(.), silent = TRUE))
     rows_are_not_numeric <- purrr::map_lgl(out, ~inherits(., "try-error"))
     if (any(rows_are_not_numeric)) {
         bad_rows <- which(rows_are_dates) + 2 # include heaer cols
@@ -261,12 +261,16 @@ validate_as_whole <- function(tidy_df) {
 validate_cats <- function(tidy_df) {
     tidy_df$categories <- purrr::map(
         tidy_df$categories,
-        ~try(validate_single_var_cats(.), silent = FALSE)
+        ~try(validate_single_var_cats(.), silent = TRUE)
     )
 
-    failures <- purrr::keep(tidy_df$categories, ~inherits(., "try-error"))
-    if (length(failures) > 0) {
-        message <- paste(purrr::map_chr(failures, ~attr(., "message")), collapse = "\n")
+    failures <- dplyr::filter(tidy_df, purrr::map_lgl(.data$categories, ~inherits(., "try-error")))
+    if (nrow(failures) > 0) {
+        message <- paste(purrr::map2_chr(
+            failures$alias,
+            failures$categories,
+            ~paste0("(", .x, ") ", attr(.y, "condition")$message)
+        ), collapse = "\n")
         attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
     }
     tidy_df
@@ -356,7 +360,7 @@ validate_single_var_cats <- function(cats) {
 
     # category metadata are 1-1 with unique codes (and names are unique)
     cat_meta <- c("name", "missing", "selected", "value", "date")
-    many_to_one <- dplyr::group_by(cats, .data$code)
+    many_to_one <- dplyr::group_by(cats, .data$child_alias, .data$code)
     many_to_one <- dplyr::summarize_at(
         many_to_one,
         cat_meta,
@@ -366,9 +370,11 @@ validate_single_var_cats <- function(cats) {
     for (var in cat_meta) {
         many_to_one_failures <- dplyr::filter(many_to_one, lengths(.data[[var]]) > 1)
         if (nrow(many_to_one_failures) > 0) {
-            many_to_one_failures$str <- purrr::map_chr(.data[[var]], ~paste0("'", ., "'", collapse = ", "))
+            many_to_one_failures$str <- purrr::map_chr(
+                many_to_one_failures[[var]], ~paste0("'", ., "'", collapse = ", ")
+            )
             bad_codes <- paste0(
-                many_to_one_names$code, " (", many_to_one_names$str, ")", collapse = "; "
+                many_to_one_failures$code, " (", many_to_one_failures$str, ")", collapse = "; "
             )
             problems <- c(
                 problems,
@@ -382,10 +388,12 @@ validate_single_var_cats <- function(cats) {
     }
 
     # names are unique
-    code_names <- unlist(many_to_one$name)
-    dups <- duplicated(code_names)
-    if (any(dups)) {
-        dup_names <- unique(paste0(code_names[dups], collapse = ", "))
+    dups <- many_to_one
+    dups$name <- unlist(dups$name)
+    dups <- dplyr::group_by(dups, .data$child_alias, .data$name)
+    dups <- dplyr::filter(dups, dplyr::n() > 1)
+    if (nrow(dups) > 0) {
+        dup_names <- paste0(unique(dups$name), collapse = ", ")
         stop(paste0("- Duplicated category names found: ", dup_names), call. = FALSE)
     }
 
@@ -402,7 +410,7 @@ validate_single_var_cats <- function(cats) {
 
 # Subvars only on CA/MR/NA (and all have at least one subvars)
 validate_svs_on_right_vars <- function(tidy_df) {
-    cat_types <- c("categorical_array", "multiple_response", "numeric_array")
+    array_types <- c("categorical_array", "multiple_response", "numeric_array")
     checks <- dplyr::transmute(
         tidy_df,
         type = .data$type,
@@ -422,7 +430,7 @@ validate_svs_on_right_vars <- function(tidy_df) {
         })
     )
 
-    nonarray_with_svs <- dplyr::filter(checks,  !.data$type %in% cat_types& .data$num_svs > 0)
+    nonarray_with_svs <- dplyr::filter(checks,  !.data$type %in% array_types & .data$num_svs > 0)
     if (nrow(nonarray_with_svs) > 0) {
         message <- paste0(
             "Non array variables cannot have subvariables defined: ",
@@ -431,7 +439,7 @@ validate_svs_on_right_vars <- function(tidy_df) {
         attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
     }
 
-    array_with_no_svs <- dplyr::filter(checks,  .data$type %in% cat_types& .data$num_svs == 0)
+    array_with_no_svs <- dplyr::filter(checks,  .data$type %in% array_types & .data$num_svs == 0)
     if (nrow(array_with_no_svs) > 0) {
         message <- paste0(
             "Array variables must have subvariables defined: ",
@@ -474,6 +482,15 @@ validate_unique_titles <- function(tidy_df) {
             paste0("'", unique(tidy_df$title[dups]), "'", collapse = ", ")
         )
         attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), dups_str)
+    }
+
+    missing_title <- is.na(tidy_df$title)
+    if (any(missing_title)) {
+        missing_str <- paste0(
+            "Variables without titles found: ",
+            paste0("'", unique(tidy_df$alias[missing_title]), "'", collapse = ", ")
+        )
+        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), missing_str)
     }
     tidy_df
 }
