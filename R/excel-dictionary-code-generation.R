@@ -1,3 +1,36 @@
+#' Generate a Crunch Automation Script from an excel variable editor
+#'
+#' Details forthcoming. Experimental.
+#'
+#' @param dataset A `CrunchDataset` the variable editor describes
+#' @param excel_file Filepath to an .xlsx file, generally an excel document
+#' created by [`create_excel_dictionary()`] that you've modified
+#' @param out_file A filepath to save the Crunch Automation Script to (`NULL`,
+#' the default, places the file in your temporary directory)
+#' @param submit Logical, indicating whether to submit the generated script to be run
+#' (defaults to `TRUE`)
+#'
+#' @return
+#' @export
+apply_excel_dictionary <- function(dataset, excel_file, out_file = NULL, submit = TRUE) {
+    altered_schema <- read_excel_editor(excel_file)
+    current_schema <- build_excel_dictionary_data(dataset)
+    commands <- find_changes(current_schema, altered_schema)
+    command_text <- generate_code(commands, dataset, excel_file)
+
+    if (is.null(out_file)) {
+        out_file <- tempfile("ca_script", fileext = ".txt")
+    }
+
+    writeLines(out_file, command_text)
+    if (submit) {
+        crunch::runCrunchAutomation(ds, out_file, is_file = TRUE)
+    } else {
+        cat(paste0("Crunch Automation script written to: ", out_file, "\n"))
+    }
+    invisble(out_file)
+}
+
 generate_code <- function(cmds, dataset, file) {
     glue::glue(
         "# --- Crunch Automation code for dataset: '{name(dataset)}'\n",
