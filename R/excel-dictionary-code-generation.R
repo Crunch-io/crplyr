@@ -22,13 +22,13 @@ apply_excel_dictionary <- function(dataset, excel_file, out_file = NULL, submit 
         out_file <- tempfile("ca_script", fileext = ".txt")
     }
 
-    writeLines(out_file, command_text)
+    writeLines(command_text, out_file)
     if (submit) {
         crunch::runCrunchAutomation(ds, out_file, is_file = TRUE)
     } else {
         cat(paste0("Crunch Automation script written to: ", out_file, "\n"))
     }
-    invisble(out_file)
+    invisible(out_file)
 }
 
 generate_code <- function(cmds, dataset, file) {
