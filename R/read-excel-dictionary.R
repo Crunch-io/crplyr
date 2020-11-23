@@ -110,7 +110,7 @@ validate_cols <- function(df) {
     df <- validate_col(df, "value", validate_num)
     df <- validate_col(df, "date", validate_date)
 
-    col_errors <- attr(df, "column_errors")
+    col_errors <- attr(df, "col_errors")
     if (length(col_errors) > 0) {
         col_errors <- paste(col_errors, collapse = "\n - ")
         stop("Could not read data:\nColumn errors:\n", col_errors)
