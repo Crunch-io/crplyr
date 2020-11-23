@@ -58,7 +58,7 @@ cmd_gen_recode <- function(alias, details) {
                 .trim = FALSE
             )
         })
-    cat_text <- paste(cat_text, collapse = "\n")
+    cat_text <- paste(cat_text, collapse = ", \n")
 
     glue::glue(
         "REPLACE CATEGORICAL RECODE {alias}\n",
@@ -124,7 +124,7 @@ cmd_gen_cat_change_value <- function(alias, details) {
     })
     glue::glue(
         "SET NUMERIC VALUE {alias} WITH\n",
-        glue::glue_collapse(name_lines, "\n"),
+        glue::glue_collapse(name_lines, ", \n"),
         ";\n",
         .trim = FALSE
     )
@@ -160,11 +160,73 @@ cmd_gen_cat_change_date <- function(alias, details) {
 }
 
 cmd_gen_create_mr_array <- function(alias, details) {
-    glue::glue("# create mr array {alias} - not implemented yet\n", .trim = FALSE)
+    sv_labels <- paste0("\"", details$subvar_labels[[1]], "\"", collapse = ", ")
+    title <- glue::glue("TITLE \"{details$title}\"", .trim = FALSE)
+    description <- if (is.na(details$description)) "" else glue::glue("\nDESCRIPTION \"{details$description}\"", .trim = FALSE)
+    notes <- if (is.na(details$notes)) "" else glue::glue("\nNOTES \"{details$notes}\"", .trim = FALSE)
+
+    selections <- details$selected[[1]]
+    simple_dichotomy <- dplyr::summarize(
+        dplyr::ungroup(selections),
+        dplyr::across(-"alias", ~purrr::map_lgl(., function(x) identical(x, .[[1]])))
+    )
+    simple_dichotomy <- all(unlist(simple_dichotomy))
+
+    if (simple_dichotomy) {
+        sv_aliases <- paste0(details$subvar_aliases[[1]], collapse = ", ")
+        selected <- paste0("\"", selections$names_sel[[1]], "\"", collapse = ", ")
+        glue::glue(
+            "CREATE MULTIPLE DICHOTOMY FROM\n",
+            "    {sv_aliases}\n",
+            "    LABELS {sv_labels}\n",
+            "    SELECTED {selected}\n",
+            "AS {alias}\n",
+            "{title}{description}{notes};\n\n",
+            .trim = FALSE
+        )
+    } else {
+        sv_recodes <- dplyr::transmute(
+            selections,
+            alias = .data$alias,
+            dplyr::across(c("names_sel", "names_not"), ~paste0("\"", ., "\"", collapse = ", "))
+        )
+        sv_recodes$label <- ifelse(
+            is.na(details$subvar_labels[[1]]),
+            paste0(" LABEL ", details$subvar_labels[[1]]),
+            ""
+        )
+        sv_recodes <- purrr::pmap_chr(
+            sv_recodes,
+            function(alias, label, names_sel, names_not) {
+                glue::glue("{alias} (SELECTED {names_sel} NOT SELECTED {names_not}{label})")
+            }
+        )
+        sv_recodes <- paste("    ", sv_recodes, collapse = ",\n")
+        glue::glue(
+            "CREATE MULTIPLE DICHOTOMY WITH RECODE\n",
+            "{sv_recodes}\n",
+            "AS {alias}\n",
+            "{title}{description}{notes};\n\n",
+            .trim = FALSE
+        )
+    }
 }
 
 cmd_gen_create_cat_array <- function(alias, details) {
-    glue::glue("# create cat array {alias} - not implemented yet\n", .trim = FALSE)
+    sv_aliases <- paste0(details$subvar_aliases[[1]], collapse = ", ")
+    sv_labels <- paste0("\"", details$subvar_labels[[1]], "\"", collapse = ", ")
+    title <- glue::glue("TITLE \"{details$title}\"", .trim = FALSE)
+    description <- if (is.na(details$description)) "" else glue::glue("\nDESCRIPTION \"{details$description}\"", .trim = FALSE)
+    notes <- if (is.na(details$notes)) "" else glue::glue("\nNOTES \"{details$notes}\"", .trim = FALSE)
+    glue::glue(
+        "CREATE CATEGORICAL ARRAY \n",
+        "    {sv_aliases}\n",
+        "    LABELS {sv_labels}\n",
+        "AS {alias}\n",
+        "{title}{description}{notes};\n\n",
+        .trim = FALSE
+    )
+
 }
 
 cmd_gen_organize <- function(alias, details) {
@@ -182,7 +244,7 @@ cmd_gen_organize <- function(alias, details) {
         if (path != "") path <- paste0(" \"", path, "\"")
         dir <- glue::glue("SECURE{path}")
     } else {
-        dir  <- stringr::str_replace(folder, "^\\|", "")
+        dir  <- paste0("\"", stringr::str_replace(folder, "^\\|", ""), "\"")
     }
 
     vars <- paste0(details$aliases[[1]], collapse = ", ")

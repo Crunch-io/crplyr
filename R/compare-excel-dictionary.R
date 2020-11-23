@@ -492,8 +492,16 @@ make_array_var <- function(new_var, old_var) {
     new_cats <- dplyr::select(new_cats, -"orig_code")
 
     is_mr <- any(new_cats$selected)
-    selected_cats <- dplyr::filter(new_cats, .data$selected)
-    selected_cats <- dplyr::select(selected_cats, "alias", "code")
+    selected_cats <- dplyr::filter(new_cats, !.data$missing)
+    selected_cats <- dplyr::group_by(selected_cats, .data$alias, .data$selected)
+    selected_cats <- dplyr::summarize(selected_cats, names = list(.data$name), codes = list(.data$code))
+    selected_cats <- mutate(selected_cats, selected = ifelse(.data$selected, "sel", "not"))
+    selected_cats <- tidyr::pivot_wider(
+        selected_cats,
+        .data$alias,
+        names_from = .data$selected,
+        values_from = c(.data$names, .data$codes)
+    )
 
     new_cats <- dplyr::mutate(new_cats, dplyr::across(-c("alias", "code"), as.list))
     new_cats <- tidyr::pivot_longer(new_cats, -c("alias", "code"), names_to = "attribute", values_to = "new_value")
@@ -510,13 +518,12 @@ make_array_var <- function(new_var, old_var) {
         purrr::map2_lgl(.data$new_value, .data$old_value, ~.x != .y)
     )
 
-    if (any(!cats_changed$attribute %in% c("selected", "name"))) {
+    if (any(!cats_changed$attribute %in% c("selected"))) {
         stop(paste0(
-            "Cannot change categories except for name and selected status: ", parent_alias
+            "Cannot change categories except for selected status: ", parent_alias
         ), call. = FALSE)
     }
 
-    labels <- if (any(cats_changed$attribute == "name")) new_subvars$alias else NULL
     subvar_cat_equal <- all(purrr::map_lgl(new_subvars$categories, ~identical(., new_subvars$categories[[1]])))
 
     if (!is_mr) {
@@ -528,7 +535,7 @@ make_array_var <- function(new_var, old_var) {
                 description = parent_var$description,
                 notes = parent_var$description,
                 subvar_aliases = list(new_subvars$alias),
-                subvar_labels = list(labels)
+                subvar_labels = list(new_subvars$title)
             ))
         )
     } else {
@@ -540,7 +547,7 @@ make_array_var <- function(new_var, old_var) {
                 description = parent_var$description,
                 notes = parent_var$description,
                 subvar_aliases = list(new_subvars$alias),
-                subvar_labels = list(labels),
+                subvar_labels = list(new_subvars$title),
                 selected = list(selected_cats)
             ))
         )

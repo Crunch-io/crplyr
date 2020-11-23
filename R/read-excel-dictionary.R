@@ -399,7 +399,7 @@ validate_single_var_cats <- function(cats) {
 
     # Fill in metadata per code so it's easier to work with
     # (we've already checked that they're is only one value)
-    out  <- dplyr::group_by(cats, .data$code)
+    out  <- dplyr::group_by(cats, .data$child_alias, .data$code)
     out <- dplyr::mutate_at(
         out,
         cat_meta,
