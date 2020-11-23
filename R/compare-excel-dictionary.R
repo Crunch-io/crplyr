@@ -244,6 +244,9 @@ find_recodes <- function(old, new) {
     }
 
     out <- dplyr::full_join(new_recode_vars, old_recode_vars, by = "alias")
+    if (nrow(out) == 0) return(
+        dplyr::tibble(type = character(0), alias = character(0), details = list())
+    )
     out <- dplyr::mutate(out, parent_alias = ifelse(is.na(.data$parent_alias), .data$alias, .data$parent_alias))
     out <- dplyr::group_by(out, .data$parent_alias)
     out <- dplyr::summarize(
