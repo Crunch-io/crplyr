@@ -182,7 +182,7 @@ cmd_gen_cat_change_missing <- function(alias, details) {
 cmd_gen_cat_change_date <- function(alias, details) {
     name_lines <- purrr::pmap_chr(details, function(name, old, new) {
         new[is.na(new)] <- "NULL"
-        glue::glue("    \"{name}\" = {new}", .trim = FALSE)
+        glue::glue("    \"{name}\" = \"{new}\"", .trim = FALSE)
     })
     glue::glue(
         "SET DATES {alias} WITH\n",
