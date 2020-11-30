@@ -1,5 +1,5 @@
 read_excel_editor <- function(path) {
-    raw <- try(readxl::read_excel(
+    raw <- readxl::read_excel(
         path = path,
         sheet = "Variables Editor",
         skip = 1,
@@ -9,8 +9,7 @@ read_excel_editor <- function(path) {
             "description", "notes", "orig_code", "code", "name", "missing", "selected", "value",
             "date"
         )
-    ), silent = TRUE)
-    if (inherits(raw, "try-error")) stop(paste0("Could not read data:\n", attr(raw, "message")))
+    )
 
     raw <- validate_header(raw)
     raw <- validate_cols(raw)
