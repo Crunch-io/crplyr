@@ -1,0 +1,96 @@
+---
+title: "Editing a Dataset from the Excel Editor"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Editing a Dataset from the Excel Editor}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(crplyr)
+```
+
+# What is it?
+- Elevator pitch: (DP tool, allows preparing a dataset's structure in a familiar way: MS Excel)
+- (what is crunch automation?)
+- Brief note on terminology: Mostl uses Crunch Automation terminology, which conflicts with rcrunch (title, label)
+  (I should probably change Alias to Name, shouldn't I?)
+
+# What changes can I make to a dataset?
+- Replace variable metadata (alias, title, description, notes)
+- Change category metadata (combine categories, change names, missing-ness, values and dates, change order)
+- Combine variables into categorical arrays or multiple response variables
+- Organize variables into folders and set their order
+
+# How does it work?
+## Outline
+- Generate excel via command: `create_excel_dictionary()`
+- Make changes in excel (described below). Don't edit light grey text.
+- Either submit CA script directly or save script to file `apply_excel_dictionary()`
+
+## Making changes to excel
+
+(I think this part really needs pictures to be useful, but here's my attempt at the words)
+
+- **Replace variable metadata (Alias, Title, Description, Notes):** Modify columns E (Alias), G 
+  (Title), I (Description) and J (Notes) directly. Existing array variables are indicated by 
+  multiple rows with the same Alias, and they must have exactly one unique Title, Description
+  and Notes (you can either fill in the same value for each row or leave all except one blank).
+- **Change category metadata:**
+  - **Combine categories:** Replace column L (Code) to be the same value for the categories you
+    wish to combine. Like variable metadata (such as Title), the category metadata for combined
+    categories can only have one unique value. You can either repeat the metadata for each row
+    or leave all rows except one blank. All categories with the same code will be combined
+    regardless of whether they are next to each other.
+  - **Change category name, missing-ness, value and date:** Modify columns M (Name), N (Missing),
+    P (Value) and Q (Date) directly. For Missing, the letter "X" (lower or uppercase indicates
+    the value should be missing and empty indicates not missing). Column O (Selected) is only
+    relevant when creating Arrays, see below.
+  - **Change category order:** Move the entire category row up or down to change the category
+    order. (Be careful, footnote about how to cut and insert entire rows?) When categories
+    are combined, they are put in the order of the first occurrence of the category.
+- **Combine variables into array variables:** Arrays are created by having multiple variables 
+  of the same type with the same alias. You can do this by either setting column E (Alias) 
+  on the original row to be the same for multiple variables (in which case the original variables
+  will be automatically moved to the Hidden folder) or by copying the rows of the subvariables
+  to new rows and changing the alias on these new rows (which allows preserving the original 
+  variables outside the hidden folder). Because the original variables are always preserved
+  (at least in the hidden folder) the new array variable must have a different alias than all 
+  of the subvariables. In addition to changing the Alias, each subvariable
+  must have a unique Subvariable Label (column H) and there can be at most one 
+  Title/Description/Notes for the new array, so the values in G, I, and J may need to be updated
+  so that there's only a single unique value. Note that it is not required to move the subvariables
+  to be next to each other, but it may make the spreadsheet more legible if you do (Be careful, 
+  footnote about how to move entire rows?).
+- **Organize variables into folders and set their order:** Edit Column B (Folder) to indicate 
+  the Folder that the variable is in. Subfolders are indicated by putting "|" between folder names 
+  (eg "Demographics|Core" would create a "Core" folder inside of the "Demographics" one.
+  If the folder starts with "Hidden" or "Secure", then it will be moved to the corresponding 
+  special folder. "|" or blank indicate the root folder. The order within the folders is decided
+  by the order of the variables in the excel spreadsheet (and in the case of array variables their
+  first occurrence). You can move rows around to reorder variables, but be careful to keep the 
+  category rows together with their variables (footnote about cutting and inserting rows?).
+
+## Miscellaneous other excel editing info
+- Don't edit columns in light gray or rows 1 & 2
+- If you need a scratch area in the excel document, you can use columns S or later,
+  or you can denote a footer that the variable editor will ignore two completely empty rows 
+  (for columns A-Q) followed by a row with one or more "X" in column A.
+- You can use filters to easily look at only variable rows (not sure how to describe in words)
+
+## Things that are known not to work:
+- Adding/removing subvariables to an array
+- Changing a variable's type
+- Changing a Multiple Response variables selected categories
+- Changing an array's subvariable alias
+- Changing an array's subvariable label
+- Changing order of array subvariable
+- Combining categories on an existing array
