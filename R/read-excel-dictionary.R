@@ -15,6 +15,7 @@ read_excel_editor <- function(path) {
     }
 
     raw <- validate_header(raw)
+    raw <- remove_footer(raw)
     raw <- validate_cols(raw)
 
     raw$orig_row <- seq_len(nrow(raw)) + 2 # include header
@@ -239,6 +240,18 @@ validate_cat_rows_are_consistent <- function(cats) {
 
     attr(out, "errors") <- errors
     out
+}
+
+
+remove_footer <- function(df) {
+    empty_rows <- dplyr::transmute(df, empty = rowSums(dplyr::across(.fns = ~!is.na(unlist(.)))) == 0)
+    first_col <- purrr::map_chr(df[[1]], as.character)
+
+    footer_start <- dplyr::lag(empty_rows$empty, 1) & dplyr::lag(empty_rows$empty, 2) & stringr::str_detect(first_col, "^[xX]+$")
+    if (any(footer_start)) {
+        df <- dplyr::slice(df, 1:(min(which(footer_start))) - 1)
+    }
+    df
 }
 
 remove_empty_rows <- function(data, .cols = dplyr::everything()) {
