@@ -89,7 +89,8 @@ library(crplyr)
 ## Things that are known not to work:
 - Adding/removing subvariables to an array
 - Changing a variable's type
-- Changing a Multiple Response variables selected categories
+- Changing a Multiple Response variable's selected categories
+- Changing other category metadata for Multiple Response variables
 - Changing an array's subvariable alias
 - Changing an array's subvariable label
 - Changing order of array subvariable
