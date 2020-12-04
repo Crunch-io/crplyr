@@ -268,7 +268,7 @@ cmd_gen_organize <- function(alias, details) {
     folder <- details$folder
     hidden_regex <- stringr::regex("^HIDDEN\\|", ignore_case = TRUE)
     secure_regex <- stringr::regex("^SECURE\\|", ignore_case = TRUE)
-    if (folder == "|") {
+    if (is.na(folder) || folder == "|") {
         dir <- "ROOT"
     } else if (stringr::str_detect(folder, hidden_regex)) {
         path <- stringr::str_replace(folder, hidden_regex, "")
