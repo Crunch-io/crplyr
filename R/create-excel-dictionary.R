@@ -241,6 +241,7 @@ save_excel_dictionary <- function(data, out_file, overwrite = FALSE) {
     openxlsx::addStyle(wb, ws, header_ul_style, 1, 11:17, stack = TRUE)
     openxlsx::addStyle(wb, ws, header_style, 1, 1:18, stack = TRUE)
     openxlsx::addStyle(wb, ws, header_style, 2, 1:18, stack = TRUE)
+    openxlsx::addStyle(wb, ws, dont_edit_style, 2:(nrow(out) + 202), 1, stack = TRUE)
     openxlsx::addStyle(wb, ws, dont_edit_style, 2:(nrow(out) + 202), 3, stack = TRUE)
     openxlsx::addStyle(wb, ws, dont_edit_style, 2:(nrow(out) + 202), 4, stack = TRUE)
     openxlsx::addStyle(wb, ws, dont_edit_style, 2:(nrow(out) + 202), 11, stack = TRUE)
