@@ -66,9 +66,11 @@ generate_command <- function(alias, type, details) {
 cmd_gen_recode <- function(alias, details) {
     old_names <- details$old_categories[[1]]
     old_names <- dplyr::select(old_names, "orig_code", "orig_name" = "name")
+    old_names <- tidyr::unnest(old_names, .data$orig_code)
 
     new_cats <- details$new_categories[[1]]
     new_cats <- dplyr::mutate(new_cats, order = dplyr::row_number())
+    new_cats <- tidyr::unnest(new_cats, c(.data$orig_code))
     new_cats <- dplyr::left_join(new_cats, old_names, by = "orig_code")
 
     new_cats <- dplyr::group_by(new_cats, .data$code)
@@ -87,7 +89,7 @@ cmd_gen_recode <- function(alias, details) {
         function(code, orig_name, name, missing, selected, value, date) {
             glue::glue(
                 "        {orig_name} INTO \"{name}\" CODE {code}",
-                "{ifelse(!is.na(value), value, '')}{ifelse(missing, ' MISSING', '')}",
+                "{ifelse(missing, ' MISSING', '')}",
                 .trim = FALSE
             )
         })
@@ -118,7 +120,7 @@ cmd_gen_var_meta_change <- function(alias, details) {
 cmd_gen_cat_reorder <- function(alias, details) {
     order <- paste0("\"", details$order, "\"", collapse = ", ")
     glue::glue(
-        "REORDER CATEGORIES {alias} ORDERED\n    {order};\n",
+        "REORDER CATEGORIES {alias} ORDERED\n    {order};\n\n",
         .trim = FALSE
     )
 }

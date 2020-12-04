@@ -1,19 +1,23 @@
 read_excel_editor <- function(path) {
-    raw <- readxl::read_excel(
+    raw <- try(readxl::read_excel(
         path = path,
         sheet = "Variables Editor",
-        skip = 1,
+        range = cellranger::cell_limits(c(2, 1), c(NA, 17)),
         col_types = "list",
         col_names = c(
             "type", "folder", "orig_alias", "orig_child_alias", "alias", "child_alias", "title",
-            "description", "notes", "orig_code", "code", "name", "missing", "selected", "value",
-            "date"
+            "subvar_label", "description", "notes", "orig_code", "code", "name", "missing",
+            "selected", "value", "date"
         )
-    )
+    ), silent = TRUE)
+    if (inherits(raw, "try-error")) {
+        stop(paste0("Error while reading excel file\n    ", raw))
+    }
 
     raw <- validate_header(raw)
     raw <- validate_cols(raw)
 
+    raw$orig_row <- seq_len(nrow(raw)) + 2 # include header
     out <- tidy_format(raw)
     out <- validate_as_whole(out)
     out
@@ -22,63 +26,247 @@ read_excel_editor <- function(path) {
 # Tidying ----
 tidy_format <- function(raw) {
     # Remove empty rows
-    combined <- dplyr::filter(raw, rowSums(dplyr::across(.fns = is.na)) != 1)
+    combined <- remove_empty_rows(raw, -"orig_row")
 
-    # Delineate where the variables and metadata sections begin/end
-    combined <- dplyr::mutate(
+    # Get the variable rows
+    vars <- dplyr::select(
+        combined, "type", "folder", "orig_alias", "orig_child_alias", "alias", "title",
+        "description", "notes", "orig_row"
+    )
+    vars <- remove_empty_rows(vars, -c("orig_alias", "orig_child_alias", "orig_row"))
+    vars <- validate_var_rows_are_consistent(vars)
+
+    # Get the subvariable rows
+    subvars <- dplyr::select(
+        combined, "type", "orig_alias", "orig_child_alias", "alias", "child_alias",
+        "subvar_label", "orig_row"
+    )
+    subvars <- remove_empty_rows(subvars, -c("orig_alias", "orig_child_alias", "orig_row"))
+    subvars <- dplyr::group_by(subvars, .data$alias)
+    subvars <- dplyr::filter(subvars, dplyr::n() > 1 | any(!is.na(.data$subvar_label)))
+    subvars <- dplyr::ungroup(subvars)
+    subvars <- validate_subvar_rows_are_consistent(subvars)
+
+    # Get the category rows
+    cats <- dplyr::select(
         combined,
-        var_row = !is.na(.data$alias),
-        subvar_row = !is.na(.data$child_alias),
-        cat_row = !is.na(.data$orig_code),
-        var_id = cumsum(.data$var_row),
-        alias_fill = .data$alias,
-        child_alias_fill = ifelse(var_row, "<NOT.A.SV>", child_alias),
-        orig_alias_fill = ifelse(var_row, "<NOT.A.SV>", orig_alias),
-        orig_child_alias_fill = ifelse(var_row, "<NOT.A.SV>", orig_child_alias)
+        "orig_code", "alias", "code", "name", "missing", "selected", "value", "date", "orig_row"
     )
-
-    combined <- tidyr::fill(combined, .data$child_alias_fill, .data$orig_alias_fill, .data$orig_child_alias_fill)
-    combined <- dplyr::mutate(
-        combined,
-        dplyr::across(dplyr::ends_with("fill"), ~ifelse(. == "<NOT.A.SV>", NA, .))
+    # Get calculated subvar aliases from subvars
+    cats <- dplyr::left_join(
+        cats,
+        dplyr::select(subvars, c("orig_row", "child_alias")),
+        by = "orig_row"
     )
-
-    var_info <- dplyr::filter(combined, .data$var_row)
-    var_info <- dplyr::select(
-        var_info,
-        dplyr::one_of(c("var_id", "type", "folder", "orig_alias", "orig_child_alias", "alias", "title", "description", "notes"))
+    cats <- dplyr::arrange(cats, .data$orig_row)
+    cats <- tidyr::fill(cats, .data$alias)
+    cats <- dplyr::group_by(cats, .data$alias)
+    cats <- dplyr::mutate(cats, no_children = all(is.na(.data$child_alias)))
+    cats <- dplyr::mutate(
+        cats,
+        child_alias = ifelse(.data$no_children, "<NONE>", .data$child_alias)
     )
-
-    subvar_info <- dplyr::filter(combined, .data$subvar_row)
-    subvar_info <- dplyr::select(
-        subvar_info,
-        dplyr::one_of(c("var_id", "type", "orig_alias", "orig_child_alias", "child_alias", "title", "description", "notes"))
+    cats <- dplyr::ungroup(cats)
+    cats <- dplyr::arrange(cats, .data$alias, .data$orig_row)
+    cats <- tidyr::fill(cats, .data$child_alias)
+    cats <- dplyr::mutate(
+        cats,
+        child_alias = ifelse(.data$child_alias == "<NONE>", NA, .data$child_alias)
     )
-    subvar_info <- dplyr::nest_by(subvar_info, .data$var_id, .key = "subvars")
-
-    cat_info <- dplyr::filter(combined, .data$cat_row)
-    cat_info <- dplyr::select(
-        cat_info,
-        dplyr::one_of(c(
-            "var_id", "child_alias_fill", "orig_code", "code",
-            "name", "missing", "selected", "value", "date"
-        ))
-    )
-    cat_info <- dplyr::rename_with(cat_info, ~gsub("_fill$", "", .))
-    cat_info <- dplyr::nest_by(cat_info, .data$var_id, .key = "categories")
+    cats <- dplyr::select(cats, -"no_children")
+    cats <- dplyr::filter(cats, !is.na(.data$orig_code))
+    cats <- validate_cat_rows_are_consistent(cats)
 
 
-    tidy <- full_join(var_info, subvar_info, by = "var_id")
-    tidy <- full_join(tidy, cat_info, by = "var_id")
+    errors <- c(attr(vars, "errors"), attr(subvars, "errors"), attr(cats, "errors"))
+    if (length(errors) > 0) {
+        stop(paste0(
+            "Errors found in excel file structure:\n",
+            paste0("- ", errors, collapse = "\n")
+        ), call. = FALSE)
+    }
+
+    subvars <- dplyr::arrange(subvars, .data$orig_row)
+    subvars <- dplyr::select(subvars, -"orig_row")
+    subvars <- dplyr::group_by(subvars, .data$alias)
+    subvars <- dplyr::group_nest(subvars, .key = "subvars")
+    cats <- dplyr::arrange(cats, .data$orig_row)
+    cats <- dplyr::select(cats, -"orig_row")
+    cats <- dplyr::group_by(cats, .data$alias)
+    cats <- dplyr::group_nest(cats, .key = "categories")
+
+    tidy <- dplyr::full_join(vars, subvars, by = "alias")
+    tidy <- dplyr::full_join(tidy, cats, by = "alias")
     tidy
+}
+
+validate_var_rows_are_consistent <- function(vars) {
+    errors <- list()
+
+    aliases_without_type <- dplyr::filter(
+        vars,
+        !is.na(.data$alias) & is.na(.data$type)
+    )
+    if (nrow(aliases_without_type) > 0) {
+        bad_types <- paste0(
+            "'", aliases_without_type$alias, "' (row ", aliases_without_type$orig_row, ")",
+            collapse = ", "
+        )
+        errors <- c(
+            errors,
+            paste0("All variables and subvariables must have type: ", bad_types)
+        )
+    }
+
+    out <- dplyr::group_by(vars, .data$alias)
+    out <- dplyr::summarize(
+        out,
+        dplyr::across(c("orig_alias", "orig_child_alias"), ~.[1]),
+        dplyr::across(c("orig_row"), ~min(.)),
+        dplyr::across(c("type", "folder", "title", "description", "notes"), ~list(na.omit(unique(.)))),
+        .groups = "drop"
+    )
+    out <- dplyr::arrange(out, .data[["orig_row"]])
+
+    var_conflicting_meta <- purrr::map(
+        c("type", "folder", "title", "description", "notes"),
+        find_conflicting_var_meta,
+        data = out
+    )
+    var_conflicting_meta <- var_conflicting_meta[lengths(var_conflicting_meta) > 0]
+    errors <- c(errors, var_conflicting_meta)
+
+    # Take the first value
+    out <- dplyr::mutate(
+        out, dplyr::across(
+            c("type", "folder", "title", "description", "notes"),
+            ~unlist(purrr::map(., ~.[1]))
+        )
+    )
+    attr(out, "errors") <- errors
+    out
+}
+
+validate_subvar_rows_are_consistent <- function(subvars) {
+    errors <- list()
+
+    missing_label <- dplyr::filter(subvars, is.na(subvar_label))
+    if (nrow(missing_label) > 0) {
+        aliases <- paste0(
+            missing_label$alias,
+            " (row: ", missing_label$orig_row, ")",
+            collapse = ", "
+        )
+
+        errors <- c(
+            errors,
+            paste0(
+                "All subvariables must have a label: ", aliases
+            )
+        )
+    }
+
+    duplicate_label <- dplyr::group_by(subvars, .data$alias, .data$subvar_label)
+    duplicate_label <- dplyr::filter(duplicate_label, dplyr::n() > 1)
+    if (nrow(duplicate_label) > 0) {
+        aliases <- paste0(
+            duplicate_label$alias, ".", duplicate_label$child_alias,
+            "(", duplicate_label$subvar_label ,")",
+            collapse = ", "
+        )
+
+        errors <- c(
+            errors,
+            paste0(
+                "All subvariables must have unique labels: ", aliases
+            )
+        )
+    }
+    out <- dplyr::group_by(subvars, .data$alias)
+    out <- dplyr::mutate(
+        out,
+        child_alias = ifelse(
+            is.na(.data$child_alias),
+            paste0("<sv", dplyr::row_number(), ">"),
+            .data$child_alias
+        )
+    )
+    out <- ungroup(out)
+    attr(out, "errors") <- errors
+    out
+}
+
+validate_cat_rows_are_consistent <- function(cats) {
+    errors <- list()
+
+    missing_code <- dplyr::filter(cats, is.na(.data$code))
+    if (nrow(missing_code) > 0) {
+        info <- paste0(
+            "Category codes cannot be blank: ", paste(missing_code$orig_row, collapse = ", ")
+        )
+        errors <- c(errors, info)
+    }
+    missing_names <- dplyr::filter(cats, is.na(.data$code))
+    if (nrow(missing_names) > 0) {
+        info <- paste0(
+            "Category names cannot be blank: ", paste(missing_names$orig_row, collapse = ", ")
+        )
+        errors <- c(errors, info)
+    }
+
+    out <- dplyr::group_by(cats, .data$alias, .data$child_alias, .data$code)
+    out <- dplyr::summarize(
+        out,
+        dplyr::across(c("orig_code", "name", "missing", "selected", "value", "date"), ~list(na.omit(unique(.)))),
+        dplyr::across(c("orig_row"), min),
+        .groups = "drop"
+    )
+
+    conflicting_meta <- purrr::map(
+        c("name", "missing", "selected", "value", "date"),
+        find_conflicting_var_meta, data = out
+    )
+    conflicting_meta <- conflicting_meta[lengths(conflicting_meta) > 0]
+    errors <- c(errors, conflicting_meta)
+
+    out <- dplyr::mutate(
+        out, dplyr::across(
+            c("name", "missing", "selected", "value", "date"),
+            ~unlist(purrr::map(., ~.[1]))
+        )
+    )
+    out
+
+    attr(out, "errors") <- errors
+    out
+}
+
+remove_empty_rows <- function(data, .cols = dplyr::everything()) {
+    dplyr::filter(data, rowSums(!dplyr::across(.cols = {{.cols}}, .fns = is.na)) > 0)
+}
+
+find_conflicting_var_meta <- function(data, type) {
+    conflicts <- dplyr::filter(data, lengths(.data[[type]]) > 1)
+
+    if (nrow(conflicts) == 0) return(NULL)
+    conflict_info <- paste0(
+        "'", conflicts$alias, "' (",
+        purrr::map_chr(conflicts[[type]], ~paste0(., collapse = ", ")), ")",
+        collapse = "; "
+    )
+    paste0(
+        "Metadata of type '", type,
+        "' is not consistent for some variables: ",
+        conflict_info
+    )
 }
 
 # Validation ----
 validate_header <- function(df) {
     expected_header <- c(
-        "Type", "Folder", "Original Alias", "Original Child Alias", "Alias", NA, "Title",
-        "Description", "Notes", "Original Code", "Code", "Name", "Missing", "Selected", "Value",
-        "Date"
+        "Type", "Folder", "Original Alias", "Original Child Alias", "Alias", "Child Alias", "Title",
+        "Subvariable Label", "Description", "Notes", "Original Code", "Code", "Name", "Missing",
+        "Selected", "Value", "Date"
     )
     header <- purrr::map_chr(df[1, ], ~as.character(.[[1]]))
     comparison <- waldo::compare(unname(header), expected_header)
@@ -99,6 +287,7 @@ validate_cols <- function(df) {
     df <- validate_col(df, "alias", validate_chr)
     df <- validate_col(df, "child_alias", validate_chr)
     df <- validate_col(df, "title", validate_chr)
+    df <- validate_col(df, "subvar_label", validate_chr)
     df <- validate_col(df, "description", validate_chr)
     df <- validate_col(df, "notes", validate_chr)
     df <- validate_col(df, "orig_code", validate_num)
@@ -172,16 +361,11 @@ validate_date <- function(column) {
 validate_folder <- function(column) {
     out <- validate_chr(column)
 
+    # Add pipe to beginning of folders specified lazily
     folder_regex <- stringr::regex("^(Root|Hidden|Secure)?(\\|.*)?$", ignore_case = TRUE)
-    okay_dirs <- stringr::str_detect(out, folder_regex) | is.na(out)
-    if (any(!okay_dirs)) {
-        bad_dirs <- paste0("'", unique(out[!okay_dirs]), "'", collapse = ", ")
-        stop(paste0(
-            "Could not read data:\nFolder paths do not all start with '|',",
-            "'Root|', 'Hidden|' or 'Secure|'\n",
-            bad_dirs
-        ), call. = FALSE)
-    }
+    need_leading_pipe <- !stringr::str_detect(out, folder_regex) & !is.na(out)
+    out[need_leading_pipe] <- paste0("|", out[need_leading_pipe])
+
     out
 }
 
@@ -239,12 +423,9 @@ validate_type <- function(column) {
 # Post tidying validation ----
 validate_as_whole <- function(tidy_df) {
     out <- tidy_df
-    out <- validate_unique_aliases(out)
     out <- validate_unique_titles(out)
     out <- validate_cats_on_right_vars(out)
-    out <- validate_svs_on_right_vars(out)
     out <- validate_cats_on_right_subvars(out)
-    out <- validate_cats(out)
 
     problems <- attr(out, "whole_problems")
     if (length(problems) > 0) {
@@ -254,25 +435,6 @@ validate_as_whole <- function(tidy_df) {
         ), call. = FALSE)
     }
     out
-}
-
-# Validate categories
-validate_cats <- function(tidy_df) {
-    tidy_df$categories <- purrr::map(
-        tidy_df$categories,
-        ~try(validate_single_var_cats(.), silent = TRUE)
-    )
-
-    failures <- dplyr::filter(tidy_df, purrr::map_lgl(.data$categories, ~inherits(., "try-error")))
-    if (nrow(failures) > 0) {
-        message <- paste(purrr::map2_chr(
-            failures$alias,
-            failures$categories,
-            ~paste0("(", .x, ") ", attr(.y, "condition")$message)
-        ), collapse = "\n")
-        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
-    }
-    tidy_df
 }
 
 # categories only on categorical/categorical_array vars (and all categorical/cateogrical_array
@@ -342,133 +504,6 @@ validate_cats_on_right_subvars <- function(tidy_df) {
         tidy_df$categories[[which(tidy_df$alias == alias)]]$child_alias <- NA
     }
 
-    tidy_df
-}
-
-# Categories must have one metadata item per code in the output
-# and unique names
-validate_single_var_cats <- function(cats) {
-    if (is.null(cats) || nrow(cats) == 0) return(cats)
-    problems <- c()
-
-    # orig_code is not missing
-    missing_orig_code <- is.na(cats$orig_code)
-    if (any(missing_orig_code)) {
-        problems <- c(problems, "Some categories missing original code values.")
-    }
-
-    # category metadata are 1-1 with unique codes (and names are unique)
-    cat_meta <- c("name", "missing", "selected", "value", "date")
-    many_to_one <- dplyr::group_by(cats, .data$child_alias, .data$code)
-    many_to_one <- dplyr::summarize_at(
-        many_to_one,
-        cat_meta,
-        ~list(setdiff(unique(.), NA))
-    )
-
-    for (var in cat_meta) {
-        many_to_one_failures <- dplyr::filter(many_to_one, lengths(.data[[var]]) > 1)
-        if (nrow(many_to_one_failures) > 0) {
-            many_to_one_failures$str <- purrr::map_chr(
-                many_to_one_failures[[var]], ~paste0("'", ., "'", collapse = ", ")
-            )
-            bad_codes <- paste0(
-                many_to_one_failures$code, " (", many_to_one_failures$str, ")", collapse = "; "
-            )
-            problems <- c(
-                problems,
-                paste0("Category IDs ", bad_codes, " have multiple values of ", var, " assigned.")
-            )
-        }
-    }
-
-    if (length(problems) > 0) {
-        stop(paste0("- ", problems, collapse = "\n"), .call = FALSE)
-    }
-
-    # names are unique
-    dups <- many_to_one
-    dups$name <- unlist(dups$name)
-    dups <- dplyr::group_by(dups, .data$child_alias, .data$name)
-    dups <- dplyr::filter(dups, dplyr::n() > 1)
-    if (nrow(dups) > 0) {
-        dup_names <- paste0(unique(dups$name), collapse = ", ")
-        stop(paste0("- Duplicated category names found: ", dup_names), call. = FALSE)
-    }
-
-    # Fill in metadata per code so it's easier to work with
-    # (we've already checked that they're is only one value)
-    out  <- dplyr::group_by(cats, .data$child_alias, .data$code)
-    out <- dplyr::mutate_at(
-        out,
-        cat_meta,
-        ~unique(.[!is.na(.)])[1]
-    )
-    dplyr::ungroup(out)
-}
-
-# Subvars only on CA/MR/NA (and all have at least one subvars)
-validate_svs_on_right_vars <- function(tidy_df) {
-    array_types <- c("categorical_array", "multiple_response", "numeric_array")
-    checks <- dplyr::transmute(
-        tidy_df,
-        type = .data$type,
-        alias = .data$alias,
-        num_svs = purrr::map_dbl(.data$subvars, ~ifelse(is.null(.), 0, nrow(.))),
-        sv_bad_types = purrr::map2_chr(.data$subvars, .data$type, function(svs, type) {
-            if (type %in% c("categorical_array", "multiple_response")) {
-                bad <- dplyr::filter(svs, .data$type != "categorical")
-                if (nrow(bad) == 0) return(NA_character_)
-            } else if (type == "numeric_array") {
-                bad <- dplyr::filter(svs, .data$type != "numeric")
-                if (nrow(bad) == 0) return(NA_character_)
-            } else {
-                return(NA_character_)
-            }
-            paste0(bad$child_alias, " (", bad$type, ")", collapse = ", ")
-        })
-    )
-
-    nonarray_with_svs <- dplyr::filter(checks,  !.data$type %in% array_types & .data$num_svs > 0)
-    if (nrow(nonarray_with_svs) > 0) {
-        message <- paste0(
-            "Non array variables cannot have subvariables defined: ",
-            paste0("'", unique(nonarray_with_svs$alias), "'", collapse = ", ")
-        )
-        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
-    }
-
-    array_with_no_svs <- dplyr::filter(checks,  .data$type %in% array_types & .data$num_svs == 0)
-    if (nrow(array_with_no_svs) > 0) {
-        message <- paste0(
-            "Array variables must have subvariables defined: ",
-            paste0("'", unique(array_with_no_svs$alias), "'", collapse = ", ")
-        )
-        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
-    }
-
-    sv_bad_types <- dplyr::filter(checks, !is.na(.data$sv_bad_types))
-    if (nrow(sv_bad_types > 0)) {
-        message <- paste0(
-            "Subvariables have wrong type for parent: ",
-            paste0("'", unique(sv_bad_types$alias), "' - ", sv_bad_types$sv_bad_types, collapse = ", ")
-        )
-        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), message)
-    }
-
-    tidy_df
-}
-
-# Aliases are unique
-validate_unique_aliases <- function(tidy_df) {
-    dups <- duplicated(tidy_df$alias)
-    if (any(dups)) {
-        dups_str <- paste0(
-            "Duplicate aliases found: ",
-            paste0("'", unique(tidy_df$alias[dups]), "'", collapse = ", ")
-        )
-        attr(tidy_df, "whole_problems") <- c(attr(tidy_df, "whole_problems"), dups_str)
-    }
     tidy_df
 }
 

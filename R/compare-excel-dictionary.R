@@ -2,12 +2,14 @@ find_changes <- function(old, new) {
     new <- flat_vars_format(new)
     old <- flat_vars_format(old)
 
-    validate_orig_alias(old, new)
+    validate_orig_alias_used_at_most_once(new)
+    new <- append_implicit_hidden_vars(new, old)
+    validate_unique_aliases(new)
 
     # Schema changes require changing in old too so that
     # we can build other variables off the new schema
     renames <- find_renames(new)
-    old <- apply_renames(old, renames)
+    old <- apply_renames(old, renames, on_old = TRUE)
     new <- apply_renames(new, renames)
 
     validate_orig_codes(old, new)
@@ -16,6 +18,10 @@ find_changes <- function(old, new) {
     old <- apply_recodes(old, recodes)
 
     validate_no_type_changes(old, new)
+
+    # Setting numeric value/date can't be done inside of replace categorical recode
+    # so it needs to be done outside of schema block
+    extra_recodes <- find_extra_from_recodes(recodes)
 
     # Now find existing variables that need to change
     var_meta_changes <- find_var_meta_changes(old, new)
@@ -30,7 +36,7 @@ find_changes <- function(old, new) {
     folder_structure <- find_folder_structure(old, new)
 
     # Return commands in a list
-    alter_commands <- dplyr::bind_rows(var_meta_changes, subvar_meta_changes, cat_meta_changes)
+    alter_commands <- dplyr::bind_rows(extra_recodes, var_meta_changes, subvar_meta_changes, cat_meta_changes)
     alter_commands <- dplyr::arrange(alter_commands, .data$alias)
 
     list(
@@ -60,68 +66,137 @@ flat_vars_format <- function(vars) {
         dplyr::rename(out, "alias" = "child_alias")
     })
 
+    vars <- dplyr::mutate(
+        vars,
+        is_array = !purrr::map_lgl(.data$subvars, is.null),
+        has_selections = purrr::map_lgl(.data$categories, ~any(.$selected)),
+        # Recover array types from lossy excel format
+        type = dplyr::case_when(
+            .data$is_array & .data$type == "categorical" & !.data$has_selections ~ "categorical_array",
+            .data$is_array & .data$type == "categorical" & .data$has_selections ~ "multiple_response",
+            .data$is_array & .data$type == "numeric" ~ "numeric_array",
+            TRUE ~ .data$type
+        ),
+        # Recover array variable orig_aliases (will be new if new alias)
+        is_new_array = .data$is_array & purrr::map2_lgl(
+            .data$subvars,
+            .data$orig_alias,
+            ~!is.null(.x) && .y %in% .x$orig_alias[is.na(.x$orig_child_alias)]
+        ),
+        orig_alias = dplyr::case_when(
+            .data$is_new_array ~NA_character_,
+            TRUE ~ .data$orig_alias
+        )
+    )
+
     vars$categories <- purrr::map2(vars$subvars, vars$categories, function(svs, cats) {
         if (is.null(cats) || nrow(cats) == 0) return(NULL)
         if (!(is.null(svs) || nrow(svs) == 0)) return(NULL)
-        dplyr::select(cats, -"child_alias")
+        out <- dplyr::select(cats, -"child_alias")
+        out <- dplyr::mutate(out, orig_code = purrr::map(orig_code, identity))
     })
 
-    vars$new_var <- is.na(vars$orig_alias)
-
-    subvars <- dplyr::select(vars, "var_id", "new_var", "alias", "subvars")
+    subvars <- dplyr::select(vars, "var_id", "alias", "subvars")
     subvars <- dplyr::filter(subvars, lengths(.data$subvars) > 0)
     subvars <- dplyr::rename(subvars, parent_alias = "alias")
     subvars <- tidyr::unnest(subvars, .data$subvars)
     subvars <- dplyr::mutate(subvars, sv_id = dplyr::row_number())
 
     vars <- dplyr::select(vars, -"subvars")
-    vars <- dplyr::mutate(vars, parent_alias = NA_character_, sv_id = 0)
+    vars <- dplyr::mutate(
+        vars,
+        parent_alias = NA_character_, sv_id = 0,
+        orig_child_alias = ifelse(
+            .data$type %in% c("categorical_array", "multiple_response", "numeric_array"),
+            NA,
+            .data$orig_child_alias
+        )
+        )
 
     out <- dplyr::bind_rows(vars, subvars)
     out <- dplyr::arrange(out, .data$var_id, .data$sv_id)
-    out <- dplyr::mutate(out, orig_alias = ifelse(is.na(.data$orig_child_alias), .data$orig_alias, .data$orig_child_alias))
-    out <- dplyr::select(out, "new_var", "type", "folder", "parent_alias", "orig_alias", "alias", "title", "description", "notes", "categories")
+    out <- dplyr::mutate(
+        out,
+        orig_alias = ifelse(
+            is.na(.data$orig_child_alias),
+            .data$orig_alias,
+            .data$orig_child_alias
+        )
+    )
+    out <- dplyr::select(
+        out, "type", "folder", "parent_alias", "orig_alias", "alias", "title", "subvar_label",
+        "description", "notes", "categories"
+    )
+    # Make a variable indicating new arrays
+    out$new_var <- is.na(out$orig_alias)
     out
 }
 
-validate_orig_alias <- function(old, new) {
-    # Only checking for top level variables
-    new <- dplyr::filter(new, !.data$new_var & is.na(.data$parent_alias))
-    old <- dplyr::filter(old, !.data$new_var & is.na(.data$parent_alias))
+validate_orig_alias_used_at_most_once <- function(new) {
+    dups <- dplyr::filter(new, !is.na(.data$orig_alias))
+    dups <- dplyr::filter(dups, duplicated(.data$orig_alias))
 
-    dup_vars <- new$orig_alias[duplicated(new$orig_alias)]
-    if (length(dup_vars) > 0) {
+    if (nrow(dups) > 0) {
         stop(paste0(
             "Original aliases can only be used once, but some have duplicates: ",
-            paste0("'",  dup_vars, "'", collapse = ", ")
+            paste0("'",  dups$orig_alias, "'", collapse = ", ")
         ))
     }
+}
 
-    unknown_vars <- setdiff(old$orig_alias, c(new$orig_alias, NA))
-    if (length(unknown_vars) > 0) {
-        stop(paste0(
-            "Original aliases must be in new schema, but could not find: ",
-            paste0("'",  unknown_vars, "'", collapse = ", ")
-        ))
-    }
+append_implicit_hidden_vars <- function(new, old) {
+    new_top_level <- dplyr::filter(new, is.na(.data$parent_alias))
+    old_top_level <- dplyr::filter(old, is.na(.data$parent_alias))
+    implicit <- dplyr::anti_join(old_top_level, new_top_level, by = "orig_alias")
+    implicit <- dplyr::mutate(implicit, folder = "Hidden|")
 
-    missing_vars <- setdiff(new$orig_alias, old$orig_alias)
-    if (length(missing_vars) > 0) {
+    # Category updating needs to be done on top level variables
+    implicit_in_array <- dplyr::semi_join(new, implicit,by = "orig_alias")
+    implicit <- dplyr::rows_update(
+        implicit,
+        dplyr::select(implicit_in_array, c("orig_alias", "categories")),
+        by = "orig_alias"
+    )
+    # And remove the recoding from the subvars
+    implicit_in_array$categories <- purrr::map(
+        implicit_in_array$categories,
+        ~dplyr::mutate(., orig_code = purrr::map(.data$code, identity))
+    )
+    # Also set these variables as new so that we know to not check them when recoding
+    implicit_in_array$new_var <- TRUE
+    new <- dplyr::rows_update(
+        new,
+        dplyr::select(implicit_in_array, c("orig_alias", "categories", "new_var")),
+        by = "orig_alias"
+    )
+
+    out <- dplyr::bind_rows(new, implicit)
+}
+
+validate_unique_aliases <- function(new) {
+    # ignore subvariables
+    dups <- dplyr::filter(new, is.na(.data$parent_alias))
+    dups <- dplyr::filter(dups, duplicated(.data$alias))
+
+    if (nrow(dups) > 0) {
         stop(paste0(
-            "Original aliases must be used once, but some are missing: ",
-            paste0("'",  missing_vars, "'", collapse = ", ")
+            "Aliases must be unique, but some have duplicates: ",
+            paste0("'",  dups$alias, "'", collapse = ", ")
         ))
     }
 }
 
 find_renames <- function(new) {
     # Don't count new variables as renames
-    renames <- dplyr::filter(new, !.data$new_var & .data$orig_alias != .data$alias)
+    renames <- dplyr::filter(
+        new,
+        !.data$new_var & .data$orig_alias != .data$alias & !stringr::str_detect(.data$alias, "<sv[0-9]+>")
+    )
 
     if (nrow(renames) == 0) return(NULL)
 
     if (any(!is.na(renames$parent_alias))) {
-        renamed_children <- renames$alias[is.na(renames$parent_alias)]
+        renamed_children <- renames$alias[!is.na(renames$parent_alias)]
         stop(paste0(
             "Cannot rename subvariables: ", paste0("'", renamed_children, "'", collapse = ", ")
         ), call. = FALSE)
@@ -136,7 +211,7 @@ find_renames <- function(new) {
     tidyr::nest(out, details = -c(.data$alias, .data$type))
 }
 
-apply_renames <- function(vars, renames) {
+apply_renames <- function(vars, renames, on_old = FALSE) {
     if (is.null(renames) || nrow(renames) == 0) return(vars)
     renames <- dplyr::ungroup(tidyr::unnest(renames, .data$details))
 
@@ -144,13 +219,30 @@ apply_renames <- function(vars, renames) {
     renames <- dplyr::select(renames, "orig_alias" = "from", "to")
     out <- dplyr::left_join(vars, renames, by = "orig_alias")
     out <- dplyr::mutate(out, orig_alias = ifelse(is.na(.data$to), .data$orig_alias, .data$to))
+    if (on_old) {
+        out <- dplyr::mutate(
+            out,
+            alias = ifelse(is.na(.data$to), .data$alias, .data$to)
+        )
+    }
     out$to <- NULL
 
     # rename subvariables
-    renames <- dplyr::select(renames, "parent_alias" = "orig_alias", "to")
-    out <- dplyr::left_join(out, renames, by = "parent_alias")
-    out <- dplyr::mutate(out, parent_alias = ifelse(is.na(.data$to), .data$parent_alias, .data$to))
-    out$to <- NULL
+    if (on_old) {
+        renames <- dplyr::select(renames, "parent_alias" = "orig_alias", "to")
+        out <- dplyr::left_join(out, renames, by = "parent_alias")
+        out <- dplyr::mutate(
+            out,
+            parent_alias = ifelse(is.na(.data$to), .data$parent_alias, .data$to)
+        )
+        out$to <- NULL
+    }
+
+    # No need for alias of subvariables anymore so replace with original alias
+    out$alias <- dplyr::case_when(
+        !is.na(out$parent_alias) ~ out$orig_alias,
+        TRUE ~ out$alias
+    )
 
     out
 }
@@ -182,10 +274,10 @@ validate_orig_codes <- function(old, new) {
 
     merged$info <- purrr::map2_chr(
         merged$old_categories, merged$new_categories, function(old_cats, new_cats) {
-            if (!dplyr::setequal(old_cats$orig_code, new_cats$orig_code)) {
+            if (!dplyr::setequal(unlist(old_cats$orig_code), unlist(new_cats$orig_code))) {
                 paste0(
-                    "old: ", paste0(old_cats$orig_code, collapse = ", "),
-                    " vs new: ", paste0(new_cats$orig_code, collapse = ", ")
+                    "old: ", paste0(unlist(old_cats$orig_code), collapse = ", "),
+                    " vs new: ", paste0(unlist(new_cats$orig_code), collapse = ", ")
                 )
             } else {
                 return(NA_character_)
@@ -210,14 +302,14 @@ find_recodes <- function(old, new) {
     new_recodes <- dplyr::filter(new, lengths(.data$categories) > 0)
     new_recodes <- dplyr::select(new_recodes, "alias", "categories")
     new_recodes <- tidyr::unnest(new_recodes, .data$categories)
-    new_recodes <- dplyr::filter(new_recodes, .data$orig_code != .data$code)
+    new_recodes <- dplyr::filter(new_recodes, !purrr::map2_lgl(.data$orig_code, .data$code, identical))
 
     new_recode_vars <- dplyr::semi_join(new, new_recodes, by = "alias")
     new_recode_vars <- dplyr::select(new_recode_vars, "alias", "parent_alias", new_categories = "categories")
     old_recode_vars <- dplyr::semi_join(old, new_recodes, by = "alias")
     old_recode_vars <- dplyr::select(old_recode_vars, "alias", old_categories = "categories")
 
-    # Check that all child variables have the same catgories
+    # Check that all child variables have the same categories
     child_recodes <- dplyr::semi_join(new, new_recodes, by = "alias")
     child_recodes <- dplyr::select(child_recodes, "alias", "parent_alias", "categories")
     all_children <- dplyr::filter(
@@ -262,6 +354,41 @@ find_recodes <- function(old, new) {
     out
 }
 
+find_extra_from_recodes <- function(recodes) {
+    purrr::pmap_dfr(recodes, function(type, alias, details) {
+        out <- NULL
+        if (any(!is.na(details$new_categories[[1]]$value))) {
+            out <- dplyr::bind_rows(out, dplyr::tibble(
+                type = "cat_change",
+                alias = alias,
+                details = list(dplyr::tibble(
+                    attribute = "value",
+                    details = list(dplyr::tibble(
+                        name = details$new_categories[[1]]$name,
+                        new = details$new_categories[[1]]$value,
+                        old = NA
+                    ))
+                ))
+            ))
+        }
+        if (any(!is.na(details$new_categories[[1]]$date))) {
+            out <- dplyr::bind_rows(out, dplyr::tibble(
+                type = "cat_change",
+                alias = alias,
+                details = list(dplyr::tibble(
+                    attribute = "date",
+                    details = list(dplyr::tibble(
+                        name = details$new_categories[[1]]$name,
+                        new = details$new_categories[[1]]$date,
+                        old = NA
+                    ))
+                ))
+            ))
+        }
+        out
+    })
+}
+
 apply_recodes <- function(vars, recodes) {
     rcs <- tidyr::unnest(recodes, .data$details)
 
@@ -272,6 +399,16 @@ apply_recodes <- function(vars, recodes) {
         new_cats <- dplyr::distinct(new_cats, .data$orig_code, .keep_all = TRUE)
         vars$categories[needs_recode] <- rep(list(new_cats), sum(needs_recode))
     }
+    vars$categories <- purrr::map(
+        vars$categories,
+        function(x) {
+            if (is.list(x$orig_code)) {
+                return(dplyr::mutate(x, orig_code = purrr::flatten_dbl(orig_code)))
+            } else {
+                return(x)
+            }
+        }
+    )
     vars
 }
 
@@ -468,7 +605,7 @@ make_array_var <- function(new_var, old_var) {
     if (length(missing_subvars) > 0) {
         stop(paste0(
             "Could not find subvariables for ", parent_alias, " in original dataset: ",
-            paste0("'", missing_subvar, "'", collapse = ", ")
+            paste0("'", missing_subvars$alias, "'", collapse = ", ")
         ), call. = FALSE)
     }
 
@@ -536,9 +673,9 @@ make_array_var <- function(new_var, old_var) {
             details = list(dplyr::tibble(
                 title = parent_var$title,
                 description = parent_var$description,
-                notes = parent_var$description,
+                notes = parent_var$notes,
                 subvar_aliases = list(new_subvars$alias),
-                subvar_labels = list(new_subvars$title)
+                subvar_labels = list(new_subvars$subvar_label)
             ))
         )
     } else {
@@ -548,9 +685,9 @@ make_array_var <- function(new_var, old_var) {
             details = list(dplyr::tibble(
                 title = parent_var$title,
                 description = parent_var$description,
-                notes = parent_var$description,
+                notes = parent_var$notes,
                 subvar_aliases = list(new_subvars$alias),
-                subvar_labels = list(new_subvars$title),
+                subvar_labels = list(new_subvars$subvar_label),
                 selected = list(selected_cats)
             ))
         )

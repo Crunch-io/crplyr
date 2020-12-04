@@ -124,7 +124,7 @@ build_subvars <- function(ds, vars_with_subvars) {
             )
         }
     )
-    subvars <- dplyr::nest_by(subvars, .data$orig_alias, .key = "subvars")
+    subvars <- dplyr::nest_by(subvars, .data$orig_alias, .key = "subvars", .keep = TRUE)
     subvars
 }
 
