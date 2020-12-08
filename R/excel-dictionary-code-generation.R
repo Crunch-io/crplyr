@@ -146,7 +146,7 @@ cmd_gen_cat_change_name <- function(alias, details) {
     })
     glue::glue(
         "LABEL CATEGORIES {alias} WITH\n",
-        glue::glue_collapse(name_lines, "\n"),
+        glue::glue_collapse(name_lines, ",\n"),
         ";\n",
         .trim = FALSE
     )

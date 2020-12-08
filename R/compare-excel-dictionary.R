@@ -148,13 +148,19 @@ append_implicit_hidden_vars <- function(new, old) {
     new_top_level <- dplyr::filter(new, is.na(.data$parent_alias))
     old_top_level <- dplyr::filter(old, is.na(.data$parent_alias))
     implicit <- dplyr::anti_join(old_top_level, new_top_level, by = "orig_alias")
-    implicit <- dplyr::mutate(implicit, folder = "Hidden|")
+    implicit <- dplyr::mutate(implicit, folder = "HIDDEN|")
 
     # Category updating needs to be done on top level variables
-    implicit_in_array <- dplyr::semi_join(new, implicit,by = "orig_alias")
+    implicit_in_array <- dplyr::semi_join(new, implicit, by = "orig_alias")
+    implicit_in_array <- dplyr::select(implicit_in_array, c("orig_alias", "categories"))
+    # Except selection, it has no meaning on top level vars
+    implicit_in_array_top_level <- dplyr::mutate(
+        implicit_in_array,
+        categories = purrr::map(.data$categories, ~dplyr::mutate(., selected = FALSE))
+    )
     implicit <- dplyr::rows_update(
         implicit,
-        dplyr::select(implicit_in_array, c("orig_alias", "categories")),
+        implicit_in_array_top_level,
         by = "orig_alias"
     )
     # And remove the recoding from the subvars
@@ -212,7 +218,15 @@ find_renames <- function(new) {
 }
 
 apply_renames <- function(vars, renames, on_old = FALSE) {
-    if (is.null(renames) || nrow(renames) == 0) return(vars)
+    if (is.null(renames) || nrow(renames) == 0) {
+        out <- vars
+        # No need for alias of subvariables anymore so replace with original alias
+        out$alias <- dplyr::case_when(
+            !is.na(out$parent_alias) ~ out$orig_alias,
+            TRUE ~ out$alias
+        )
+        return(out)
+    }
     renames <- dplyr::ungroup(tidyr::unnest(renames, .data$details))
 
     # rename variables
@@ -519,6 +533,7 @@ find_cat_meta_changes <- function(old, new) {
                     .data$old,
                     ~.x != .y | (is.na(.x) & !is.na(.y)) | (!is.na(.x) & is.na(.y))
                 ))
+
                 if (nrow(changes) == 0) return(dplyr::tibble(type = character(0), details = list()))
                 changes <- dplyr::left_join(changes, new_cat_names, by = "code")
                 changes <- dplyr::mutate(changes, name = ifelse(.data$attribute == "name", unlist(.data$old), .data$name))
@@ -605,7 +620,7 @@ make_array_var <- function(new_var, old_var) {
     if (length(missing_subvars) > 0) {
         stop(paste0(
             "Could not find subvariables for ", parent_alias, " in original dataset: ",
-            paste0("'", missing_subvars$alias, "'", collapse = ", ")
+            paste0("'", missing_subvars, "'", collapse = ", ")
         ), call. = FALSE)
     }
 

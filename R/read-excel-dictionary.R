@@ -78,7 +78,6 @@ tidy_format <- function(raw) {
     cats <- dplyr::filter(cats, !is.na(.data$orig_code))
     cats <- validate_cat_rows_are_consistent(cats)
 
-
     errors <- c(attr(vars, "errors"), attr(subvars, "errors"), attr(cats, "errors"))
     if (length(errors) > 0) {
         stop(paste0(
@@ -207,7 +206,7 @@ validate_cat_rows_are_consistent <- function(cats) {
         )
         errors <- c(errors, info)
     }
-    missing_names <- dplyr::filter(cats, is.na(.data$code))
+    missing_names <- dplyr::filter(cats, is.na(.data$name))
     if (nrow(missing_names) > 0) {
         info <- paste0(
             "Category names cannot be blank: ", paste(missing_names$orig_row, collapse = ", ")
@@ -236,7 +235,25 @@ validate_cat_rows_are_consistent <- function(cats) {
             ~unlist(purrr::map(., ~.[1]))
         )
     )
-    out
+
+    # Now check for duplicate names after collapsing codes
+    dup_names <- dplyr::group_by(out, .data$alias, .data$child_alias)
+    dup_names <- dplyr::filter(dup_names, duplicated(.data$name))
+    if (nrow(dup_names) > 0) {
+        dup_names <- dplyr::group_by(dup_names, .data$alias, .data$child_alias, .data$name)
+        dup_names <- dplyr::summarize(
+            dup_names,
+            orig_row = paste(orig_row, collapse = ",")
+        )
+        info <- paste0(
+            "Category names cannot be duplicated: ",
+            paste(
+                paste0(dup_names$alias, ": '", dup_names$name, "' (rows ", dup_names$orig_row, ")"),
+                collapse = "; "
+            )
+        )
+        errors <- c(errors, info)
+    }
 
     attr(out, "errors") <- errors
     out
@@ -378,6 +395,14 @@ validate_folder <- function(column) {
     folder_regex <- stringr::regex("^(Root|Hidden|Secure)?(\\|.*)?$", ignore_case = TRUE)
     need_leading_pipe <- !stringr::str_detect(out, folder_regex) & !is.na(out)
     out[need_leading_pipe] <- paste0("|", out[need_leading_pipe])
+
+    # standardize "HIDDEN"/"SECURE" prefix so that we don't confuse differences in spelling
+    out <- stringr::str_replace_all(
+        out, stringr::regex("^HIDDEN\\|([^\\|]+)|^HIDDEN\\|?$", ignore_case = TRUE), "HIDDEN|\\1"
+    )
+    out <- stringr::str_replace_all(
+        out, stringr::regex("^SECURE\\|([^\\|]+)|^SECURE\\|?$", ignore_case = TRUE), "SECURE|\\1"
+    )
 
     out
 }
