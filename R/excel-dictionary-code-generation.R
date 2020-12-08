@@ -211,7 +211,7 @@ cmd_gen_create_mr_array <- function(alias, details) {
         sv_aliases <- paste0(details$subvar_aliases[[1]], collapse = ", ")
         selected <- paste0("\"", selections$names_sel[[1]], "\"", collapse = ", ")
         glue::glue(
-            "CREATE MULTIPLE DICHOTOMY FROM\n",
+            "CREATE MULTIPLE DICHOTOMY\n",
             "    {sv_aliases}\n",
             "    LABELS {sv_labels}\n",
             "    SELECTED {selected}\n",
