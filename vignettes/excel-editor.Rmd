@@ -25,9 +25,10 @@ library(crplyr)
   (I should probably change Alias to Name, shouldn't I?)
 
 # What changes can I make to a dataset?
-- Replace variable metadata (alias, title, description, notes)
-- Change category metadata (combine categories, change names, missing-ness, values and dates, change order)
-- Combine variables into categorical arrays or multiple response variables
+- Correct variable naming mistakes (change aliases)
+- Change how variables are displayed (title, description, notes)
+- Change category metadata (combine categories, change names, missing-ness, numeric values or dates, order)
+- Combine related variables into categorical arrays or multiple response variables
 - Organize variables into folders and set their order
 
 # How does it work?
@@ -71,11 +72,11 @@ library(crplyr)
   to be next to each other, but it may make the spreadsheet more legible if you do (Be careful, 
   footnote about how to move entire rows?).
 - **Organize variables into folders and set their order:** Edit Column B (Folder) to indicate 
-  the Folder that the variable is in. Subfolders are indicated by putting "|" between folder names 
+  the Folder that the variable is in. Paths with subfolders are separated by "|" between folder names, and "|" is therefore not allowed in folder names.
   (eg "Demographics|Core" would create a "Core" folder inside of the "Demographics" one.
   If the folder starts with "Hidden" or "Secure", then it will be moved to the corresponding 
-  special folder. "|" or blank indicate the root folder. The order within the folders is decided
-  by the order of the variables in the excel spreadsheet (and in the case of array variables their
+  special folder. "|" or blank indicate the root folder. The order within the folders will follow
+  the order of the variables in the excel spreadsheet (and in the case of array variables their
   first occurrence). You can move rows around to reorder variables, but be careful to keep the 
   category rows together with their variables (footnote about cutting and inserting rows?).
 
