@@ -77,7 +77,18 @@ build_excel_dictionary_data <- function(ds) {
 
 build_categories <- function(ds, vars_with_cats) {
     if (length(vars_with_cats) == 0) {
-        return(dplyr::tibble(alias = character(0), categories = list()))
+        out <- dplyr::tibble(
+            orig_alias = character(0),
+            child_alias = character(0),
+            orig_code = numeric(0),
+            code = numeric(0),
+            name = character(0),
+            missing = logical(0),
+            selected = logical(0),
+            value = numeric(0),
+            date = character(0)
+        )
+        return(dplyr::nest_by(out, .data$orig_alias, .key = "categories"))
     }
 
     categories <- purrr::map_dfr(
@@ -108,7 +119,13 @@ build_categories <- function(ds, vars_with_cats) {
 
 build_subvars <- function(ds, vars_with_subvars) {
     if (length(vars_with_subvars) == 0) {
-        return(dplyr::tibble(alias = character(0), subvars = list()))
+        out <- dplyr::tibble(
+            type = character(0),
+            orig_alias = character(0),
+            orig_child_alias = character(0),
+            subvar_label = character(0)
+        )
+        return(dplyr::nest_by(out, .data$orig_alias, .key = "subvars", .keep = TRUE))
     }
 
     subvars <- purrr::map_dfr(
@@ -156,20 +173,24 @@ save_excel_dictionary <- function(data, out_file, overwrite = FALSE) {
     subvars <- dplyr::filter(var_info, purrr::map_lgl(.data$subvars, ~!is.null(.) && nrow(.) > 0))
     subvars <- dplyr::select(
         subvars,
-        c("var_order", "folder", "alias", "title", "description", "notes", "orig_alias", "subvars")
+        c("var_order", "folder", "alias", "title", "description", "notes", "subvars")
     )
     subvars <- tidyr::unnest(subvars, .data$subvars)
     subvars <- dplyr::group_by(subvars, .data$var_order)
-    subvars <- dplyr::mutate(
-        subvars,
-        dplyr::across(c("folder", "title", "description", "notes"), ~ifelse(dplyr::row_number() == 1, ., NA))
-    )
-    subvars <- dplyr::mutate(subvars, sv_order = dplyr::row_number(), cat_order = -Inf)
+    if (nrow(subvars) > 0) {
+        subvars <- dplyr::mutate(
+            subvars,
+            dplyr::across(c("folder", "title", "description", "notes"), ~ifelse(dplyr::row_number() == 1, ., NA_character_))
+        )
+        subvars <- dplyr::mutate(subvars, sv_order = dplyr::row_number(), cat_order = -Inf)
+    }
 
     categories <- dplyr::filter(var_info, purrr::map_lgl(.data$categories, ~!is.null(.) && nrow(.) > 0))
     categories <- dplyr::select(categories, c("var_order", "orig_alias", "categories"))
     categories <- tidyr::unnest(categories, .data$categories)
-    categories <- dplyr::mutate(categories, sv_order = Inf, cat_order = dplyr::row_number())
+    if (nrow(categories) > 0) {
+        categories <- dplyr::mutate(categories, sv_order = Inf, cat_order = dplyr::row_number())
+    }
 
     var_info <- dplyr::filter(var_info, purrr::map_lgl(.data$subvars, ~is.null(.) || nrow(.) == 0))
     var_info <- dplyr::select(var_info, -c("subvars", "categories"))
