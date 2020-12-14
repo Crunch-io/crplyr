@@ -10,7 +10,7 @@ test_that("autplot matches mocked plots", {
     expect_doppelganger("cat-cat-dot", autoplot(cube, "dot"))
     expect_doppelganger("cat-cat-tile", autoplot(cube, "tile"))
     expect_doppelganger("cat-cat-bar", autoplot(cube, "bar"))
-    
+
     prop_cube <- crunch::prop.table(cube, 2)
     expect_doppelganger("cat-cat_prop_dot", autoplot(prop_cube, "dot"))
     expect_doppelganger("cat-cat_prop_bar", autoplot(prop_cube, "bar"))
@@ -31,10 +31,8 @@ test_that("autplot matches mocked plots", {
     cube <- loadCube("cubes/catarray-x-mr.json")
     cube@useNA <- "always"
     expect_doppelganger("catarray-x-mr-dot", autoplot(cube, "dot"))
-    # 2020-03-27 x position of text in R-dev is changed by .01, since vdiffr checks that
-    # everything is exactly the same, skip this in R version 4 for now. Later, we'll want
-    # to skip on R 3.x when 4 is released.
-    if (R.version$major != "4") expect_doppelganger("catarray-x-mr-tile", autoplot(cube, "tile"))
+    # x position of text in R-4.0 is changed by .01
+    if (R.version$major >= "4") expect_doppelganger("catarray-x-mr-tile", autoplot(cube, "tile"))
     expect_doppelganger("catarray-x-mr-bar", autoplot(cube, "bar"))
 
     tbl <- readRDS("tbl_crunch_mocks/4d_tbl_crunch.Rds")
