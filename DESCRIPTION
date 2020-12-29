@@ -24,6 +24,7 @@ Depends:
 Imports:
     methods,
     ggplot2,
+    httptest (>= 3.0.0),
     lazyeval,
     lifecycle,
     purrr,
@@ -35,7 +36,6 @@ Imports:
     viridisLite
 Suggests:
     covr,
-    httptest (>= 3.0.0),
     magrittr,
     spelling,
     vdiffr,

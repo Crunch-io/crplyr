@@ -1,0 +1,960 @@
+{
+    "element": "shoji:view",
+    "self": "/api/datasets/5c9336/cube/?query=%7B%22dimensions%22%3A%5B%7B%22function%22%3A%22dimension%22%2C%22args%22%3A%5B%7B%22variable%22%3A%22%2Fapi%2Fdatasets%2F5c9336%2Fvariables%2Ff79935%2F%22%7D%2C%7B%22value%22%3A%22subvariables%22%7D%5D%7D%2C%7B%22variable%22%3A%22%2Fapi%2Fdatasets%2F5c9336%2Fvariables%2Ff79935%2F%22%7D%5D%2C%22measures%22%3A%7B%22count%22%3A%7B%22function%22%3A%22cube_count%22%2C%22args%22%3A%5B%5D%7D%7D%2C%22weight%22%3Anull%7D&filter=%7B%7D",
+    "value": {
+        "query": {
+            "measures": {
+                "count": {
+                    "function": "cube_count",
+                    "args": [
+
+                    ]
+                }
+            },
+            "dimensions": [
+                {
+                    "function": "dimension",
+                    "args": [
+                        {"variable": "/api/datasets/5c9336/variables/f79935/"},
+                        {"value": "subvariables"}
+                    ]
+                },
+                {
+                    "variable": "/api/datasets/5c9336/variables/f79935/"
+                }
+            ],
+            "weight": null
+        },
+        "query_environment": {
+            "filter": [
+
+            ]
+        },
+        "result": {
+            "dimensions": [
+                {
+                    "references": {
+                        "subreferences": [
+                            {
+                                "alias": "ImportantHiringAlgorithms",
+                                "name": "ImportantHiringAlgorithms"
+                            },
+                            {
+                                "alias": "ImportantHiringTechExp",
+                                "name": "ImportantHiringTechExp"
+                            },
+                            {
+                                "alias": "ImportantHiringCommunication",
+                                "name": "ImportantHiringCommunication"
+                            },
+                            {
+                                "alias": "ImportantHiringOpenSource",
+                                "name": "ImportantHiringOpenSource"
+                            },
+                            {
+                                "alias": "ImportantHiringPMExp",
+                                "name": "ImportantHiringPMExp"
+                            },
+                            {
+                                "alias": "ImportantHiringCompanies",
+                                "name": "ImportantHiringCompanies"
+                            },
+                            {
+                                "alias": "ImportantHiringTitles",
+                                "name": "ImportantHiringTitles"
+                            },
+                            {
+                                "alias": "ImportantHiringEducation",
+                                "name": "ImportantHiringEducation"
+                            },
+                            {
+                                "alias": "ImportantHiringRep",
+                                "name": "ImportantHiringRep"
+                            },
+                            {
+                                "alias": "ImportantHiringGettingThingsDone",
+                                "name": "ImportantHiringGettingThingsDone"
+                            }
+                        ],
+                        "name": "ImportantHiring",
+                        "alias": "ImportantHiring"
+                    },
+                    "derived": true,
+                    "type": {
+                        "subtype": {
+                            "class": "variable"
+                        },
+                        "elements": [
+                            {
+                                "id": 1,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringAlgorithms",
+                                        "name": "ImportantHiringAlgorithms"
+                                    },
+                                    "derived": false,
+                                    "id": "000021",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 2,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringTechExp",
+                                        "name": "ImportantHiringTechExp"
+                                    },
+                                    "derived": false,
+                                    "id": "000022",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 3,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringCommunication",
+                                        "name": "ImportantHiringCommunication"
+                                    },
+                                    "derived": false,
+                                    "id": "000003",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 4,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringOpenSource",
+                                        "name": "ImportantHiringOpenSource"
+                                    },
+                                    "derived": false,
+                                    "id": "000008",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 5,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringPMExp",
+                                        "name": "ImportantHiringPMExp"
+                                    },
+                                    "derived": false,
+                                    "id": "000002",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 6,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringCompanies",
+                                        "name": "ImportantHiringCompanies"
+                                    },
+                                    "derived": false,
+                                    "id": "000019",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 7,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringTitles",
+                                        "name": "ImportantHiringTitles"
+                                    },
+                                    "derived": false,
+                                    "id": "000018",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 8,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringEducation",
+                                        "name": "ImportantHiringEducation"
+                                    },
+                                    "derived": false,
+                                    "id": "000000",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 9,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringRep",
+                                        "name": "ImportantHiringRep"
+                                    },
+                                    "derived": false,
+                                    "id": "000020",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            },
+                            {
+                                "id": 10,
+                                "value": {
+                                    "references": {
+                                        "alias": "ImportantHiringGettingThingsDone",
+                                        "name": "ImportantHiringGettingThingsDone"
+                                    },
+                                    "derived": false,
+                                    "id": "000015",
+                                    "type": {
+                                        "ordinal": false,
+                                        "class": "categorical",
+                                        "categories": [
+                                            {
+                                                "numeric_value": 2,
+                                                "selected": false,
+                                                "id": 2,
+                                                "missing": false,
+                                                "name": "Not at all important"
+                                            },
+                                            {
+                                                "numeric_value": 3,
+                                                "selected": false,
+                                                "id": 3,
+                                                "missing": false,
+                                                "name": "Not very important"
+                                            },
+                                            {
+                                                "numeric_value": 1,
+                                                "selected": false,
+                                                "id": 1,
+                                                "missing": false,
+                                                "name": "Important"
+                                            },
+                                            {
+                                                "numeric_value": 4,
+                                                "selected": false,
+                                                "id": 4,
+                                                "missing": false,
+                                                "name": "Somewhat important"
+                                            },
+                                            {
+                                                "numeric_value": 5,
+                                                "selected": false,
+                                                "id": 5,
+                                                "missing": false,
+                                                "name": "Very important"
+                                            },
+                                            {
+                                                "numeric_value": null,
+                                                "selected": false,
+                                                "id": -1,
+                                                "missing": true,
+                                                "name": "No Data"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "missing": false
+                            }
+                        ],
+                        "class": "enum"
+                    }
+                },
+                {
+                    "references": {
+                        "subreferences": [
+                            {
+                                "alias": "ImportantHiringAlgorithms",
+                                "name": "ImportantHiringAlgorithms"
+                            },
+                            {
+                                "alias": "ImportantHiringTechExp",
+                                "name": "ImportantHiringTechExp"
+                            },
+                            {
+                                "alias": "ImportantHiringCommunication",
+                                "name": "ImportantHiringCommunication"
+                            },
+                            {
+                                "alias": "ImportantHiringOpenSource",
+                                "name": "ImportantHiringOpenSource"
+                            },
+                            {
+                                "alias": "ImportantHiringPMExp",
+                                "name": "ImportantHiringPMExp"
+                            },
+                            {
+                                "alias": "ImportantHiringCompanies",
+                                "name": "ImportantHiringCompanies"
+                            },
+                            {
+                                "alias": "ImportantHiringTitles",
+                                "name": "ImportantHiringTitles"
+                            },
+                            {
+                                "alias": "ImportantHiringEducation",
+                                "name": "ImportantHiringEducation"
+                            },
+                            {
+                                "alias": "ImportantHiringRep",
+                                "name": "ImportantHiringRep"
+                            },
+                            {
+                                "alias": "ImportantHiringGettingThingsDone",
+                                "name": "ImportantHiringGettingThingsDone"
+                            }
+                        ],
+                        "name": "ImportantHiring",
+                        "alias": "ImportantHiring"
+                    },
+                    "derived": false,
+                    "type": {
+                        "ordinal": false,
+                        "subvariables": [
+                            "000021",
+                            "000022",
+                            "000003",
+                            "000008",
+                            "000002",
+                            "000019",
+                            "000018",
+                            "000000",
+                            "000020",
+                            "000015"
+                        ],
+                        "class": "categorical",
+                        "categories": [
+                            {
+                                "numeric_value": 2,
+                                "selected": false,
+                                "id": 2,
+                                "missing": false,
+                                "name": "Not at all important"
+                            },
+                            {
+                                "numeric_value": 3,
+                                "selected": false,
+                                "id": 3,
+                                "missing": false,
+                                "name": "Not very important"
+                            },
+                            {
+                                "numeric_value": 1,
+                                "selected": false,
+                                "id": 1,
+                                "missing": false,
+                                "name": "Important"
+                            },
+                            {
+                                "numeric_value": 4,
+                                "selected": false,
+                                "id": 4,
+                                "missing": false,
+                                "name": "Somewhat important"
+                            },
+                            {
+                                "numeric_value": 5,
+                                "selected": false,
+                                "id": 5,
+                                "missing": false,
+                                "name": "Very important"
+                            },
+                            {
+                                "numeric_value": null,
+                                "selected": false,
+                                "id": -1,
+                                "missing": true,
+                                "name": "No Data"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "missing": 460,
+            "measures": {
+                "count": {
+                    "data": [
+                        14,
+                        50,
+                        502,
+                        281,
+                        320,
+                        467,
+                        29,
+                        155,
+                        415,
+                        407,
+                        164,
+                        464,
+                        9,
+                        25,
+                        544,
+                        188,
+                        401,
+                        467,
+                        74,
+                        320,
+                        263,
+                        432,
+                        78,
+                        467,
+                        105,
+                        336,
+                        239,
+                        423,
+                        65,
+                        466,
+                        63,
+                        316,
+                        230,
+                        511,
+                        43,
+                        471,
+                        121,
+                        373,
+                        202,
+                        441,
+                        29,
+                        468,
+                        94,
+                        269,
+                        275,
+                        482,
+                        48,
+                        466,
+                        276,
+                        430,
+                        119,
+                        315,
+                        26,
+                        468,
+                        13,
+                        29,
+                        482,
+                        159,
+                        484,
+                        467
+                    ],
+                    "n_missing": 460,
+                    "metadata": {
+                        "references": {
+
+                        },
+                        "derived": true,
+                        "type": {
+                            "integer": true,
+                            "missing_rules": {
+
+                            },
+                            "missing_reasons": {
+                                "No Data": -1
+                            },
+                            "class": "numeric"
+                        }
+                    }
+                }
+            },
+            "n": 1634,
+            "unfiltered": {
+                "unweighted_n": 1634,
+                "weighted_n": 1634
+            },
+            "filtered": {
+                "unweighted_n": 1634,
+                "weighted_n": 1634
+            },
+            "counts": [
+                14,
+                50,
+                502,
+                281,
+                320,
+                467,
+                29,
+                155,
+                415,
+                407,
+                164,
+                464,
+                9,
+                25,
+                544,
+                188,
+                401,
+                467,
+                74,
+                320,
+                263,
+                432,
+                78,
+                467,
+                105,
+                336,
+                239,
+                423,
+                65,
+                466,
+                63,
+                316,
+                230,
+                511,
+                43,
+                471,
+                121,
+                373,
+                202,
+                441,
+                29,
+                468,
+                94,
+                269,
+                275,
+                482,
+                48,
+                466,
+                276,
+                430,
+                119,
+                315,
+                26,
+                468,
+                13,
+                29,
+                482,
+                159,
+                484,
+                467
+            ],
+            "element": "crunch:cube"
+        }
+    }
+}
