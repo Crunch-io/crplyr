@@ -1,14 +1,12 @@
 ## Test environments
-* local R installation, R 4.0.2
-* ubuntu 16.04 (on travis-ci), R 4.0.2
-* win-builder (devel)
+* local macOS R installation, R 4.0.2
+* ubuntu 18.04 (on github actions), R-devel, current and previous release
+* win-builder (Release)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* This release comes just 1 day after a previous release, unfortunately
-  while preparing for a release of an upstream dependency I must have forgotten
-  to check the crplyr package with building of vignettes. This fix is needed
-  for the upcoming version 1.27.0 of crunch. I appologize for any inconvenience.
-
+* Makes `vdiffr` package optional during tests and `httptest` a required package
+  so that `crplyr` passes R CMD check with only depended packages. (Tested on 
+  R-devel with `_R_CHECK_DEPENDS_ONLY_`)
