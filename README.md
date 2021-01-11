@@ -64,4 +64,4 @@ The repository includes a Makefile to facilitate some common tasks, if you're in
 
 ### Updating documentation
 
-`$ make doc`. Requires the [roxygen2](https://github.com/klutometis/roxygen) package.
+`$ make doc`. Requires the [roxygen2](https://github.com/r-lib/roxygen2) package.

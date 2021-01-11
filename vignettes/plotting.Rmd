@@ -60,7 +60,7 @@ You can also define your own themes or use themes from other packages. This is h
 
 ## Extending ggplots
 
-`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example, you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plot.ly/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot website](https://ggplot2.tidyverse.org/) website.
+`ggplot2` has a rich ecosystem of extensions which you can use to add functionality to Crunch plots. For example, you can use [patchwork](https://github.com/thomasp85/patchwork) to combine several plots together, or add interactivity to your plots with [plotly](https://plotly.com/r/getting-started/). For a full list of what you can do with `ggplot` objects, see the [ggplot website](https://ggplot2.tidyverse.org/) website.
 
 # Working with CrunchCubes
 

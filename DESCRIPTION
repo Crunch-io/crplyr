@@ -2,7 +2,7 @@ Package: crplyr
 Type: Package
 Title: A 'dplyr' Interface for Crunch
 Description: In order to facilitate analysis of datasets hosted on the Crunch
-    data platform <http://crunch.io/>, the 'crplyr' package implements 'dplyr'
+    data platform <https://crunch.io/>, the 'crplyr' package implements 'dplyr'
     methods on top of the Crunch backend. The usual methods 'select', 'filter',
     'group_by', 'summarize', and 'collect' are implemented in such a way as to
     perform as much computation on the server and pull as little data locally
