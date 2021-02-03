@@ -1,3 +1,5 @@
+# crplyr 0.3.9 (Development version)
+
 # crplyr 0.3.8
 * Update tests to work with upcoming crunch version
 
