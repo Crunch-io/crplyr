@@ -1,5 +1,5 @@
 # Setup is executed when tests are run, but not when loadall is run
-
+crunch::set_crunch_opts(crunch.api = "https://app.crunch.io/api/")
 # find a file that is either in the package root or inst folders while testing
 find_file <- function(file_name) {
     pth <- system.file(file_name, package = "crunch")

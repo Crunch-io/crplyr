@@ -19,8 +19,8 @@ library(ggplot2)
 
 ```{r, include=FALSE}
 library(httptest)
+set_crunch_opts(crunch.api = "https://app.crunch.io/api/")
 start_vignette("plotting")
-login()
 ```
 
 ```{r setup, include = FALSE}
@@ -119,6 +119,5 @@ In the tibble output, each array variable is decomposed into two columns. The mu
 This vignette provided the basics of plotting Crunch objects, and processing CrunchCubes using tidy tools. You can use these to conduct analyses and generate custom visualizations of Crunch data, but you can also send these custom plots back into the Crunch app by including them in a [Shiny app](https://github.com/Crunch-io/crunchy) or a [flexdashboard](https://github.com/Crunch-io/crunchy/blob/master/vignettes/flexdashboards.Rmd) and hosting them on the Crunch shiny infrastructure.
 
 ```{r, include=FALSE}
-logout()
 end_vignette()
 ```

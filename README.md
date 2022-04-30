@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R build status](https://github.com/Crunch-io/crplyr/workflows/R-CMD-check/badge.svg)](https://github.com/Crunch-io/crplyr/actions)
-[![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://codecov.io/gh/Crunch-io/crplyr)
+[![codecov](https://codecov.io/gh/Crunch-io/crplyr/branch/master/graph/badge.svg)](https://app.codecov.io/gh/Crunch-io/crplyr)
 [![cran](https://www.r-pkg.org/badges/version-last-release/crplyr)](https://cran.r-project.org/package=crplyr)
 <!-- badges: end -->
 
@@ -27,7 +27,6 @@ With a local `data.frame`, you might chain together a series of manipulations an
 With `crplyr`, you can do the same operations, except that the dataset you're working with sits in the Crunch platform, and Crunch is doing the aggregations in the cloud:
 
     > library(crplyr)
-    > login()
     [crunch] > mtcars <- loadDataset("mtcars from R")
     [crunch] > mtcars %>%
         filter(vs == 1) %>%
