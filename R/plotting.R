@@ -62,7 +62,7 @@ generate_colors <- function(var) {
 #' attempt to accomodate the dimensionality of the plotted object. These plots
 #' can be further extended and customized with other ggplot methods.
 #'
-#' @param x A Crunch variable or cube aggregation
+#' @param object A Crunch variable or cube aggregation
 #' @param ... additional plotting arguments
 #' @param plot_type One of `"dot"`, `"tile"`, or `"bar"` which indicates the
 #'   plot family you would like to use. Higher dimensional plots add color
@@ -77,14 +77,14 @@ generate_colors <- function(var) {
 #' @importFrom crunch description name
 #' @importFrom tibble tibble
 #' @export
-autoplot.DatetimeVariable <- function(x, ...) {
-    plot_df <- tibble(!!sym(name(x)) := as.Date(as.vector(x)))
+autoplot.DatetimeVariable <- function(object, ...) {
+    plot_df <- tibble(!!sym(name(object)) := as.Date(as.vector(object)))
 
-    ggplot(plot_df, aes(x = !!sym(name(x)))) +
+    ggplot(plot_df, aes(x = !!sym(name(object)))) +
         geom_histogram(fill = card_colors[2]) +
         theme_crunch() +
-        labs(title = name(x),
-            subtitle = description(x))
+        labs(title = name(object),
+            subtitle = description(object))
 }
 
 #' @rdname autoplot
@@ -93,36 +93,36 @@ autoplot.DatetimeVariable <- function(x, ...) {
 #' @importFrom rlang !! sym :=
 #' @importFrom tibble tibble
 #' @export
-autoplot.NumericVariable <- function(x, ...) {
+autoplot.NumericVariable <- function(object, ...) {
     # TODO revisit when cut is implemented in zz9
     # https://www.pivotaltracker.com/n/projects/931610/stories/155299834
-    v <- as.vector(x)
-    plot_df <- tibble(!!sym(name(x)) := v)
+    v <- as.vector(object)
+    plot_df <- tibble(!!sym(name(object)) := v)
     binwidth <- round((max(plot_df) - min(v)) / 5, 0)
-    ggplot(plot_df, aes(x = !!sym(name(x)))) +
+    ggplot(plot_df, aes(x = !!sym(name(object)))) +
         geom_histogram(binwidth = binwidth, fill = card_colors[1]) +
         theme_crunch() +
-        labs(title = name(x),
-            subtitle = description(x))
+        labs(title = name(object),
+            subtitle = description(object))
 }
 
 #' @rdname autoplot
 #' @export
-autoplot.CategoricalVariable <- function(x, ...) plotCategorical(x, ...)
+autoplot.CategoricalVariable <- function(object, ...) plotCategorical(object, ...)
 
 #' @rdname autoplot
 #' @export
-autoplot.CategoricalArrayVariable <- function(x, ...) plotCategorical(x, ...)
+autoplot.CategoricalArrayVariable <- function(object, ...) plotCategorical(object, ...)
 
 #' @rdname autoplot
 #' @export
-autoplot.MultipleResponseVariable <- function(x, ...) plotCategorical(x, ...)
+autoplot.MultipleResponseVariable <- function(object, ...) plotCategorical(object, ...)
 
 #' @importFrom crunch alias datasetReference loadDataset
 #' @importFrom ggplot2 autoplot
-plotCategorical <- function(x, ...) {
-    ds <- loadDataset(datasetReference(x))
-    autoplot(crtabs(paste0("~", alias(x)), ds), ...)
+plotCategorical <- function(object, ...) {
+    ds <- loadDataset(datasetReference(object))
+    autoplot(crtabs(paste0("~", alias(object)), ds), ...)
 }
 
 plot_fun_lookup <- function(plot_dim, plot_type) {
@@ -132,21 +132,21 @@ plot_fun_lookup <- function(plot_dim, plot_type) {
 
 #' @rdname autoplot
 #' @export
-autoplot.CrunchCube <- function(x,
+autoplot.CrunchCube <- function(object,
     ...) {
-    plot_tbl <- as_cr_tibble(x)
+    plot_tbl <- as_cr_tibble(object)
     autoplot(plot_tbl, ...)
 }
 
 #' @importFrom ggplot2 scale_x_continuous scale_fill_viridis_c scale_y_continuous
 #' @rdname autoplot
 #' @export
-autoplot.CrunchCubeCalculation <- function(x,
+autoplot.CrunchCubeCalculation <- function(object,
                                            plot_type = "dot",
                                            ...) {
-    plot_tbl <- as_cr_tibble(x)
+    plot_tbl <- as_cr_tibble(object)
     out <- autoplot(plot_tbl, plot_type, ...)
-    if (attr(x, "type") == "proportion") {
+    if (attr(object, "type") == "proportion") {
         if (plot_type == "dot") {
             out <- out +
                 scale_x_continuous(labels = scales::percent)
@@ -169,14 +169,14 @@ autoplot.CrunchCubeCalculation <- function(x,
 #' @importFrom dplyr mutate filter pull
 #' @importFrom ggplot2 ggtitle
 #' @export
-autoplot.tbl_crunch_cube <- function(x,
+autoplot.tbl_crunch_cube <- function(object,
                                 plot_type = c("dot", "tile", "bar"),
-                                measure) {
+                                measure, ...) {
     plot_type <- match.arg(plot_type)
-    display_names <- cube_attribute(x, "name")[is_dimension(x)]
+    display_names <- cube_attribute(object, "name")[is_dimension(object)]
 
     if (missing(measure)) {
-        measure <- names(x)[dim_types(x) == "measure"][1]
+        measure <- names(object)[dim_types(object) == "measure"][1]
     }
 
     if (length(measure) > 1) {
@@ -188,17 +188,17 @@ autoplot.tbl_crunch_cube <- function(x,
 
     # Remove missing values based on the useNA value for the cube.
     # TODO handle useNA = "ifany"
-    plot_tbl <- as_tibble(x)
-    if (attr(x, "useNA") == "no" && "is_missing" %in% names(x)) {
+    plot_tbl <- as_tibble(object)
+    if (attr(object, "useNA") == "no" && "is_missing" %in% names(object)) {
         plot_tbl <- plot_tbl[!plot_tbl$is_missing, ]
     }
 
     # Select the dimension columns from the table, this is necessary because the
     # names in the tibble are unique, while the cube dimnames are not.
-    dim_names <- names(plot_tbl)[is_dimension(x)]
+    dim_names <- names(plot_tbl)[is_dimension(object)]
 
     # Only include rows where the MR selection dimensions are TRUE
-    mr_selection_vars <- dim_names[dim_types(x) == "mr_selections" & is_dimension(x)]
+    mr_selection_vars <- dim_names[dim_types(object) == "mr_selections" & is_dimension(object)]
     if (length(mr_selection_vars)) {
         plot_tbl <- plot_tbl %>%
             filter(!!!syms(mr_selection_vars))
@@ -208,14 +208,14 @@ autoplot.tbl_crunch_cube <- function(x,
 
     # If the first two dimensions are CA dimensions, flip them. This is
     # because scales are usually on the second CA dimension.
-    types <- dim_types(x)
+    types <- dim_types(object)
     if (length(dims) != 1 && plot_type != "tile") {
         if (types[1] == "ca_items" && types[2] == "ca_categories") {
             dims[c(2, 1)] <- dims[(c(1, 2))]
         }
     }
 
-    sub_text <- cube_attribute(x, "description")[1]
+    sub_text <- cube_attribute(object, "description")[1]
     if (is.na(sub_text)) {
         sub_text <- ""
     }

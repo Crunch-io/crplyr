@@ -12,24 +12,24 @@
 \alias{autoplot.tbl_crunch_cube}
 \title{Autoplot methods for Crunch Objects}
 \usage{
-\method{autoplot}{DatetimeVariable}(x, ...)
+\method{autoplot}{DatetimeVariable}(object, ...)
 
-\method{autoplot}{NumericVariable}(x, ...)
+\method{autoplot}{NumericVariable}(object, ...)
 
-\method{autoplot}{CategoricalVariable}(x, ...)
+\method{autoplot}{CategoricalVariable}(object, ...)
 
-\method{autoplot}{CategoricalArrayVariable}(x, ...)
+\method{autoplot}{CategoricalArrayVariable}(object, ...)
 
-\method{autoplot}{MultipleResponseVariable}(x, ...)
+\method{autoplot}{MultipleResponseVariable}(object, ...)
 
-\method{autoplot}{CrunchCube}(x, ...)
+\method{autoplot}{CrunchCube}(object, ...)
 
-\method{autoplot}{CrunchCubeCalculation}(x, plot_type = "dot", ...)
+\method{autoplot}{CrunchCubeCalculation}(object, plot_type = "dot", ...)
 
-\method{autoplot}{tbl_crunch_cube}(x, plot_type = c("dot", "tile", "bar"), measure)
+\method{autoplot}{tbl_crunch_cube}(object, plot_type = c("dot", "tile", "bar"), measure, ...)
 }
 \arguments{
-\item{x}{A Crunch variable or cube aggregation}
+\item{object}{A Crunch variable or cube aggregation}
 
 \item{...}{additional plotting arguments}
 
