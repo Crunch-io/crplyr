@@ -26,7 +26,7 @@
 
 \method{autoplot}{CrunchCubeCalculation}(object, plot_type = "dot", ...)
 
-\method{autoplot}{tbl_crunch_cube}(object, plot_type = c("dot", "tile", "bar"), measure)
+\method{autoplot}{tbl_crunch_cube}(object, plot_type = c("dot", "tile", "bar"), measure, ...)
 }
 \arguments{
 \item{object}{A Crunch variable or cube aggregation}

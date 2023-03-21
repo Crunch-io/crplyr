@@ -171,7 +171,7 @@ autoplot.CrunchCubeCalculation <- function(object,
 #' @export
 autoplot.tbl_crunch_cube <- function(object,
                                 plot_type = c("dot", "tile", "bar"),
-                                measure) {
+                                measure, ...) {
     plot_type <- match.arg(plot_type)
     display_names <- cube_attribute(object, "name")[is_dimension(object)]
 
