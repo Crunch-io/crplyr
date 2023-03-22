@@ -1,3 +1,5 @@
+# crplyr 0.4.1 (Development version)
+
 # crplyr 0.4.0
 * The first argument to `autoplot` and `plotCategorical` functions is renamed from `x` to `object`, for consistency with ggplot2's `autoplot` generic.
 

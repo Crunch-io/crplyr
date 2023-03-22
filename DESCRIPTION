@@ -7,7 +7,7 @@ Description: In order to facilitate analysis of datasets hosted on the Crunch
     'group_by', 'summarize', and 'collect' are implemented in such a way as to
     perform as much computation on the server and pull as little data locally
     as possible.
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: c(
     person("Greg", "Freedman Ellis", role=c("aut", "cre"), email="greg@crunch.io"),
     person("Jonathan", "Keane", role="aut", email="jkeane@gmail.com"),
